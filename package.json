@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "baucis": "^1.6.5",
     "bcryptjs": "^2.3.0",
     "bluebird": "^3.3.4",
     "express": "^4.13.4",

@@ -3,17 +3,21 @@ var passport 		= require('passport');
 var app 			= express();
 var bodyParser      = require('body-parser');
 var mongoose 		= require('mongoose');
-var PORT = 80;
+var PORT 			= 80; //todo: put in config, same with mongodb link
+var router 			= require('./routes');
+var dbConfig 		= require('./config/db.config');
+var serverConfig 	= require('./config/server.config');
 
-mongoose.connect('mongodb://localhost/',function(){
-		console.log("Successfully connected to MongoDB");
+
+mongoose.connect(dbConfig.DATABASE,function(){
+		console.log('Successfully connected to: ' + dbConfig.DATABASE);
 });
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', function(req, res){
-	res.send('Welcome to the Magination API. Here is a list of the current API:');
-});
+app.use('/',router(app));
 
-app.listen(PORT, function(){
-	console.log('Server listening at port:' + PORT);
+app.listen(serverConfig.PORT, function(){
+	console.log('Server listening at port:' + serverConfig.PORT);
 });
