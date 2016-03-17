@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Game = require('../../models/game/game');
+var Game = require('../../models/game/game.model');
 
 router.use(function(req, res, next) {
     //Todo add middleware?

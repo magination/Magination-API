@@ -1,6 +1,7 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var User = require('../../models/user/user.model')
+var User = require('../../models/user/user.model');
+
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -13,9 +14,12 @@ passport.deserializeUser(function(id, done) {
 });
 
 
-//TODO: make local strategy for email-authentication. 
+//TODO: support both email- and username-authentication
 
 passport.use(new LocalStrategy(
+  {
+    session:false
+  },
   function(username, password, done) {
     User.findOne({ username: username }, function (err, user) {
       if (err) { return done(err); }
