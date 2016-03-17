@@ -15,6 +15,7 @@ mongoose.connect(dbConfig.DATABASE,function(){
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(passport.initialize());
 app.use('/api',router(app));
 
 app.listen(serverConfig.PORT, function(){

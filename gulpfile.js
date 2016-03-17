@@ -1,7 +1,6 @@
 var gulp = require('gulp');
 var nodemon = require('gulp-nodemon');
 
-
 gulp.task('server', function () {
   nodemon({
     script: './server/server.js'
@@ -9,7 +8,6 @@ gulp.task('server', function () {
   , env: { 'NODE_ENV': 'development' }
   })
 })
-
 
 
 gulp.task('default', ['server']);

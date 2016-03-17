@@ -1,6 +1,6 @@
 var db = {
 	
-	DATABASE: 'mongodb://localhost/'
+	DATABASE: 'mongodb://localhost/test'
 };
 
 module.exports = db;
