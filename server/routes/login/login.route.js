@@ -16,7 +16,7 @@ module.exports = function(app){
 	    if (req.user) {
 	    	//User successfully authenticated
 	    	res.status(200);
-	    	res.json({status: 200});
+	    	res.json({token: 'hei'});
 	    }    
   });
   
