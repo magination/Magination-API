@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../../models/user/user.model');
-var registerValidate = require('./register.validate');
+var registerValidate = require('./user.validate');
 
 module.exports = function(app){
 
-	router.post('/register',registerValidate,function(req,res){
+	router.post('/users',registerValidate,function(req,res){
 		var user = new User({username: req.body.username, email: req.body.email, password: req.body.password});
 		user.save(function(err){
 			if(err){

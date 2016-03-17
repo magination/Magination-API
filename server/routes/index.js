@@ -4,7 +4,7 @@ var baucis = require('baucis');
 var router = express.Router();
 var gameRouter = require('./game/game.route');
 var loginRouter = require('./login/login.route');
-var registerRouter = require('./register/register.route');
+var userRouter = require('./user/user.route');
 
 module.exports = function(app){
 
@@ -15,7 +15,7 @@ module.exports = function(app){
 
   router.use("/", gameRouter());
   router.use('/', loginRouter());
-  router.use('/', registerRouter());
+  router.use('/', userRouter());
 
   return router;
 

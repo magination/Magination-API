@@ -8,8 +8,9 @@ var dbConfig 		= require('./config/db.config');
 var serverConfig 	= require('./config/server.config');
 
 
-mongoose.connect(dbConfig.DATABASE,function(){
-		console.log('Successfully connected to: ' + dbConfig.DATABASE);
+mongoose.connect(dbConfig.DATABASE,function(err){
+		if(err) console.log(err);
+		else console.log('Successfully connected to: ' + dbConfig.DATABASE);
 });
 
 app.use(function(req, res, next) {
