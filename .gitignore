@@ -1,2 +1,4 @@
 #all the modules used by node
 node_modules
+.DS_Store
+.idea/workspace.xml
