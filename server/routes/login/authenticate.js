@@ -14,13 +14,13 @@ passport.deserializeUser(function(id, done) {
 });
 
 
-//TODO: support both email- and username-authentication
 
 passport.use(new LocalStrategy(
   {
     session:false
   },
   function(username, password, done) {
+
     User.findOne({ username: username }, function (err, user) {
       if (err) { return done(err); }
       if (!user) return done('Incorrect username');
@@ -36,6 +36,10 @@ passport.use(new LocalStrategy(
 ));
 
 module.exports = function(req, res, next){
+  //TODO: Both email and username authentication. Handle bad request
+  if(!req.username || ! req.password){
+    res.status(403).json({message: 'bad request'});
+  }
   passport.authenticate('local', function(err, user){
       if (err) {
         res.status(403);

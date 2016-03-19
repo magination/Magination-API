@@ -3,6 +3,8 @@ var request = require('request');
 var serverConfig = require('../server/config/server.config');
 var host = serverConfig.ADRESS + serverConfig.PORT;
 
+
+
 describe('/user',function(){
 	describe('post call with incomplete json object',function(){
 		it('should return error-status 400',function(){
@@ -23,6 +25,7 @@ describe('/api',function(){
 	});
 });	
 
+
 describe('/login',function(){
 	describe('post call with incomplete json object ',function(){
 		it('should return error-status 400 ',function(){
@@ -33,6 +36,7 @@ describe('/login',function(){
 	});
 });	
 
+	
 
 
 
