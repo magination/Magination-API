@@ -38,7 +38,7 @@ passport.use(new LocalStrategy(
 module.exports = function(req, res, next){
   //TODO: Both email and username authentication. Handle bad request
   if(!req.username || ! req.password){
-    res.status(403).json({message: 'bad request'});
+    return res.status(403).json({message: 'bad request'});
   }
   passport.authenticate('local', function(err, user){
       if (err) {
