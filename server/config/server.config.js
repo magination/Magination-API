@@ -1,5 +1,5 @@
 var server = {
-	PORT:8080,
+	PORT:8000,
 	ADRESS: 'http://localhost:',
 	SECRET: 'topSecret'
 };

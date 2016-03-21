@@ -24,6 +24,14 @@ module.exports = function(app){
 		});
 	});
 
+	router.get('/users/:username', function(req,res){
+		/*TODO auth*/
+		User.findOne({username:req.params.username}, function(err, user){
+			if(err) throw err; /*TODO handle instead of throw*/
+			res.status(200).json(user);
+		});
+	});
+
 	return router;
 		
 };
