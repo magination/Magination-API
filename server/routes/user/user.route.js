@@ -40,11 +40,9 @@ module.exports = function(app){
 		    // some sort of error 
 		    if (err)
 		        if(err.name === 'ValidationError'){
-					res.status(409);
-					res.json(err.errors);
+					return res.status(409).json(err.errors);
 				}else{
-					res.status(500);
-					res.json({message: 'internal server error.'});
+					return res.status(500).json({message: 'internal server error.'});
 				}
 		    // a new user 
 		    if (newTempUser) {
@@ -64,7 +62,7 @@ module.exports = function(app){
 	});
 
 
-	router.post('/users/confirmation/:id', function(req,res){
+	router.post('/confirmation/:id', function(req,res){
 		console.log(req.params.id);
 		nev.confirmTempUser(req.params.id, function(err, user) {
     		if (err){
@@ -89,7 +87,7 @@ module.exports = function(app){
 
 		User.findOne({_id:req.params.id} ,'-password -__v', function(err, user){
 			if(err) throw err; /*TODO handle instead of throw*/
-			res.status(200).json(user);
+			return res.status(200).json(user);
 		});
 	});
 
