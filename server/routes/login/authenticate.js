@@ -15,7 +15,7 @@ passport.deserializeUser(function(id, done) {
 
 
 
-passport.use(new LocalStrategy(
+passport.use('username', new LocalStrategy(
   {
     session:false
   },
@@ -35,16 +35,50 @@ passport.use(new LocalStrategy(
   }
 ));
 
+
+passport.use('email', new LocalStrategy(
+  {
+    usernameField: 'email',
+    passwordField: 'password',
+    session:false
+  },
+  function(username, password, done) {
+
+    User.findOne({ email: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) return done('Incorrect email');
+      user.validPassword(password)
+        .then(function(result){
+          if(result) return done(null,user);
+          done('Incorrect password');
+          }).catch(function(err){
+            return done('Something went wrong :(',null);
+        });
+    });
+  }
+));
+
 module.exports = function(req, res, next){
-  //TODO: Both email and username authentication. Handle bad request
-  if(!req.body.username || ! req.body.password){
+  if(! req.body.password | (!req.body.email && !req.body.username)){
     return res.status(403).json({message: 'bad request'});
   }
-  passport.authenticate('local', function(err, user){
-      if (err) {
-        res.status(403);
-        return res.send({message: err});
-      }
-      req.logIn(user,next);
-  })(req,res,next);
+
+  if(req.body.username){
+    passport.authenticate('username', function(err, user){
+        if (err) {
+          res.status(401);
+          return res.send({message: err});
+        }
+        req.logIn(user,next);
+    })(req,res,next);
+  }
+  else if(req.body.email){
+    passport.authenticate('email', function(err, user){
+        if (err) {
+          res.status(401);
+          return res.send({message: err});
+        }
+        req.logIn(user,next);
+    })(req,res,next);
+  }
 };
