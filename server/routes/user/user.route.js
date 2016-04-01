@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var User = require('../../models/user/user.model');
 var registerValidate = require('./user.validate');
+var decodeToken = require('../login/decodeToken');
 var mongoose = require('mongoose'),
     nev = require('email-verification')(mongoose);
 
@@ -84,9 +85,9 @@ module.exports = function(app){
 		});
 	});
 
-	router.get('/users/:username/', function(req,res){
-		/*TODO auth*/
-		User.findOne({username:req.params.username} , function(err, user){
+	router.get('/users/:id/',decodeToken, function(req,res){
+
+		User.findOne({_id:req.params.id} ,'-password -__v', function(err, user){
 			if(err) throw err; /*TODO handle instead of throw*/
 			res.status(200).json(user);
 		});

@@ -15,11 +15,9 @@ var decodeToken = require('./decodeToken');
 module.exports = function(app){
 
   router.post('/login', authenticate, generateToken, function(req, res, next) {
-	    if (req.user && req.token) {
+	    if (req.user && req.data) {
 	    	//User authenticated and token generated
-	    	return res.status(200).json({	    		
-	    		token: req.token	
-	    	});
+	    	return res.status(200).json(req.data);
 	    } 
 	    else{
 	    	//This should never happen

@@ -6,16 +6,20 @@ module.exports = function(req, res,next){
 	  	{
 	  		id: req.user.id,
 	  		username: req.user.username,
+	  		email: req.user.email,
 	  		password: req.user.password,
 	  		expiresIn: 60*60*12
 		}
 		,serverConfig.SECRET);
 
-	var token = {
-		username: req.user.username,
+	console.log('hash: ' + hash);
+	var data = {
+		token: hash,
 		id: req.user.id,
-		hash: hash
+		expiresIn: 60*60*12,
 	};
-	req.token = token;
+
+	req.data = data;
+
 	next();
 };
