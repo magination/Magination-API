@@ -8,7 +8,7 @@ var mongoose = require('mongoose'),
 
 
 nev.configure({
-    verificationURL: 'http://localhost.com/confirmation/${URL}',
+    verificationURL: 'http://localhost:8080/confirmation/${URL}',
     persistentUserModel: User,
     tempUserCollection: 'magination_tempusers',
  
@@ -48,12 +48,10 @@ module.exports = function(app){
 		    if (newTempUser) {
 		        nev.registerTempUser(newTempUser, function(err) {
 		            if (err) console.log(err);
-		            console.log("user created");
 		            return res.status(200).json({message: 'Success! A confirmation email has been sent.'});
 		        });
 		 
 		    } else {
-		    	console.log("user allready exists..");
 		    	return res.status(409).json({message: 'The user allready exists. Please check your inbox for a confirmation mail.'});
 		    }
 		});
@@ -63,32 +61,46 @@ module.exports = function(app){
 
 
 	router.post('/confirmation/:id', function(req,res){
-		console.log(req.params.id);
 		nev.confirmTempUser(req.params.id, function(err, user) {
     		if (err){
-        	// handle error... 
-        		console.log('error: ' + err);
         		return res.status(500).json({message: 'internal server error.'});
         	}	
- 			
 		    if (user){
-		        //all good
 		        return res.status(200).json(user);
 			}else{
-				//TODO: Find appropriate error message and code. When will this happen?
-				return res.status(500).json({message: 'internal server error.'});
-
+				return res.status(400).json({message: 'bad request'});
 			}
 		     
 		});
 	});
 
-	router.get('/users/:id/',decodeToken, function(req,res){
 
-		User.findOne({_id:req.params.id} ,'-password -__v', function(err, user){
-			if(err) throw err; /*TODO handle instead of throw*/
-			return res.status(200).json(user);
+	router.post('/resendVerificationEmail/:email',function(req,res){
+
+		nev.resendVerificationEmail(req.params.email, function(err, emailSent) {
+		    if (err)
+		       return res.status(500).json({message: 'internal server error.'});  
+		 
+		    if (emailSent)
+		        return res.status(200).json({message: 'verification email has been resent!'});
+		    else
+		        return res.stats(404).json({message: 'the email adress could not be found.'});
 		});
+	});
+
+	router.get('/users/:id/',decodeToken, function(req,res){
+		if(req.decoded.id == req.params.id){
+			User.findOne({_id:req.params.id} ,'-password -__v', function(err, user){
+				if(err) return res.status(500).json({message: 'internal server error.'});
+				else if(user == null){
+					return res.status(404).json({message: 'the user could not be found.'});
+				}
+				else return res.status(200).json(user);
+			});
+		}	
+		else{
+			return res.status(403).json({message: 'forbidden'});
+		}
 	});
 
 	return router;

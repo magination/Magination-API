@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Game = require('../../models/game/game.model');
+var decodeToken = require('../login/decodeToken');
 
 router.use(function(req, res, next) {
     //Todo add middleware?
@@ -9,20 +10,25 @@ router.use(function(req, res, next) {
 
 module.exports = function(app){
     router.route('/games')
-        .post(function(req, res) {
-            if(!req.body.title || !req.body.description || !req.body.owner){
+        .post(decodeToken, function(req, res) {
+            if(!req.body.title || !req.body.shortDescription || !req.body.mainDescription){
                 res.status(400);
-                res.json({message : 'Missing property game title, game description or game owner.'})
+                res.json({message : 'bad request. A game should include a title, shortDescription, mainDescription and owner (id).'})
                 return;
             }
+            console.log(req.decoded);
             var game = new Game();
             game.title = req.body.title;
-            game.description = req.body.description;
-            game.owner = req.body.owner;
+            game.shortDescription = req.body.shortDescription;
+            game.mainDescription = req.body.mainDescription;
+            game.owner = req.decoded.id;
+
             game.save(function(err) {
                 if (err){
+                    console.log(err);
                     res.status(500);
                     res.json({message : 'Internal server error.'})
+                    return;
                 }
                 res.status(201);
                 res.json({
@@ -38,8 +44,8 @@ module.exports = function(app){
                     res.json({message : 'Internal server error.'})
                 }
                 res.json(game);
-            });
-        });
+            }).populate('owner', 'username');   
+        }); 
 
     router.route('/games/:game_id')
         .get(function(req, res) {
@@ -53,9 +59,9 @@ module.exports = function(app){
                 } else {
                     res.json(game);
                 }
-            })
+            }).populate('owner','username');
         })
-        .delete(function(req, res) {
+        .delete(decodeToken, function(req, res) {
             Game.remove({
                 _id: req.params.game_id
             }, function(err, game) {

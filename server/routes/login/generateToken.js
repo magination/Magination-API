@@ -12,7 +12,6 @@ module.exports = function(req, res,next){
 		}
 		,serverConfig.SECRET);
 
-	console.log('hash: ' + hash);
 	var data = {
 		token: hash,
 		id: req.user.id,

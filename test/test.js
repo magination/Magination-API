@@ -4,6 +4,7 @@ var serverConfig = require('../server/config/server.config');
 var host = serverConfig.ADRESS + serverConfig.PORT;
 
 
+/* TODO: This whole section needs to be redone. 
 
 describe('/user',function(){
 	describe('post call with incomplete json object',function(){
@@ -37,7 +38,7 @@ describe('/login',function(){
 });	
 
 	
-
+*/
 
 
 
