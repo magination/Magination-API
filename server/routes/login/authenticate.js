@@ -1,7 +1,7 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('../../models/user/user.model');
-
+var validator = require('validator');
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -33,7 +33,7 @@ passport.use('username', new LocalStrategy(
         });
     });
   }
-));
+));   
 
 
 passport.use('email', new LocalStrategy(
@@ -59,12 +59,12 @@ passport.use('email', new LocalStrategy(
 ));
 
 module.exports = function(req, res, next){
-  if(! req.body.password | (!req.body.email && !req.body.username)){
+  if(!req.body.password | (!req.body.email && !req.body.username)){
     return res.status(403).json({message: 'bad request'});
   }
 
-  if(req.body.username){
-    passport.authenticate('username', function(err, user){
+  if(validator.isEmail(req.body.username)){
+    passport.authenticate('email', function(err, user){
         if (err) {
           res.status(401);
           return res.send({message: err});
@@ -72,8 +72,8 @@ module.exports = function(req, res, next){
         req.logIn(user,next);
     })(req,res,next);
   }
-  else if(req.body.email){
-    passport.authenticate('email', function(err, user){
+  else{
+    passport.authenticate('username', function(err, user){
         if (err) {
           res.status(401);
           return res.send({message: err});

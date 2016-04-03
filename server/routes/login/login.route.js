@@ -16,11 +16,9 @@ module.exports = function(app){
 
   router.post('/login', authenticate, generateToken, function(req, res, next) {
 	    if (req.user && req.data) {
-	    	//User authenticated and token generated
 	    	return res.status(200).json(req.data);
 	    } 
 	    else{
-	    	//This should never happen
 	    	return res.status(500).json({message: 'something went wrong :('});
 	    }   
   });
