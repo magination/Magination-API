@@ -38,7 +38,7 @@ passport.use('username', new LocalStrategy(
 
 passport.use('email', new LocalStrategy(
   {
-    usernameField: 'email',
+    usernameField: 'username',
     passwordField: 'password',
     session:false
   },
@@ -59,7 +59,7 @@ passport.use('email', new LocalStrategy(
 ));
 
 module.exports = function(req, res, next){
-  if(!req.body.password | (!req.body.email && !req.body.username)){
+  if(!req.body.password || !req.body.username){
     return res.status(403).json({message: 'bad request'});
   }
 
