@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var User = require('../../models/user/user.model');
 var registerValidate = require('./user.validate');
+var validator = require('validator');
 var decodeToken = require('../login/decodeToken');
 var mongoose = require('mongoose'),
     nev = require('email-verification')(mongoose);
@@ -75,17 +76,22 @@ module.exports = function(app){
 	});
 
 
-	router.post('/resendVerificationEmail/:email',function(req,res){
-
-		nev.resendVerificationEmail(req.params.email, function(err, emailSent) {
-		    if (err)
-		       return res.status(500).json({message: 'internal server error.'});  
-		 
-		    if (emailSent)
-		        return res.status(200).json({message: 'verification email has been resent!'});
-		    else
-		        return res.stats(404).json({message: 'the email adress could not be found.'});
-		});
+	router.post('/resendVerificationEmail', function(req,res){
+		//TODO: Could this be missused? Probably. Has to be dealt with.
+		if(!req.body.email || !validator.isEmail(req.body.email)) {
+			return res.status(400).json({message: 'bad request'});
+		}
+		else{
+			nev.resendVerificationEmail(req.body.email, function(err, emailSent) {
+			    if (err)
+			       return res.status(500).json({message: 'internal server error.'});  
+			 
+			    if (emailSent)
+			        return res.status(200).json({message: 'verification email has been resent!'});
+			    else
+			        return res.stats(404).json({message: 'the email adress could not be found.'});
+			});
+		};
 	});
 
 	router.get('/users/:id/',decodeToken, function(req,res){
