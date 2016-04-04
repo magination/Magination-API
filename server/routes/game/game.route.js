@@ -16,7 +16,6 @@ module.exports = function(app){
                 res.json({message : 'bad request. A game should include a title, shortDescription, mainDescription and owner (id).'})
                 return;
             }
-            console.log(req.decoded);
             var game = new Game();
             game.title = req.body.title;
             game.shortDescription = req.body.shortDescription;

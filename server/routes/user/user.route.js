@@ -1,12 +1,17 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../../models/user/user.model');
-var registerValidate = require('./user.validate');
+var requestValidator = require('./user.request.validate');
+var uniqueValidator = require('./user.unique.validate');
 var validator = require('validator');
 var decodeToken = require('../login/decodeToken');
 var mongoose = require('mongoose'),
     nev = require('email-verification')(mongoose);
 
+
+/*
+TODO: Split this component up. Move email-config to seperate file.
+ */
 
 nev.configure({
     verificationURL: 'http://localhost:8080/confirmation/${URL}',
@@ -34,7 +39,7 @@ nev.generateTempUserModel(User);
 
 module.exports = function(app){
 
-	router.post('/users',registerValidate,function(req,res){
+	router.post('/users',requestValidator,uniqueValidator,function(req,res){
 
 		var newUser = new User({username: req.body.username, email: req.body.email, password: req.body.password});
 		nev.createTempUser(newUser, function(err, newTempUser) {
@@ -48,7 +53,7 @@ module.exports = function(app){
 		    // a new user 
 		    if (newTempUser) {
 		        nev.registerTempUser(newTempUser, function(err) {
-		            if (err) console.log(err);
+		            if (err) return res.status(500).json({message: 'internal server error.'});
 		            return res.status(200).json({message: 'Success! A confirmation email has been sent.'});
 		        });
 		 
@@ -95,7 +100,7 @@ module.exports = function(app){
 	});
 
 	router.get('/users/:id/',decodeToken, function(req,res){
-		if(req.decoded.id == req.params.id){
+		if(req.decoded.id === req.params.id){
 			User.findOne({_id:req.params.id} ,'-password -__v', function(err, user){
 				if(err) return res.status(500).json({message: 'internal server error.'});
 				else if(user == null){

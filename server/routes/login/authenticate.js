@@ -60,7 +60,7 @@ passport.use('email', new LocalStrategy(
 
 module.exports = function(req, res, next){
   if(!req.body.password || !req.body.username){
-    return res.status(403).json({message: 'bad request'});
+    return res.status(400).json({message: 'bad request'});
   }
 
   if(validator.isEmail(req.body.username)){

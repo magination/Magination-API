@@ -7,12 +7,13 @@ var router 			= require('./routes');
 var dbConfig 		= require('./config/db.config');
 var serverConfig 	= require('./config/server.config');
 
-
-mongoose.connect(dbConfig.DATABASE,function(err){
+if(mongoose.connection.readyState === 0){
+	mongoose.connect(dbConfig.DATABASE.test,function(err){
 		if(err) console.log(err);
-		else console.log('Successfully connected to: ' + dbConfig.DATABASE);
-});
-
+		else console.log('Successfully connected to: ' + dbConfig.DATABASE.test);
+	});
+};
+   
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

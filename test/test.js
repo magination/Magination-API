@@ -1,46 +1,35 @@
+var mocha = require('mocha');
 var assert = require('assert');
 var request = require('request');
-var serverConfig = require('../server/config/server.config');
-var host = serverConfig.ADRESS + serverConfig.PORT;
+var mongoose = require('mongoose');
+var dbConfig = require('../server/config/db.config');
 
 
-/* TODO: This whole section needs to be redone. 
+function importTest(name, path) {
+    describe(name, function () {
+        require(path);
+    });
+}
 
-describe('/user',function(){
-	describe('post call with incomplete json object',function(){
-		it('should return error-status 400',function(){
-			request.post(host + '/users').on('response',function(respone){
-				assert.equal(400,response.statusCode);
-			});
-		});
+describe("Starting tests", function () {
+	before(function(done){
+        if(mongoose.connection.readyState === 0){
+		  mongoose.connect(dbConfig.DATABASE.test);
+        }
+        mongoose.connection.db.dropDatabase();
+        done();
 	});
-});	
 
-describe('/api',function(){
-	describe('get call ',function(){
-		it('should return success status 200',function(){
-			request.get(host+ '/api').on('response',function(respone){
-				assert.equal(200,response.statusCode);
-			});
-		});
-	});
-});	
+    importTest("Testing user.model", './models/user/user.model.test');
+    importTest("Testing game.model", './models/game/game.model.test');
+    importTest("Testing user.route", './routes/user/user.route.test');
+    importTest("Testing game.route", './routes/game/game.route.test');
+    importTest("Testing login.route", './routes/login/login.route.test');
 
 
-describe('/login',function(){
-	describe('post call with incomplete json object ',function(){
-		it('should return error-status 400 ',function(){
-			request.post(host+ '/api/login').on('response',function(respone){
-				assert.equal(400,response.statusCode);
-			});
-		});
-	});
-});	
-
-	
-*/
-
-
-
-
-
+    after(function (done) {
+        mongoose.connection.db.dropDatabase();
+    	mongoose.disconnect();
+    	done();
+    });
+});
