@@ -7,6 +7,4 @@ UNDER DEVELOPMENT, DO NOT USE!
 #Installation
 
 Email-configuration file must be editet before running.
-
-Run npm install
-Start with gulp.
+npm install , then run with gulp.
