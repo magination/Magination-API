@@ -18,8 +18,10 @@ before(function (done) {
 });
 
 after(function (done) {
-	mongoose.connection.db.dropDatabase();
-	done();
+	mongoose.connection.db.dropDatabase(function (err) {
+		if (err) throw err;
+		done();
+	});
 });
 
 it('saves a game', function (done) {

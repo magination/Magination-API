@@ -6,7 +6,7 @@ var dbConfig = require('../server/config/db.config');
 var testConfig = require('./test.config');
 var User = require('../server/models/user/user.model');
 
-function importTest(name, path) {
+function importTest (name, path) {
 	describe(name, function () {
 		require(path);
 	});
@@ -15,10 +15,20 @@ function importTest(name, path) {
 describe('Starting tests', function () {
 	before(function (done) {
 		if (mongoose.connection.readyState === 0) {
-			mongoose.connect(dbConfig.DATABASE.test);
+			mongoose.connect(dbConfig.DATABASE.test, function (err) {
+				if (err) throw err;
+				mongoose.connection.db.dropDatabase(function (err) {
+					if (err) throw err;
+					done();
+				});
+			});
 		}
-		mongoose.connection.db.dropDatabase();
-		done();
+		else {
+			mongoose.connection.db.dropDatabase(function (err) {
+				if (err) throw err;
+				done();
+			});
+		}
 	});
 
 	importTest('Testing user.model', './models/user/user.model.test');
@@ -28,8 +38,16 @@ describe('Starting tests', function () {
 	importTest('Testing login.route', './routes/login/login.route.test');
 
 	after(function (done) {
-		mongoose.connection.db.dropDatabase();
-		mongoose.disconnect();
-		done();
+		mongoose.connection.db.dropDatabase(function (err) {
+			if (err) throw err;
+			var testUser = new User(testConfig.USER_TESTUSER);
+			testUser.save(function (err) {
+				if (err) throw err;
+				mongoose.connection.close(function (err) {
+					if (err) throw err;
+					done();
+				});
+			});
+		});
 	});
 });

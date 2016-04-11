@@ -6,8 +6,10 @@ var testconfig = require('../../test.config');
 var currentUser = null;
 
 after(function (done) {
-	mongoose.connection.db.dropDatabase();
-	done();
+	mongoose.connection.db.dropDatabase(function (err) {
+		if (err) throw err;
+		done();
+	});
 });
 
 it('saves a user', function (done) {

@@ -16,8 +16,10 @@ before(function (done) {
 });
 
 after(function (done) {
-	mongoose.connection.db.dropDatabase();
-	done();
+	mongoose.connection.db.dropDatabase(function (err) {
+		if (err) throw err;
+		done();
+	});
 });
 
 it('POST /api/login - should return 400 when json-object is faulty', function (done) {
