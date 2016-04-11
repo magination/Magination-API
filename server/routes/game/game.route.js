@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Game = require('../../models/game/game.model');
+var User = require('../../models/user/user.model');
 var decodeToken = require('../login/decodeToken');
 
 router.use(function (req, res, next) {
@@ -10,16 +11,19 @@ router.use(function (req, res, next) {
 module.exports = function (app) {
 	router.route('/games')
 		.post(decodeToken, function (req, res) {
-			if (!req.body.title || !req.body.shortDescription || !req.body.mainDescription) {
+			if (!req.body.title || !req.body.mainDescription) {
 				res.status(400);
 				res.json({message: 'bad request. A game should include a title, shortDescription, mainDescription and owner (id).'});
 				return;
 			}
 			var game = new Game();
 			game.title = req.body.title;
-			game.shortDescription = req.body.shortDescription;
 			game.mainDescription = req.body.mainDescription;
 			game.owner = req.decoded.id;
+			game.pieces.singles = 1;
+			game.pieces.doubles = 1;
+			game.pieces.triples = 1;
+			game.numberOfPlayers = 1;
 
 			game.save(function (err) {
 				if (err) {
@@ -33,13 +37,42 @@ module.exports = function (app) {
 					message: 'Game ' + game.id + ' created!'
 				});
 			});
-		})
-		.get(function (req, res) {
-			Game.find(function (err, game) {
-				if (err) res.status(500).json({message: 'Internal server error.'});
-				else res.json(game);
-			}).populate('owner', 'username');
 		});
+
+	var parseSearchQuery = function (req, res, next) {
+		var query = {};
+		if (req.query.title) query.title = {'$regex': req.query.title, '$options': 'i'};
+		if (req.query.singles) query['pieces.singles'] = {'$lte': req.query.singles};
+		if (req.query.doubles) query['pieces.doubles'] = {'$lte': req.query.doubles};
+		if (req.query.triples) query['pieces.triples'] = {'$lte': req.query.triples};
+		if (req.query.numberOfPlayers) query.numberOfPlayers = {'$lte': req.query.numberOfPlayers};
+		if (req.query.owner) query.owner = req.query.owner;
+		req.query = query;
+		next();
+	};
+
+	var populateOwnerField = function (req, res, next) {
+		if (!req.query) {
+			req.query = {};
+			next();
+		}
+		if (req.query.owner) {
+			User.findOne({username: req.query.owner}, '-password -__v', function (err, user) {
+				if (err) return res.status(500).json({message: 'internal server error'});
+				if (user == null) return res.status(200).json({});
+				else req.query.owner = user._id;
+				next();
+			});
+		}
+		else next();
+	};
+
+	router.route('/games').get(populateOwnerField, parseSearchQuery, function (req, res) {
+		Game.find(req.query, '-__v', function (err, game) {
+			if (err) res.status(500).json({mesage: err});
+			else res.json(game);
+		}).populate('owner', 'username');
+	});
 
 	router.route('/games/:game_id')
 		.get(function (req, res) {

@@ -1,7 +1,7 @@
 
 var emailConfig = {
-	EMAIL_ADRESS: 'somemail@example.com',
-	EMAIL_PASSWORD: 'topSecret'
+	EMAIL_ADRESS: 'test@test.com',
+	EMAIL_PASSWORD: 'test'
 };
 
 module.exports = emailConfig;
