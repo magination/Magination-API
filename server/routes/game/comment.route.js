@@ -58,7 +58,7 @@ module.exports = function (app) {
 	router.put('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
 		Comment.findById({_id: req.params.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: 'internal server error'});
-			if(!comment) return.res.status(404).json({message: 'comment with the specified id was not found'});
+			if (!comment) return res.status(404).json({message: 'comment with the specified id was not found'});
 			comment.commentText = req.body.commentText;
 			comment.save(function (err, comment) {
 				if (err) return res.status(500).json({message: 'internal server error'});
