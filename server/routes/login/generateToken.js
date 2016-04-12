@@ -13,7 +13,7 @@ module.exports = function (req, res, next) {
 	var data = {
 		token: hash,
 		id: req.user.id,
-		expiresIn: 60 * 60 * 12
+		expiresIn: Date.now() + (60 * 60 * 12 * 1000)
 	};
 
 	req.data = data;
