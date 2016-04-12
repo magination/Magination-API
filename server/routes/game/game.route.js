@@ -37,6 +37,7 @@ module.exports = function (app) {
 					message: 'Game ' + game.id + ' created!'
 				});
 			});
+
 		});
 
 	var parseSearchQuery = function (req, res, next) {
@@ -77,9 +78,9 @@ module.exports = function (app) {
 	router.route('/games/:game_id')
 		.get(function (req, res) {
 			Game.findById(req.params.game_id, function (err, game) {
-				if (err) res.send(err);
-				if (game == null) res.status(404).json({message: 'Game not found.'});
-				else res.json(game);
+				if (err) return res.send(err);
+				if (game == null) return res.status(404).json({message: 'Game not found.'});
+				else return res.json(game);
 			}).populate('owner', 'username');
 		})
 		.delete(decodeToken, function (req, res) {
