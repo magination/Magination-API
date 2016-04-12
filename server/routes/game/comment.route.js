@@ -12,15 +12,14 @@ module.exports = function (app) {
 			else return res.status(200).json(game);
 		}).select('comments -_id').populate({
 			path: 'comments',
-			select: 'username',
 			populate: {
-				path: '_userId'
+				path: 'owner',
+				select: 'username'
 			}
 		});
 	});
 
 	var validateCommentRequest = function (req, res, next) {
-		console.log(req.body.commentText);
 		if (!req.body.commentText) {
 			return res.status(400).json({message: 'bad request'});
 		}
@@ -37,7 +36,7 @@ module.exports = function (app) {
 
 	router.delete('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
 		Comment.remove({
-			_id: req.params.commentId, _userId: req.decoded.id
+			_id: req.params.commentId, owner: req.decoded.id
 		}, function (err, comment) {
 			if (!comment) return res.status(404).json({message: 'Comment with given id was not found'});
 			if (err) return res.status(500).json({message: 'internal server error'});
@@ -46,7 +45,7 @@ module.exports = function (app) {
 	});
 
 	router.post('/games/:gameId/comments/', validateCommentRequest, validateGameId, decodeToken, function (req, res) {
-		var newComment = new Comment({commentText: req.body.commentText, _gameId: req.params.gameId, _userId: req.decoded.id});
+		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.decoded.id});
 		newComment.save(function (err, comment) {
 			if (err) return res.status(500).json({message: 'Internal server error.'});
 			else return res.status(201).json(comment);

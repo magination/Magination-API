@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 var Game = require('../game/game.model');
 
 var commentSchema = new mongoose.Schema({
-	_userId: {type: mongoose.Schema.Types.ObjectId, ref: 'user', requred: true},
-	_gameId: {type: mongoose.Schema.Types.ObjectId, ref: 'game', required: true},
+	owner: {type: mongoose.Schema.Types.ObjectId, ref: 'user', requred: true},
+	game: {type: mongoose.Schema.Types.ObjectId, ref: 'game', required: true},
 	commentText: {type: String, required: true},
 	createdAt: {type: Date},
 	updatedAt: {type: Date}
@@ -19,8 +19,7 @@ commentSchema.pre('update', function (next) {
 });
 
 commentSchema.post('save', function (next) {
-	console.log(this._gameId);
-	Game.findByIdAndUpdate(this._gameId,
+	Game.findByIdAndUpdate(this.game,
 	{$push: {'comments': this._id}},
 	function (err, model) {
 		if (err) throw new Error(err);
@@ -29,7 +28,7 @@ commentSchema.post('save', function (next) {
 });
 
 commentSchema.post('remove', function (next) {
-	Game.findByIdAndUpdate(this._gameId,
+	Game.findByIdAndUpdate(this.game,
 	{$pull: {'comments': this._id}},
 	function (err, model) {
 		if (err) throw new Error(err);
