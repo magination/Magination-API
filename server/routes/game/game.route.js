@@ -37,7 +37,7 @@ module.exports = function (app) {
 					message: 'Game ' + game.id + ' created!'
 				});
 			});
-
+			console.log(game._id);
 		});
 
 	var parseSearchQuery = function (req, res, next) {

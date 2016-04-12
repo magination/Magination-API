@@ -9,7 +9,8 @@ var gameSchema = new mongoose.Schema({
 		triples: {type: Number}
 	},
 	numberOfPlayers: {type: Number},
-	owner: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user'}
+	owner: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user'},
+	comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'comment'}]
 });
 
 module.exports = mongoose.model('game', gameSchema);
