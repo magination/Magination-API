@@ -1,9 +1,15 @@
 var testconfig = {
 	USER_TESTUSER:
 	{
-		username: 'testuser',
+		username: 'admin',
 		email: 'testuser@test.test',
-		password: 'test'
+		password: 'admin'
+	},
+	USER_TESTUSER2:
+	{
+		username: 'admin2',
+		email: 'test2test2@test2.com',
+		password: 'admin'
 	},
 	USER_VALID:
 	{
@@ -16,5 +22,6 @@ var testconfig = {
 		username: 'test',
 		password: 'test'
 	}
+
 };
 module.exports = testconfig;

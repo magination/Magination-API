@@ -40,9 +40,14 @@ describe('Starting tests', function () {
 			var testUser = new User(testConfig.USER_TESTUSER);
 			testUser.save(function (err) {
 				if (err) return done(err);
-				mongoose.connection.close(function (err) {
+				if (err) return done(err);
+				var testUser2 = new User(testConfig.USER_TESTUSER2);
+				testUser2.save(function (err) {
 					if (err) return done(err);
-					done();
+					mongoose.connection.close(function (err) {
+						if (err) return done(err);
+						return done();
+					});
 				});
 			});
 		});
