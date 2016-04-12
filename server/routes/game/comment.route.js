@@ -56,12 +56,21 @@ module.exports = function (app) {
 	});
 
 	router.put('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
-		Comment.findOneAndUpdate({_id: req.params.commentId}, {commentText: req.body.commentText}, function (err, comment) {
+		Comment.findById({_id: req.props.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: 'internal server error'});
-			if (!comment) return res.status(404).json({message: 'comment was not found'});
-			else return res.status(200).json(comment);
-		})
-		.populate('owner', 'username');
+			var created = false;
+			if (!comment) {
+				comment = new Comment({game: req.props.gameId, owner: req.decoded.id});
+				created = true;
+			}
+			comment.commentText = req.body.commentText;
+			comment.save(function (err, comment) {
+				if (err) return res.status(500).json({message: 'internal server error'});
+				comment.populate('owner', 'username');
+				if (created) return res.status(201).json(comment);
+				else return res.status(200).json(comment);
+			});
+		});
 	});
 	return router;
 };
