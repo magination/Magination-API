@@ -48,8 +48,20 @@ module.exports = function (app) {
 		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.decoded.id});
 		newComment.save(function (err, comment) {
 			if (err) return res.status(500).json({message: 'Internal server error.'});
-			else return res.status(201).json(comment);
+			Comment.findById(comment._id, function (err, comment) {
+				if (err || !comment) return res.status(500).json({message: 'internal server error'});
+				else return res.status(201).json(comment);
+			}).populate('owner', 'username');
 		});
+	});
+
+	router.put('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
+		Comment.findOneAndUpdate({_id: req.params.commentId}, {commentText: req.body.commentText}, function (err, comment) {
+			if (err) return res.status(500).json({message: 'internal server error'});
+			if (!comment) return res.status(404).json({message: 'comment was not found'});
+			else return res.status(200).json(comment);
+		})
+		.populate('owner', 'username');
 	});
 	return router;
 };

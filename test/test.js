@@ -1,6 +1,3 @@
-var mocha = require('mocha');
-var assert = require('assert');
-var request = require('request');
 var mongoose = require('mongoose');
 var dbConfig = require('../server/config/db.config');
 var testConfig = require('./test.config');
@@ -16,16 +13,16 @@ describe('Starting tests', function () {
 	before(function (done) {
 		if (mongoose.connection.readyState === 0) {
 			mongoose.connect(dbConfig.DATABASE.test, function (err) {
-				if (err) throw err;
+				if (err) return done(err);
 				mongoose.connection.db.dropDatabase(function (err) {
-					if (err) throw err;
+					if (err) return done(err);
 					done();
 				});
 			});
 		}
 		else {
 			mongoose.connection.db.dropDatabase(function (err) {
-				if (err) throw err;
+				if (err) return done(err);
 				done();
 			});
 		}
@@ -39,12 +36,12 @@ describe('Starting tests', function () {
 
 	after(function (done) {
 		mongoose.connection.db.dropDatabase(function (err) {
-			if (err) throw err;
+			if (err) return done(err);
 			var testUser = new User(testConfig.USER_TESTUSER);
 			testUser.save(function (err) {
-				if (err) throw err;
+				if (err) return done(err);
 				mongoose.connection.close(function (err) {
-					if (err) throw err;
+					if (err) return done(err);
 					done();
 				});
 			});

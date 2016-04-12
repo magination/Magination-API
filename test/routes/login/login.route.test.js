@@ -1,6 +1,4 @@
 var mongoose = require('mongoose');
-var assert = require('assert');
-var expect = require('chai').expect;
 var request = require('supertest');
 var User = require('../../../server/models/user/user.model');
 var serverconfig = require('../../../server/config/server.config');
@@ -10,14 +8,14 @@ var url = serverconfig.ADRESS + serverconfig.PORT;
 before(function (done) {
 	var newUser = new User(testconfig.USER_TESTUSER);
 	newUser.save(function (err) {
-		if (err) throw err;
+		if (err) return done(err);
 		done();
 	});
 });
 
 after(function (done) {
 	mongoose.connection.db.dropDatabase(function (err) {
-		if (err) throw err;
+		if (err) return done(err);
 		done();
 	});
 });
@@ -28,7 +26,7 @@ it('POST /api/login - should return 400 when json-object is faulty', function (d
 	.set('Accept', 'application/json')
 	.expect(400)
 	.end(function (err, res) {
-		if (err) throw err;
+		if (err) return done(err);
 		done();
 	});
 });
@@ -40,7 +38,7 @@ it('POST /api/login - should return 401 when json-object contains invalid creden
 	.send(testconfig.USER_INVALID)
 	.expect(401)
 	.end(function (err, res) {
-		if (err) throw err;
+		if (err) return done(err);
 		done();
 	});
 });
@@ -56,7 +54,7 @@ it('POST /api/login - should return 200 when json-object contains valid credenti
 	.send(testconfig.USER_TESTUSER)
 	.expect(200)
 	.end(function (err, res) {
-		if (err) throw err;
+		if (err) return done(err);
 		done();
 	});
 });

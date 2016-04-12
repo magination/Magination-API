@@ -1,10 +1,6 @@
-var mongoose = require('mongoose');
-var assert = require('assert');
-var expect = require('chai').expect;
 var request = require('supertest');
 var serverconfig = require('../../../server/config/server.config');
 var url = serverconfig.ADRESS + serverconfig.PORT;
-var Game = require('../../../server/models/game/game.model');
 
 it('GET /api/games - should return availiable games', function (done) {
 	request(url)
