@@ -20,7 +20,7 @@ commentSchema.pre('update', function (next) {
 
 commentSchema.post('save', function (next) {
 	Game.findByIdAndUpdate(this.game,
-	{$push: {'comments': this._id}},
+	{$addToSet: {'comments': this._id}},
 	function (err, model) {
 		if (err) throw new Error(err);
 	}
