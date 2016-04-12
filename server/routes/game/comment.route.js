@@ -56,11 +56,11 @@ module.exports = function (app) {
 	});
 
 	router.put('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
-		Comment.findById({_id: req.props.commentId}, function (err, comment) {
+		Comment.findById({_id: req.params.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: 'internal server error'});
 			var created = false;
 			if (!comment) {
-				comment = new Comment({game: req.props.gameId, owner: req.decoded.id});
+				comment = new Comment({game: req.params.gameId, owner: req.decoded.id});
 				created = true;
 			}
 			comment.commentText = req.body.commentText;
