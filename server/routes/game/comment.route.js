@@ -62,8 +62,10 @@ module.exports = function (app) {
 			comment.commentText = req.body.commentText;
 			comment.save(function (err, comment) {
 				if (err) return res.status(500).json({message: 'internal server error'});
-				comment.populate('owner', 'username');
-				return res.status(200).json(comment);
+				comment.populate('owner', 'username', function (err) {
+					if (err) return res.status(500).json({message: 'internal server error'});
+					return res.status(200).json(comment);
+				});
 			});
 		});
 	});
