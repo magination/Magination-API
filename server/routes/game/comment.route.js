@@ -40,7 +40,7 @@ module.exports = function (app) {
 		}, function (err, comment) {
 			if (!comment) return res.status(404).json({message: 'Comment with given id was not found'});
 			if (err) return res.status(500).json({message: 'internal server error'});
-			else res.json({message: 'Successfully deleted comment'});
+			else res.status(200).json({_id: req.params.commentId});
 		});
 	});
 
