@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var dbConfig = require('../server/config/db.config');
 var testConfig = require('./test.config');
 var User = require('../server/models/user/user.model');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Done to accept self signed HTTPS certfificate.
 
 function importTest (name, path) {
 	describe(name, function () {

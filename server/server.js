@@ -6,6 +6,8 @@ var mongoose 		= require('mongoose');
 var router 			= require('./routes');
 var dbConfig 		= require('./config/db.config');
 var serverConfig 	= require('./config/server.config');
+var https 			= require('https');
+var fs = require('fs');
 
 if (mongoose.connection.readyState === 0) {
 	mongoose.connect(dbConfig.DATABASE.test, function (err) {
@@ -21,12 +23,18 @@ app.use(function (req, res, next) {
 	next();
 });
 
+var options = {
+	key: fs.readFileSync('./server/https/key.pem'),
+	cert: fs.readFileSync('./server/https/cert.pem')
+};
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 app.use('/api', router(app));
 
-app.listen(serverConfig.PORT, function () {
-	console.log('Server listening at port:' + serverConfig.PORT);
+https.createServer(options, app).listen(serverConfig.PORT, function (err) {
+	if (err) console.log(err);
+	else console.log('Server listening at: ' + serverConfig.PORT);
 });
+
