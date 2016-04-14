@@ -48,7 +48,9 @@ module.exports = function (app) {
 		if (req.query.triples) query['pieces.triples'] = {'$lte': req.query.triples};
 		if (req.query.numberOfPlayers) query.numberOfPlayers = {'$lte': req.query.numberOfPlayers};
 		if (req.query.owner) query.owner = req.query.owner;
+		if (req.query.search) query['$text'] = {$search: req.query.search};
 		req.query = query;
+		console.log(query);
 		next();
 	};
 
@@ -82,6 +84,21 @@ module.exports = function (app) {
 				if (game == null) return res.status(404).json({message: 'Game not found.'});
 				else return res.json(game);
 			}).populate('owner', 'username');
+		})
+		.put(decodeToken, function (req, res) {
+			Game.findById({_id: req.params.game_id}, function (err, game) {
+				if (err) return res.status(500).json({message: 'internal server error'});
+				if (!game) return res.status(404).json({message: 'game with the specified id was not found'});
+				if (req.body.title) game.title = req.body.title;
+				if (req.body.mainDescription) game.mainDescription = req.body.mainDescription;
+				game.save(function (err, comment) {
+					if (err) return res.status(500).json({message: 'internal server error'});
+					comment.populate('owner', 'username', function (err) {
+						if (err) return res.status(500).json({message: 'internal server error'});
+						return res.status(200).json(comment);
+					});
+				});
+			});
 		})
 		.delete(decodeToken, function (req, res) {
 			Game.remove({
