@@ -3,6 +3,7 @@ var router = express.Router();
 var Game = require('../../models/game/game.model');
 var User = require('../../models/user/user.model');
 var decodeToken = require('../login/decodeToken');
+var Rating = require('../../models/rating/rating.model');
 
 router.use(function (req, res, next) {
 	next();
@@ -113,6 +114,50 @@ module.exports = function (app) {
 				else res.json({ message: 'Successfully deleted game ' + req.params.game_id });
 			});
 		});
-
+	router.route('/games/:game_id/ratings')
+		.put(decodeToken, function (req, res) {
+			if (!req.body.rating) {
+				return res.status(400).json({message: 'Missing parameter rating.'});
+			}
+			if (req.body.rating > 5 || req.body.rating < 1) {
+				return res.status(400).json({message: 'Invalid parameter value for rating (Minumum 1, maximum 5.'});
+			}
+			Game.findById(req.params.game_id, function (err, game) {
+				if (err) {
+					return res.status(500).json({message: 'Internal server error.'});
+				}
+				if (game === null) return res.status(404).json({message: 'Game not found.'});
+				var newRating;
+				var newVoteCount;
+				Rating.findOne({_userId: req.decoded.id, _gameId: req.params.game_id}, function (err, rating) {
+					if (err) return res.status(500).json({message: 'Internal server error.'});
+					if (rating !== null) {
+						if (rating.rating === req.params.rating) {
+							res.status(409);
+							res.json({message: 'Already rated with given value.'});
+							return;
+						}
+						newRating = game.sumOfVotes;
+						newRating -= rating.rating;
+						newRating += req.body.rating;
+						newVoteCount = game.numberOfVotes;
+					}
+					else {
+						newRating = game.sumOfVotes + req.body.rating;
+						newVoteCount = game.numberOfVotes;
+						newVoteCount++;
+					};
+					Rating.findOneAndUpdate({_userId: req.decoded.id, _gameId: req.params.game_id}, {rating: req.body.rating}, {upsert: true}, function (err) {
+						if (err) return res.status(500).json({message: 'Internal server error.'});
+						Game.findOneAndUpdate({_id: req.params.game_id}, {numberOfVotes: newVoteCount, sumOfVotes: newRating}, {upsert: false}, function (err) {
+							if (err) {
+								return;
+							}
+							return res.status(201).json({message: 'Rating updated!'});
+						});
+					});
+				});
+			});
+		});
 	return router;
 };

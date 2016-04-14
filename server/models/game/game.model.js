@@ -10,7 +10,9 @@ var gameSchema = new mongoose.Schema({
 	},
 	numberOfPlayers: {type: Number},
 	owner: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user'},
-	comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'comment'}]
+	comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'comment'}],
+	numberOfVotes: {type: Number, default: 0},
+	sumOfVotes: {type: Number, default: 0}
 });
 
 gameSchema.index({title: 'text', mainDescription: 'text'});
