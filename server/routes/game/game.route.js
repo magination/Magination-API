@@ -91,11 +91,11 @@ module.exports = function (app) {
 				if (!game) return res.status(404).json({message: 'game with the specified id was not found'});
 				if (req.body.title) game.title = req.body.title;
 				if (req.body.mainDescription) game.mainDescription = req.body.mainDescription;
-				game.save(function (err, comment) {
+				game.save(function (err, game) {
 					if (err) return res.status(500).json({message: 'internal server error'});
-					comment.populate('owner', 'username', function (err) {
+					game.populate('owner', 'username', function (err) {
 						if (err) return res.status(500).json({message: 'internal server error'});
-						return res.status(200).json(comment);
+						return res.status(200).json(game);
 					});
 				});
 			});
