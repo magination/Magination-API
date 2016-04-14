@@ -10,12 +10,15 @@ var commentSchema = new mongoose.Schema({
 });
 
 commentSchema.pre('save', function (next) {
-	this.createdAt = Date.now();
+	if (!this.createdAt) this.createdAt = Date.now();
+	this.updatedAt = Date.now();
 	next();
 });
 
 commentSchema.pre('update', function (next) {
-	this.updatedA = Date.now();
+	if (!this.createdAt) this.createdAt = Date.now();
+	this.updatedAt = Date.now();
+	next();
 });
 
 commentSchema.post('save', function (next) {

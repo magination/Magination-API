@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 
 var gameSchema = new mongoose.Schema({
-	title: {type: String, required: true},
-	mainDescription: {type: String, required: true},
+	title: {type: String, required: true, autoIndex: true},
+	mainDescription: {type: String, required: true, autoIndex: true},
 	pieces: {
 		singles: {type: Number},
 		doubles: {type: Number},
@@ -14,6 +14,7 @@ var gameSchema = new mongoose.Schema({
 });
 
 gameSchema.index({title: 'text', mainDescription: 'text'});
+
 gameSchema.on('index', function (err) {
 	if (err) {
 		console.error('User index error: %s', err);
