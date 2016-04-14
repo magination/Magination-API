@@ -1,6 +1,6 @@
 var server = {
 	PORT: 8000,
-	ADRESS: 'http://localhost:',
+	ADRESS: 'https://localhost:',
 	SECRET: 'topSecret'
 };
 
