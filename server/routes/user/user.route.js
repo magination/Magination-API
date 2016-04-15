@@ -40,7 +40,7 @@ module.exports = function (app) {
 		nev.createTempUser(newUser, function (err, newTempUser) {
 			if (err) {
 				if (err.name === 'ValidationError') {
-					return res.status(409).json(err.errors);
+					return res.status(409).json({message: constants.httpResponseMessages.conflict});
 				}
 				else {
 					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
@@ -53,7 +53,7 @@ module.exports = function (app) {
 				});
 			}
 			else {
-				return res.status(409).json({message: 'The user already exists. Please check your inbox for a confirmation mail.'});
+				return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			}
 		});
 	});

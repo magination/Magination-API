@@ -129,7 +129,7 @@ module.exports = function (app) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					if (rating !== null) {
 						if (rating.rating === req.params.rating) {
-							return res.status(409).json({message: constants.httpResponseMessages.alreadyExists});
+							return res.status(409).json({message: constants.httpResponseMessages.conflict});
 						}
 						newRating = game.sumOfVotes;
 						newRating -= rating.rating;
