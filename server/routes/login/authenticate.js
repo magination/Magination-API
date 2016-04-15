@@ -2,6 +2,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('../../models/user/user.model');
 var validator = require('validator');
+var constants = require('../../config/constants.config');
 
 passport.serializeUser(function (user, done) {
 	done(null, user.id);
@@ -58,18 +59,18 @@ module.exports = function (req, res, next) {
 		this explains this somewhat weird setup.
 	 */
 	if (!req.body.password || !req.body.username) {
-		return res.status(400).json({message: 'bad request'});
+		return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 	}
 
 	if (validator.isEmail(req.body.username)) {
 		passport.authenticate('email', function (err, user) {
-			if (err) return res.status(401).json({message: err});
+			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			else req.logIn(user, next);
 		})(req, res, next);
 	}
 	else {
 		passport.authenticate('username', function (err, user) {
-			if (err) return res.status(401).json({message: err});
+			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			else req.logIn(user, next);
 		})(req, res, next);
 	}

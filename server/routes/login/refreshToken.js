@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 var serverConfig = require('../../config/server.config');
 var User = require('../../models/user/user.model');
+var constants = require('../../config/constants.config');
 
 module.exports = function (req, res, next) {
 	User.findById(req.decoded.id, function (err, user) {
 		if (err) return res.status(500).json({message: 'internal server error'});
 		if (!user) return res.status(404).json({message: 'user could not be found'});
-		if (req.decoded.password !== user.password) return res.status(403).json({message: 'forbidden'});
+		if (req.decoded.password !== user.password) return res.status(403).json({message: constants.httpResponseMessages.internalServerError});
 
 		var hash = jwt.sign({
 			id: user.id,

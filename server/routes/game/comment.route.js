@@ -3,12 +3,13 @@ var router = express.Router();
 var Comment = require('../../models/comment/comment.model');
 var Game = require('../../models/game/game.model');
 var decodeToken = require('../login/decodeToken');
+var constants = require('../../config/constants.config');
 
 module.exports = function (app) {
 	router.get('/games/:gameId/comments/', function (req, res) {
 		Game.findById({_id: req.params.gameId}, function (err, game) {
-			if (err) return res.status(500).json({message: 'internal server error'});
-			if (!game) return res.status(404).json({message: 'game could not be found'});
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			else return res.status(200).json(game);
 		}).select('comments -_id').populate({
 			path: 'comments',
@@ -21,15 +22,15 @@ module.exports = function (app) {
 
 	var validateCommentRequest = function (req, res, next) {
 		if (!req.body.commentText) {
-			return res.status(400).json({message: 'bad request'});
+			return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 		}
 		else next();
 	};
 
 	var validateGameId = function (req, res, next) {
 		Game.findById({_id: req.params.gameId}, function (err, game) {
-			if (err) return res.status(500).json({message: 'internal server error'});
-			if (!game) return res.status(404).json({message: 'game could not be found'});
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			else next();
 		});
 	};
@@ -38,8 +39,8 @@ module.exports = function (app) {
 		Comment.remove({
 			_id: req.params.commentId, owner: req.decoded.id
 		}, function (err, comment) {
-			if (!comment) return res.status(404).json({message: 'Comment with given id was not found'});
-			if (err) return res.status(500).json({message: 'internal server error'});
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			else res.status(200).json({_id: req.params.commentId});
 		});
 	});
@@ -47,9 +48,9 @@ module.exports = function (app) {
 	router.post('/games/:gameId/comments/', validateCommentRequest, validateGameId, decodeToken, function (req, res) {
 		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.decoded.id});
 		newComment.save(function (err, comment) {
-			if (err) return res.status(500).json({message: 'Internal server error.'});
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			Comment.findById(comment._id, function (err, comment) {
-				if (err || !comment) return res.status(500).json({message: 'internal server error'});
+				if (err || !comment) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				else return res.status(201).json(comment);
 			}).populate('owner', 'username');
 		});
@@ -57,13 +58,13 @@ module.exports = function (app) {
 
 	router.put('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
 		Comment.findById({_id: req.params.commentId}, function (err, comment) {
-			if (err) return res.status(500).json({message: 'internal server error'});
-			if (!comment) return res.status(404).json({message: 'comment with the specified id was not found'});
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			comment.commentText = req.body.commentText;
 			comment.save(function (err, comment) {
-				if (err) return res.status(500).json({message: 'internal server error'});
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				comment.populate('owner', 'username', function (err) {
-					if (err) return res.status(500).json({message: 'internal server error'});
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					return res.status(200).json(comment);
 				});
 			});
