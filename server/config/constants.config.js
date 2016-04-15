@@ -1,16 +1,21 @@
 var constants = {
 	httpResponseMessages: {
-		ok: 'Success.',
+		/* 2xx */
+		ok: 'OK.',
 		created: 'Created.',
+		noContent: 'No content.',
+		/* 3xx */
+		notModified: 'Not modified',
+		/* 4xx */
 		badRequest: 'Bad request.',
+		forbidden: 'Forbidden.',
 		unauthorized: 'Unauthorized',
 		notFound: 'Not found.',
-		alreadyExists: 'Already exists.',
+		conflict: 'Conflict.',
+		/* 5xx */
 		internalServerError: 'Internal server error.',
-		deleted: 'Deleted.',
-		noContent: 'No content.',
-		unauthorized: 'Unauthorized',
-		forbidden: 'Forbidden'
+		/* General */
+		deleted: 'Deleted.'
 	}
 };
 module.exports = constants;
