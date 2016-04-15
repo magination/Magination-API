@@ -52,7 +52,7 @@ module.exports = function (app) {
 				});
 			}
 			else {
-				return res.status(409).json({message: 'The user allready exists. Please check your inbox for a confirmation mail.'});
+				return res.status(409).json({message: 'The user already exists. Please check your inbox for a confirmation mail.'});
 			}
 		});
 	});
@@ -82,7 +82,7 @@ module.exports = function (app) {
 			nev.resendVerificationEmail(req.body.email, function (err, emailSent) {
 				if (err) return res.status(500).json({message: 'internal server error.'});
 				if (emailSent) return res.status(200).json({message: 'verification email has been resent!'});
-				else return res.status(404).json({message: 'the email adress could not be found.'});
+				else return res.status(404).json({message: 'the email address could not be found.'});
 			});
 		};
 	});
