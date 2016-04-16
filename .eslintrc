@@ -10,6 +10,7 @@
 	"rules": {
 		"indent": ["error", "tab"],
 		"semi": ["error", "always"],
-		"brace-style": ["error", "stroustrup", { "allowSingleLine": true }]
+		"brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
+		"no-unused-vars": 0
 	}
 }

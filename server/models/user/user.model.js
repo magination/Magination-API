@@ -7,7 +7,9 @@ var uniqueValidator = require('mongoose-unique-validator');
 var userSchema = new mongoose.Schema({
 	username: {type: String, required: true, unique: true},
 	email: {type: String, required: true, unique: true},
-	password: {type: String, required: true}
+	password: {type: String, required: true},
+	resetPasswordToken: String,
+	resetPasswordExpires: Date
 });
 
 userSchema.pre('save', function (next) {

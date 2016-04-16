@@ -2,14 +2,12 @@ var mongoose = require('mongoose');
 var User = require('../../../server/models/user/user.model');
 var assert = require('assert');
 var testconfig = require('../../test.config');
-
+var dbConfig = require('../../../server/config/db.config');
+var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 var currentUser = null;
 
 after(function (done) {
-	mongoose.connection.db.dropDatabase(function (err) {
-		if (err) return done(err);
-		done();
-	});
+	clearDB(done);
 });
 
 it('saves a user', function (done) {

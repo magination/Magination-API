@@ -4,20 +4,16 @@ var User = require('../../../server/models/user/user.model');
 var serverconfig = require('../../../server/config/server.config');
 var testconfig = require('../../test.config');
 var url = serverconfig.ADRESS + serverconfig.PORT;
+var dbConfig = require('../../../server/config/db.config');
+var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 
 before(function (done) {
 	var newUser = new User(testconfig.USER_TESTUSER);
-	newUser.save(function (err) {
-		if (err) return done(err);
-		done();
-	});
+	newUser.save(done);
 });
 
 after(function (done) {
-	mongoose.connection.db.dropDatabase(function (err) {
-		if (err) return done(err);
-		done();
-	});
+	clearDB(done);
 });
 
 it('POST /api/login - should return 400 when json-object is faulty', function (done) {
@@ -59,3 +55,36 @@ it('POST /api/login - should return 200 when json-object contains valid credenti
 	});
 });
 
+it('GET /api/login/refresh - should return 200 and a refreshed token if the supplied token is valid', function (done) {
+	request(url)
+	.post('/api/login')
+	.set('Accept', 'application/json')
+	.send(testconfig.USER_TESTUSER)
+	.expect(200)
+	.end(function (err, res) {
+		if (err) return done(err);
+		var token = res.body.token;
+		request(url)
+		.get('/api/login/refresh')
+		.set('Accept', 'application/json')
+		.set('Authorization', token)
+		.expect(200)
+		.end(function (err, res) {
+			if (err) return done(err);
+			done();
+		});
+	});
+});
+
+it('GET /api/login/refresh - should return 401 if the supplied token is invalid', function (done) {
+	var token = 'thisisaninvalidtoken';
+	request(url)
+		.get('/api/login/refresh')
+		.set('Accept', 'application/json')
+		.set('Authorization', token)
+		.expect(401)
+		.end(function (err, res) {
+			if (err) return done(err);
+			done();
+		});
+});

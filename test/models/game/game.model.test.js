@@ -3,39 +3,36 @@ var User = require('../../../server/models/user/user.model');
 var testconfig = require('../../test.config');
 var mongoose = require('mongoose');
 var assert = require('assert');
+var should = require('chai').should();
+var dbConfig = require('../../../server/config/db.config');
+var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
+
 var currentGame = null;
 
 before(function (done) {
-	/*
-	This looks weird, but is done to get a valid user_id, which is used when creating a new game.
-	 */
 	var newUser = new User(testconfig.USER_TESTUSER);
 	newUser.save();
 	var newGame = new Game({title: 'testTitle', shortDescription: 'this is a short description', mainDescription: 'this is the maindescription', owner: newUser._id});
-	newGame.save();
 	currentGame = newGame;
-	done();
+	newGame.save(done);
 });
 
 after(function (done) {
-	mongoose.connection.db.dropDatabase(function (err) {
-		if (err) throw err;
-		done();
-	});
+	clearDB(done);
 });
 
 it('saves a game', function (done) {
-	Game.find({}, function (err, doc) {
+	Game.find({}, function (err, game) {
 		if (err) throw err;
-		assert.notEqual(doc, false);
+		game.should.not.be.empty;
 		done();
 	});
 });
 
 it('finds a game by id', function (done) {
-	Game.find({_id: currentGame._id}, function (err, doc) {
+	Game.find({_id: currentGame._id}, function (err, game) {
 		if (err) throw err;
-		assert.notEqual(doc, false);
+		game.should.not.be.empty;
 		done();
 	});
 });
@@ -43,7 +40,7 @@ it('finds a game by id', function (done) {
 it('removes a game by id', function (done) {
 	Game.remove({_id: currentGame._id}, function (err, removed) {
 		if (err) throw err;
-		assert.notEqual(removed, false);
+		removed.should.not.be.empty;
 		done();
 	});
 });
