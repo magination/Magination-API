@@ -4,6 +4,7 @@ var authenticate = require('./authenticate');
 var generateToken = require('./generateToken');
 var decodeToken = require('./decodeToken');
 var refreshToken = require('./refreshToken');
+var async = require('async');
 
 module.exports = function (app) {
 	router.post('/login', authenticate, generateToken, function (req, res, next) {

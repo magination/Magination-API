@@ -38,7 +38,6 @@ module.exports = function (app) {
 					message: 'Game ' + game.id + ' created!'
 				});
 			});
-			console.log(game._id);
 		});
 
 	var parseSearchQuery = function (req, res, next) {
@@ -51,7 +50,6 @@ module.exports = function (app) {
 		if (req.query.owner) query.owner = req.query.owner;
 		if (req.query.search) query['$text'] = {$search: req.query.search};
 		req.query = query;
-		console.log(query);
 		next();
 	};
 
