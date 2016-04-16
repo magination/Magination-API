@@ -53,6 +53,7 @@ module.exports = function (app) {
 				});
 			}
 			else {
+				console.log('Brukernavn: ' + req.body.username + '. Epost: ' + req.body.email);
 				return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			}
 		});
@@ -85,22 +86,69 @@ module.exports = function (app) {
 				if (emailSent) return res.status(200).json({message: 'Verification email has been resent.'});
 				else return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			});
-		};
+		}
 	});
 
 	router.get('/users/:id/', decodeToken, function (req, res) {
-		if (req.decoded.id === req.params.id) {
-			User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
+		if (req.decoded.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
+		User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			else if (user == null) {
+				return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			}
+			else return res.status(200).json(user);
+		});
+	});
+
+	router.put('/users/:id/', decodeToken, function (req, res) {
+		if (req.decoded.id !== req.params.id || !req.body.oldPassword) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
+		if (!req.body.email && !req.body.password) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		User.findById({_id: req.decoded.id}, function (err, user) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			user.validPassword(req.body.oldPassword)
+				.then(function (result) {
+					if (!result) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+					else {
+						if (req.body.email) user.email = req.body.email;
+						if (req.body.password) {
+							if (!req.body.password.length > 0) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+							user.password = req.body.password;
+						}
+						user.save(function (err, user) {
+							if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+							user.populate('owner', 'username', function (err) {
+								if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+								return res.status(200).json(user);
+							});
+						});
+					}
+				}).catch(function (err) {
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				});
+		});
+	});
+	router.put('/reset', function (req, res) {
+		User.findOne({username: req.body.username}, function (err, user) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!user) {
+				user = new User({
+					username: 'per',
+					password: 'per',
+					email: 'per.per@per.no'
+				});
+			}
+			else {
+				user.password = req.body.password;
+			}
+			user.save(function (err, user) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				else if (user == null) {
-					return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				}
-				else return res.status(200).json(user);
+				user.populate('owner', 'username', function (err) {
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					return res.status(200).json(user);
+				});
 			});
-		}
-		else {
-			return res.status(403).json({message: constants.httpResponseMessages.forbidden});
-		}
+		});
 	});
 	return router;
 };
