@@ -12,6 +12,7 @@ var constants = {
 		unauthorized: 'Unauthorized',
 		notFound: 'Not found.',
 		conflict: 'Conflict.',
+		unprocessableEntity: 'Unprocessable entity.',
 		/* 5xx */
 		internalServerError: 'Internal server error.',
 		/* General */
