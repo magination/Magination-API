@@ -30,6 +30,7 @@
     "jsonwebtoken": "^5.7.0",
     "lodash": "^4.6.1",
     "mocha": "^2.4.5",
+    "mocha-mongoose": "^1.2.0",
     "mockgoose": "^6.0.0",
     "mongoose": "^4.4.7",
     "mongoose-api-query": "^0.1.1-pre",

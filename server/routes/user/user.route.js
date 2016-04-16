@@ -117,10 +117,7 @@ module.exports = function (app) {
 						}
 						user.save(function (err, user) {
 							if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-							user.populate('owner', 'username', function (err) {
-								if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-								return res.status(200).json(user);
-							});
+							return res.status(200).json(user);
 						});
 					}
 				}).catch(function (err) {
