@@ -8,6 +8,7 @@ var decodeToken = require('../login/decodeToken');
 var mongoose = require('mongoose');
 var nev = require('email-verification')(mongoose);
 var emailconfig = require('../../config/email.config');
+var constants = require('../../config/constants.config');
 /*
 TODO: Split this component up. Nev should be configured in a seperate file.
  */
@@ -39,20 +40,20 @@ module.exports = function (app) {
 		nev.createTempUser(newUser, function (err, newTempUser) {
 			if (err) {
 				if (err.name === 'ValidationError') {
-					return res.status(409).json(err.errors);
+					return res.status(409).json({message: constants.httpResponseMessages.conflict});
 				}
 				else {
-					return res.status(500).json({message: 'internal server error.'});
+					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				}
 			}
 			if (newTempUser) {
 				nev.registerTempUser(newTempUser, function (err) {
-					if (err) return res.status(500).json({message: 'internal server error.'});
-					return res.status(200).json({message: 'Success! A confirmation email has been sent.'});
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					return res.status(200).json({message: 'Success. A confirmation email has been sent.'});
 				});
 			}
 			else {
-				return res.status(409).json({message: 'The user allready exists. Please check your inbox for a confirmation mail.'});
+				return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			}
 		});
 	});
@@ -60,13 +61,13 @@ module.exports = function (app) {
 	router.post('/confirmation/:id', function (req, res) {
 		nev.confirmTempUser(req.params.id, function (err, user) {
 			if (err) {
-				return res.status(500).json({message: 'internal server error.'});
+				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			}
 			if (user) {
 				return res.status(200).json(user);
 			}
 			else {
-				return res.status(400).json({message: 'bad request'});
+				return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 			}
 		});
 	});
@@ -80,9 +81,9 @@ module.exports = function (app) {
 		}
 		else {
 			nev.resendVerificationEmail(req.body.email, function (err, emailSent) {
-				if (err) return res.status(500).json({message: 'internal server error.'});
-				if (emailSent) return res.status(200).json({message: 'verification email has been resent!'});
-				else return res.status(404).json({message: 'the email adress could not be found.'});
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (emailSent) return res.status(200).json({message: 'Verification email has been resent.'});
+				else return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			});
 		};
 	});
@@ -90,15 +91,15 @@ module.exports = function (app) {
 	router.get('/users/:id/', decodeToken, function (req, res) {
 		if (req.decoded.id === req.params.id) {
 			User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
-				if (err) return res.status(500).json({message: 'internal server error.'});
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				else if (user == null) {
-					return res.status(404).json({message: 'the user could not be found.'});
+					return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				}
 				else return res.status(200).json(user);
 			});
 		}
 		else {
-			return res.status(403).json({message: 'forbidden'});
+			return res.status(403).json({message: constants.httpResponseMessages.forbidden});
 		}
 	});
 	return router;

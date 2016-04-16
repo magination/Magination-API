@@ -4,6 +4,7 @@ var Game = require('../../models/game/game.model');
 var User = require('../../models/user/user.model');
 var decodeToken = require('../login/decodeToken');
 var Rating = require('../../models/rating/rating.model');
+var constants = require('../../config/constants.config');
 
 router.use(function (req, res, next) {
 	next();
@@ -14,7 +15,7 @@ module.exports = function (app) {
 		.post(decodeToken, function (req, res) {
 			if (!req.body.title || !req.body.mainDescription) {
 				res.status(400);
-				res.json({message: 'bad request. A game should include a title, shortDescription, mainDescription and owner (id).'});
+				res.json({message: constants.httpResponseMessages.badRequest});
 				return;
 			}
 			var game = new Game();
@@ -30,7 +31,7 @@ module.exports = function (app) {
 				if (err) {
 					console.log(err);
 					res.status(500);
-					res.json({message: 'Internal server error.'});
+					res.json({message: constants.httpResponseMessages.internalServerError});
 					return;
 				}
 				res.status(201);
@@ -60,7 +61,7 @@ module.exports = function (app) {
 		}
 		if (req.query.owner) {
 			User.findOne({username: req.query.owner}, '-password -__v', function (err, user) {
-				if (err) return res.status(500).json({message: 'internal server error'});
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (user == null) return res.status(200).json({});
 				else req.query.owner = user._id;
 				next();
@@ -71,7 +72,7 @@ module.exports = function (app) {
 
 	router.route('/games').get(populateOwnerField, parseSearchQuery, function (req, res) {
 		Game.find(req.query, '-__v', function (err, game) {
-			if (err) res.status(500).json({mesage: err});
+			if (err) res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
 			else res.json(game);
 		}).populate('owner', 'username');
 	});
@@ -79,21 +80,21 @@ module.exports = function (app) {
 	router.route('/games/:game_id')
 		.get(function (req, res) {
 			Game.findById(req.params.game_id, function (err, game) {
-				if (err) return res.send(err);
-				if (game == null) return res.status(404).json({message: 'Game not found.'});
+				if (err) return res.send(constants.httpResponseMessages.internalServerError);
+				if (game == null) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				else return res.json(game);
 			}).populate('owner', 'username');
 		})
 		.put(decodeToken, function (req, res) {
-			Game.findById({_id: req.params.game_id}, function (err, game) {
-				if (err) return res.status(500).json({message: 'internal server error'});
-				if (!game) return res.status(404).json({message: 'game with the specified id was not found'});
+			Game.findById({_id: req.params.game_id}, function (err, game) { // TODO: Validate id before doing db call
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (!game) return res.status(404).json({message: constants.httpResponseMessages.badRequest});
 				if (req.body.title) game.title = req.body.title;
 				if (req.body.mainDescription) game.mainDescription = req.body.mainDescription;
 				game.save(function (err, game) {
-					if (err) return res.status(500).json({message: 'internal server error'});
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					game.populate('owner', 'username', function (err) {
-						if (err) return res.status(500).json({message: 'internal server error'});
+						if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 						return res.status(200).json(game);
 					});
 				});
@@ -104,36 +105,29 @@ module.exports = function (app) {
 				_id: req.params.game_id
 			}, function (err, game) {
 				if (!game) {
-					res.status(404);
-					res.json({message: 'Game with given id not found'});
-					return;
+					return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				}
 				if (err) res.send(err);
-				else res.json({ message: 'Successfully deleted game ' + req.params.game_id });
+				else res.status(204).json({message: constants.httpResponseMessages.deleted});
 			});
 		});
 	router.route('/games/:game_id/ratings')
 		.put(decodeToken, function (req, res) {
 			if (!req.body.rating) {
-				return res.status(400).json({message: 'Missing parameter rating.'});
-			}
-			if (req.body.rating > 5 || req.body.rating < 1) {
-				return res.status(400).json({message: 'Invalid parameter value for rating (Minumum 1, maximum 5.'});
+				return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 			}
 			Game.findById(req.params.game_id, function (err, game) {
 				if (err) {
-					return res.status(500).json({message: 'Internal server error.'});
+					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				}
-				if (game === null) return res.status(404).json({message: 'Game not found.'});
+				if (game === null) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				var newRating;
 				var newVoteCount;
 				Rating.findOne({_userId: req.decoded.id, _gameId: req.params.game_id}, function (err, rating) {
-					if (err) return res.status(500).json({message: 'Internal server error.'});
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					if (rating !== null) {
 						if (rating.rating === req.params.rating) {
-							res.status(409);
-							res.json({message: 'Already rated with given value.'});
-							return;
+							return res.status(409).json({message: constants.httpResponseMessages.conflict});
 						}
 						newRating = game.sumOfVotes;
 						newRating -= rating.rating;
@@ -146,12 +140,12 @@ module.exports = function (app) {
 						newVoteCount++;
 					};
 					Rating.findOneAndUpdate({_userId: req.decoded.id, _gameId: req.params.game_id}, {rating: req.body.rating}, {upsert: true}, function (err) {
-						if (err) return res.status(500).json({message: 'Internal server error.'});
+						if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 						Game.findOneAndUpdate({_id: req.params.game_id}, {numberOfVotes: newVoteCount, sumOfVotes: newRating}, {upsert: false}, function (err) {
 							if (err) {
 								return;
 							}
-							return res.status(201).json({message: 'Rating updated!'});
+							return res.status(204).json({message: constants.httpResponseMessages.ok});
 						});
 					});
 				});
