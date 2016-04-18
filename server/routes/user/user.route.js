@@ -104,7 +104,10 @@ module.exports = function (app) {
 		if (req.decoded.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findById({_id: req.decoded.id}, function (err, user) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (err) {
+				console.log(err);
+				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			}
 			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			user.validPassword(req.body.oldPassword)
 				.then(function (result) {
@@ -115,16 +118,25 @@ module.exports = function (app) {
 							if (!req.body.password.length > 0) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 							user.password = req.body.password;
 						}
-						var userToReturn = user;
-						user.update(function (err) {
-							if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-							userToReturn.password = undefined;
-							userToReturn.__v = undefined;
-							return res.status(200).json(userToReturn);
+						else {
+							user.password = req.body.oldPassword;
+						}
+						user.save(function (err) {
+							if (err) {
+								console.log(err);
+								if (err.name === 'ValidationError') return res.status(409).json({message: 'Email already in use'});
+								return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+							}
+							user.password = undefined;
+							user.__v = undefined;
+							return res.status(200).json(user);
 						});
 					}
 				}).catch(function (err) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					if (err) {
+						console.log(err);
+						return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					}
 				});
 		});
 	});
