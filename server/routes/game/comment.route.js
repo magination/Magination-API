@@ -78,7 +78,7 @@ module.exports = function (app) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			else return res.status(200).json(comment);
-		}).select('childComments -_id').populate({
+		}).populate({
 			path: 'childComments',
 			populate: {
 				path: 'owner',
