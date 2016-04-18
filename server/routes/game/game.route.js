@@ -5,41 +5,48 @@ var User = require('../../models/user/user.model');
 var decodeToken = require('../login/decodeToken');
 var Rating = require('../../models/rating/rating.model');
 var constants = require('../../config/constants.config');
+var check = require('check-types');
 
 router.use(function (req, res, next) {
 	next();
 });
 
 module.exports = function (app) {
-	router.route('/games')
-		.post(decodeToken, function (req, res) {
-			if (!req.body.title || !req.body.mainDescription) {
-				res.status(400);
-				res.json({message: constants.httpResponseMessages.badRequest});
+	var validateGameQuery = function (req, res, next) {
+		if (!req.body.title || !req.body.mainDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		var error = false;
+		if (req.body.numberOfPlayers) {
+			if (!check.number(req.body.numberOfPlayers)) error = true;
+		};
+		if (error) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		else next();
+	};
+
+	router.post('/games', decodeToken, validateGameQuery, function (req, res) {
+		var game = new Game();
+		game.title = req.body.title;
+		game.mainDescription = req.body.mainDescription;
+		game.owner = req.decoded.id;
+		if (req.body.pieces) {
+			if (req.body.pieces.singles) game.pieces.singles = req.body.pieces.singles;
+			if (req.body.pieces.doubles) game.pieces.doubles = req.body.pieces.doubles;
+			if (req.body.pieces.triples) game.pieces.triples = req.body.pieces.triples;
+		}
+		if (req.body.pieces.numberOfPlayers) game.numberOfPlayers = req.body.numberOfPlayers;
+
+		game.save(function (err) {
+			if (err) {
+				console.log(err);
+				res.status(500);
+				res.json({message: constants.httpResponseMessages.internalServerError});
 				return;
 			}
-			var game = new Game();
-			game.title = req.body.title;
-			game.mainDescription = req.body.mainDescription;
-			game.owner = req.decoded.id;
-			game.pieces.singles = 1;
-			game.pieces.doubles = 1;
-			game.pieces.triples = 1;
-			game.numberOfPlayers = 1;
-
-			game.save(function (err) {
-				if (err) {
-					console.log(err);
-					res.status(500);
-					res.json({message: constants.httpResponseMessages.internalServerError});
-					return;
-				}
-				res.status(201);
-				res.json({
-					message: 'Game ' + game.id + ' created!'
-				});
+			game.populate('owner', 'username', function (err) {
+				if (err) res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				else return res.status(201).json(game);
 			});
 		});
+	});
 
 	var parseSearchQuery = function (req, res, next) {
 		var query = {};
@@ -111,6 +118,7 @@ module.exports = function (app) {
 				else res.status(204).json({message: constants.httpResponseMessages.deleted});
 			});
 		});
+
 	router.route('/games/:game_id/ratings')
 		.put(decodeToken, function (req, res) {
 			if (!req.body.rating) {

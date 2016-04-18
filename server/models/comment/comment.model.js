@@ -4,6 +4,7 @@ var Game = require('../game/game.model');
 var commentSchema = new mongoose.Schema({
 	owner: {type: mongoose.Schema.Types.ObjectId, ref: 'user', requred: true},
 	game: {type: mongoose.Schema.Types.ObjectId, ref: 'game', required: true},
+	childComments: [{type: mongoose.Schema.Types.ObjectId, ref: 'comment'}],
 	commentText: {type: String, required: true},
 	createdAt: {type: Date},
 	updatedAt: {type: Date}

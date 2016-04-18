@@ -70,16 +70,8 @@ module.exports = function (app) {
 		]);
 	});
 
-	router.get('/login/forgot/:resetToken', function (req, res) {
-		User.findOne({ resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			else return res.status(200).json({message: constants.httpResponseMessages.ok});
-		});
-	});
-
 	router.post('/login/forgot/:resetToken', function (req, res) {
-		if (!req.body.password) return res.status(422);
+		if (!req.body.password || !res.params.resetToken) return res.status(422);
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});

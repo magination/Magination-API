@@ -70,5 +70,36 @@ module.exports = function (app) {
 			});
 		});
 	});
+
+	router.get('/comments/:commentId', function (req, res) {
+		Comment.find({_id: req.params.commentId}, function (err, comment) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			else return res.status(200).json(comment);
+		}).select('childComments -_id').populate({
+			path: 'childComments',
+			populate: {
+				path: 'owner',
+				select: 'username'
+			}
+		});
+	});
+
+	router.post('/comments/:commentId', decodeToken, validateCommentRequest, function (req, res) {
+		Comment.find({_id: req.params.commentId}, function (err, comment) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			var childComment = new Comment({owner: req.decoded.id, game: comment.game, commentText: req.body.commentText});
+			childComment.save(function (err) {
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				comment.childComments.push(childComment);
+				comment.save(function (err) {
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					else return res.status(201).json(childComment);
+				});
+			});
+		});
+	});
+
 	return router;
 };
