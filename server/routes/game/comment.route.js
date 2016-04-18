@@ -94,7 +94,7 @@ module.exports = function (app) {
 			var childComment = new Comment({owner: req.decoded.id, game: comment.game, commentText: req.body.commentText});
 			childComment.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				comment.childComments.push(childComment);
+				comment.childComments.push(childComment._id);
 				comment.save(function (err) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					childComment.populate('owner', 'username', function (err) {
