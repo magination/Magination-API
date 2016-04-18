@@ -22,22 +22,22 @@ commentSchema.pre('update', function (next) {
 	next();
 });
 
-commentSchema.post('save', function (next) {
-	Game.findByIdAndUpdate(this.game,
+commentSchema.methods.pushToGame = function (game) {
+	Game.findByIdAndUpdate(game,
 	{$addToSet: {'comments': this._id}},
 	function (err, model) {
 		if (err) throw new Error(err);
 	}
 	);
-});
+};
 
-commentSchema.post('remove', function (next) {
-	Game.findByIdAndUpdate(this.game,
+commentSchema.methods.pullFromGame = function (game) {
+	Game.findByIdAndUpdate(game,
 	{$pull: {'comments': this._id}},
 	function (err, model) {
 		if (err) throw new Error(err);
 	}
 	);
-});
+};
 
 module.exports = mongoose.model('comment', commentSchema);

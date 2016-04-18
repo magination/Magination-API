@@ -41,7 +41,8 @@ module.exports = function (app) {
 		}, function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			else res.status(200).json({_id: req.params.commentId});
+			comment.pullFromGame(comment.game);
+			res.status(200).json({_id: req.params.commentId});
 		});
 	});
 
@@ -49,6 +50,7 @@ module.exports = function (app) {
 		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.decoded.id});
 		newComment.save(function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			comment.pushToGame(req.params.gameId);
 			Comment.findById(comment._id, function (err, comment) {
 				if (err || !comment) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				else return res.status(201).json(comment);
@@ -86,7 +88,7 @@ module.exports = function (app) {
 	});
 
 	router.post('/comments/:commentId', decodeToken, validateCommentRequest, function (req, res) {
-		Comment.find({_id: req.params.commentId}, function (err, comment) {
+		Comment.findOne({_id: req.params.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			var childComment = new Comment({owner: req.decoded.id, game: comment.game, commentText: req.body.commentText});
@@ -95,7 +97,10 @@ module.exports = function (app) {
 				comment.childComments.push(childComment);
 				comment.save(function (err) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					else return res.status(201).json(childComment);
+					childComment.populate('owner', 'username', function (err) {
+						if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+						else return res.status(201).json(childComment);
+					});
 				});
 			});
 		});
