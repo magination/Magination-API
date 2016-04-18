@@ -58,7 +58,7 @@ module.exports = function (app) {
 					subject: 'Magination Game Site Reset Password',
 					text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
 					'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-					'http://localhost:8080' + 'api/login/reset/' + token + '\n\n' +
+					'http://localhost:8080' + '/confirmforgotpassword/' + token + '\n\n' +
 					'If you did not request this, please ignore this email and your password will remain unchanged.\n'
 				};
 				smtpTransport.sendMail(mailOptions, function (err) {
@@ -70,7 +70,7 @@ module.exports = function (app) {
 		]);
 	});
 
-	router.get('/login/reset/:resetToken', function (req, res) {
+	router.get('/login/forgot/:resetToken', function (req, res) {
 		User.findOne({ resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
@@ -78,7 +78,7 @@ module.exports = function (app) {
 		});
 	});
 
-	router.post('/login/reset/:resetToken', function (req, res) {
+	router.post('/login/forgot/:resetToken', function (req, res) {
 		if (!req.body.password) return res.status(422);
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
