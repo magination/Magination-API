@@ -9,7 +9,7 @@ module.exports = function (req, res, next) {
 		if (!user) return res.status(404).json({message: 'user could not be found'});
 		if (req.decoded.password !== user.password) return res.status(403).json({message: constants.httpResponseMessages.internalServerError});
 
-		var hash = jwt.sign({
+		var token = jwt.sign({
 			id: user.id,
 			username: user.username,
 			email: user.email,
@@ -18,7 +18,7 @@ module.exports = function (req, res, next) {
 		}, serverConfig.SECRET);
 
 		var data = {
-			token: hash,
+			token: token,
 			id: user.id,
 			expiresIn: Date.now() + (60 * 60 * 12 * 1000)
 		};

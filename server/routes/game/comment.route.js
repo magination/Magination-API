@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var Comment = require('../../models/comment/comment.model');
 var Game = require('../../models/game/game.model');
-var decodeToken = require('../login/decodeToken');
+var verifyToken = require('../login/verifyToken');
 var constants = require('../../config/constants.config');
 
 module.exports = function (app) {
@@ -35,22 +35,21 @@ module.exports = function (app) {
 		});
 	};
 
-	router.delete('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
+	router.delete('/games/:gameId/comments/:commentId', validateGameId, verifyToken, function (req, res) {
 		Comment.remove({
 			_id: req.params.commentId, owner: req.decoded.id
-		}, function (err, comment) {
+		}, function (err) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			comment.pullFromGame(comment.game);
+			Comment.pullFromGame(req.params.gameId);
 			res.status(200).json({_id: req.params.commentId});
 		});
 	});
 
-	router.post('/games/:gameId/comments/', validateCommentRequest, validateGameId, decodeToken, function (req, res) {
+	router.post('/games/:gameId/comments/', validateCommentRequest, validateGameId, verifyToken, function (req, res) {
 		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.decoded.id});
 		newComment.save(function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			comment.pushToGame(req.params.gameId);
+			Comment.pushToGame(req.params.gameId);
 			Comment.findById(comment._id, function (err, comment) {
 				if (err || !comment) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				else return res.status(201).json(comment);
@@ -58,7 +57,7 @@ module.exports = function (app) {
 		});
 	});
 
-	router.put('/games/:gameId/comments/:commentId', validateGameId, decodeToken, function (req, res) {
+	router.put('/games/:gameId/comments/:commentId', validateGameId, verifyToken, function (req, res) {
 		Comment.findById({_id: req.params.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
@@ -87,7 +86,7 @@ module.exports = function (app) {
 		});
 	});
 
-	router.post('/comments/:commentId', decodeToken, validateCommentRequest, function (req, res) {
+	router.post('/comments/:commentId', verifyToken, validateCommentRequest, function (req, res) {
 		Comment.findOne({_id: req.params.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});

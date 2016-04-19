@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 var serverConfig = require('../../config/server.config');
 
 module.exports = function (req, res, next) {
+	/*
+	TODO: Password should obviously not be in token. Replace with a user version number.
+	 */
 	var token = jwt.sign({
 		id: req.user.id,
 		password: req.user.password,

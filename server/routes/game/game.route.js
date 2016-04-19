@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var Game = require('../../models/game/game.model');
 var User = require('../../models/user/user.model');
-var decodeToken = require('../login/decodeToken');
+var verifyToken = require('../login/verifyToken');
 var Rating = require('../../models/rating/rating.model');
 var constants = require('../../config/constants.config');
 var check = require('check-types');
@@ -22,7 +22,7 @@ module.exports = function (app) {
 		else next();
 	};
 
-	router.post('/games', decodeToken, validateGameQuery, function (req, res) {
+	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
 		var game = new Game();
 		game.title = req.body.title;
 		game.mainDescription = req.body.mainDescription;
@@ -92,7 +92,7 @@ module.exports = function (app) {
 				else return res.json(game);
 			}).populate('owner', 'username');
 		})
-		.put(decodeToken, function (req, res) {
+		.put(verifyToken, function (req, res) {
 			Game.findById({_id: req.params.game_id}, function (err, game) { // TODO: Validate id before doing db call
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!game) return res.status(404).json({message: constants.httpResponseMessages.badRequest});
@@ -107,7 +107,7 @@ module.exports = function (app) {
 				});
 			});
 		})
-		.delete(decodeToken, function (req, res) {
+		.delete(verifyToken, function (req, res) {
 			Game.remove({
 				_id: req.params.game_id
 			}, function (err, game) {
@@ -120,7 +120,7 @@ module.exports = function (app) {
 		});
 
 	router.route('/games/:game_id/ratings')
-		.put(decodeToken, function (req, res) {
+		.put(verifyToken, function (req, res) {
 			if (!req.body.rating) {
 				return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 			}

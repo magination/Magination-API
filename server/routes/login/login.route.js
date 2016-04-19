@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var authenticate = require('./authenticate');
-var generateToken = require('./generateToken');
-var decodeToken = require('./decodeToken');
+var signToken = require('./signToken');
+var verifyToken = require('./verifyToken');
 var refreshToken = require('./refreshToken');
 var async = require('async');
 var constants = require('../../config/constants.config');
@@ -13,12 +13,12 @@ var nodemailer = require('nodemailer');
 var emailconfig = require('../../config/email.config');
 
 module.exports = function (app) {
-	router.post('/login', authenticate, generateToken, function (req, res, next) {
+	router.post('/login', authenticate, signToken, function (req, res, next) {
 		if (req.user && req.data) return res.status(200).json(req.data);
 		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 	});
 
-	router.get('/login/refresh', decodeToken, refreshToken, function (req, res) {
+	router.get('/login/refresh', verifyToken, refreshToken, function (req, res) {
 		if (req.refreshedToken) return res.status(200).json(req.refreshedToken);
 		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 	});

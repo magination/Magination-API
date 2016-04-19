@@ -4,7 +4,7 @@ var User = require('../../models/user/user.model');
 var requestValidator = require('./user.request.validate');
 var uniqueValidator = require('./user.unique.validate');
 var validator = require('validator');
-var decodeToken = require('../login/decodeToken');
+var verifyToken = require('../login/verifyToken');
 var mongoose = require('mongoose');
 var nev = require('email-verification')(mongoose);
 var emailconfig = require('../../config/email.config');
@@ -89,7 +89,7 @@ module.exports = function (app) {
 		}
 	});
 
-	router.get('/users/:id/', decodeToken, function (req, res) {
+	router.get('/users/:id/', verifyToken, function (req, res) {
 		if (req.decoded.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
 		User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
@@ -100,7 +100,7 @@ module.exports = function (app) {
 		});
 	});
 
-	router.put('/users/:id/', decodeToken, function (req, res) {
+	router.put('/users/:id/', verifyToken, function (req, res) {
 		if (req.decoded.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findById({_id: req.decoded.id}, function (err, user) {

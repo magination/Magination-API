@@ -22,7 +22,7 @@ commentSchema.pre('update', function (next) {
 	next();
 });
 
-commentSchema.methods.pushToGame = function (game) {
+commentSchema.static.pushToGame = function (game) {
 	Game.findByIdAndUpdate(game,
 	{$addToSet: {'comments': this._id}},
 	function (err, model) {
@@ -31,7 +31,7 @@ commentSchema.methods.pushToGame = function (game) {
 	);
 };
 
-commentSchema.methods.pullFromGame = function (game) {
+commentSchema.statics.pullFromGame = function (game) {
 	Game.findByIdAndUpdate(game,
 	{$pull: {'comments': this._id}},
 	function (err, model) {
