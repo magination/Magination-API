@@ -6,6 +6,7 @@ var verifyToken = require('../login/verifyToken');
 var Rating = require('../../models/rating/rating.model');
 var constants = require('../../config/constants.config');
 var check = require('check-types');
+var _ = require('lodash');
 
 router.use(function (req, res, next) {
 	next();
@@ -14,26 +15,11 @@ router.use(function (req, res, next) {
 module.exports = function (app) {
 	var validateGameQuery = function (req, res, next) {
 		if (!req.body.title || !req.body.mainDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-		var error = false;
-		if (req.body.numberOfPlayers) {
-			if (!check.number(req.body.numberOfPlayers)) error = true;
-		};
-		if (error) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		else next();
 	};
 
 	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
-		var game = new Game();
-		game.title = req.body.title;
-		game.mainDescription = req.body.mainDescription;
-		game.owner = req.verified.id;
-		if (req.body.pieces) {
-			if (req.body.pieces.singles) game.pieces.singles = req.body.pieces.singles;
-			if (req.body.pieces.doubles) game.pieces.doubles = req.body.pieces.doubles;
-			if (req.body.pieces.triples) game.pieces.triples = req.body.pieces.triples;
-		}
-		if (req.body.pieces.numberOfPlayers) game.numberOfPlayers = req.body.numberOfPlayers;
-
+		var game = new Game(_.extend(req.body, {owner: req.verified.id}));
 		game.save(function (err) {
 			if (err) {
 				console.log(err);

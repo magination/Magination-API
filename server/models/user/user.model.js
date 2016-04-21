@@ -9,7 +9,8 @@ var userSchema = new mongoose.Schema({
 	email: {type: String, required: true, unique: true},
 	password: {type: String, required: true},
 	resetPasswordToken: String,
-	resetPasswordExpires: Date
+	resetPasswordExpires: Date,
+	userVersion: Number
 });
 
 userSchema.pre('save', function (next) {
@@ -20,6 +21,8 @@ userSchema.pre('save', function (next) {
 			next();
 		};
 	}.bind(this));
+	if (!this.userVersion) this.userVersion = 1;
+	else this.userVersion ++;
 });
 
 userSchema.plugin(uniqueValidator);
