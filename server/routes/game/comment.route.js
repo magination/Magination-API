@@ -37,7 +37,7 @@ module.exports = function (app) {
 
 	router.delete('/games/:gameId/comments/:commentId', validateGameId, verifyToken, function (req, res) {
 		Comment.remove({
-			_id: req.params.commentId, owner: req.decoded.id
+			_id: req.params.commentId, owner: req.verified.id
 		}, function (err) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			Comment.pullFromGame(req.params.gameId);
@@ -46,7 +46,7 @@ module.exports = function (app) {
 	});
 
 	router.post('/games/:gameId/comments/', validateCommentRequest, validateGameId, verifyToken, function (req, res) {
-		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.decoded.id});
+		var newComment = new Comment({commentText: req.body.commentText, game: req.params.gameId, owner: req.verified.id});
 		newComment.save(function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			Comment.pushToGame(req.params.gameId);
@@ -90,7 +90,7 @@ module.exports = function (app) {
 		Comment.findOne({_id: req.params.commentId}, function (err, comment) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!comment) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			var childComment = new Comment({owner: req.decoded.id, game: comment.game, commentText: req.body.commentText});
+			var childComment = new Comment({owner: req.verified.id, game: comment.game, commentText: req.body.commentText});
 			childComment.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				comment.childComments.push(childComment._id);

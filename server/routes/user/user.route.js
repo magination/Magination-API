@@ -90,7 +90,7 @@ module.exports = function (app) {
 	});
 
 	router.get('/users/:id/', verifyToken, function (req, res) {
-		if (req.decoded.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
 		User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			else if (user == null) {
@@ -101,9 +101,9 @@ module.exports = function (app) {
 	});
 
 	router.put('/users/:id/', verifyToken, function (req, res) {
-		if (req.decoded.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-		User.findById({_id: req.decoded.id}, function (err, user) {
+		User.findById({_id: req.verified.id}, function (err, user) {
 			if (err) {
 				console.log(err);
 				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});

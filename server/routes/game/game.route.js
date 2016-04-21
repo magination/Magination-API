@@ -26,7 +26,7 @@ module.exports = function (app) {
 		var game = new Game();
 		game.title = req.body.title;
 		game.mainDescription = req.body.mainDescription;
-		game.owner = req.decoded.id;
+		game.owner = req.verified.id;
 		if (req.body.pieces) {
 			if (req.body.pieces.singles) game.pieces.singles = req.body.pieces.singles;
 			if (req.body.pieces.doubles) game.pieces.doubles = req.body.pieces.doubles;
@@ -131,7 +131,7 @@ module.exports = function (app) {
 				if (game === null) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				var newRating;
 				var newVoteCount;
-				Rating.findOne({_userId: req.decoded.id, _gameId: req.params.game_id}, function (err, rating) {
+				Rating.findOne({_userId: req.verified.id, _gameId: req.params.game_id}, function (err, rating) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					if (rating !== null) {
 						if (rating.rating === req.params.rating) {
@@ -147,7 +147,7 @@ module.exports = function (app) {
 						newVoteCount = game.numberOfVotes;
 						newVoteCount++;
 					};
-					Rating.findOneAndUpdate({_userId: req.decoded.id, _gameId: req.params.game_id}, {rating: req.body.rating}, {upsert: true}, function (err) {
+					Rating.findOneAndUpdate({_userId: req.verified.id, _gameId: req.params.game_id}, {rating: req.body.rating}, {upsert: true}, function (err) {
 						if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 						Game.findOneAndUpdate({_id: req.params.game_id}, {numberOfVotes: newVoteCount, sumOfVotes: newRating}, {upsert: false}, function (err) {
 							if (err) {
