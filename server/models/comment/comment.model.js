@@ -22,7 +22,7 @@ commentSchema.pre('update', function (next) {
 	next();
 });
 
-commentSchema.static.pushToGame = function (game) {
+commentSchema.statics.pushToGame = function (game) {
 	Game.findByIdAndUpdate(game,
 	{$addToSet: {'comments': this._id}},
 	function (err, model) {

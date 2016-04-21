@@ -22,7 +22,7 @@ reviewSchema.pre('update', function (next) {
 	next();
 });
 
-reviewSchema.static.pushToGameAndAddRating = function (gameId, review) {
+reviewSchema.statics.pushToGameAndAddRating = function (gameId, review) {
 	Game.findByIdAndUpdate(gameId,
 	{$addToSet: {'reviews': review._id}},
 	function (err, game) {
@@ -33,7 +33,7 @@ reviewSchema.static.pushToGameAndAddRating = function (gameId, review) {
 	});
 };
 
-reviewSchema.static.updateRatingInGame = function (gameId, oldRating, newRating) {
+reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating) {
 	Game.findById({_id: gameId},
 	function (err, game) {
 		if (err) throw new Error(err);
