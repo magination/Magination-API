@@ -17,7 +17,7 @@ before(function (done) {
 	currentUser = newUser;
 	newUser.save(function (err) {
 		if (err) return done(err);
-		var newGame = new Game({title: 'test', mainDescription: 'this is a description', owner: currentUser._id});
+		var newGame = new Game({title: 'test', shortDescription: 'this is a description', owner: currentUser._id});
 		newGame.save(function (err) {
 			if (err) return done(err);
 			done();
