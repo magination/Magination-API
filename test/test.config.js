@@ -22,6 +22,5 @@ var testconfig = {
 		username: 'test',
 		password: 'test'
 	}
-
 };
 module.exports = testconfig;

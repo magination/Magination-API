@@ -40,9 +40,27 @@ describe('Starting tests', function () {
 					if (err) return done(err);
 					Game.ensureIndexes(function (err) {
 						if (err) return done(err);
-						mongoose.connection.close(function (err) {
+						var game = new Game(
+							{title: 'test game',
+							shortDescription: 'this is a short description',
+							pieces: {
+								singles: 4,
+								doubles: 5,
+								triples: 6
+							},
+							isPlayableWithMorePlayers: true,
+							isPlayableWithTeams: true,
+							numberOfPlayers: 3,
+							otherObjects: ['cup', 'book'],
+							rules: ['rule 1', 'rule 2'],
+							alternativeRules: ['alt rule 1', 'alt rule 2'],
+							owner: testUser._id});
+						game.save(function (err, user) {
 							if (err) return done(err);
-							return done();
+							mongoose.connection.close(function (err) {
+								if (err) return done(err);
+								return done();
+							});
 						});
 					});
 				});
