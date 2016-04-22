@@ -156,9 +156,9 @@ module.exports = function (app) {
 			User.findOne({_id: req.verified.id}, function (err, user) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				user.emailUpdateTmp = newmail;
-				user.emailUpdateToken = token;
-				user.emailUpdateExpires = Date.now() + 3600000; // Update token valid for one hour
+				user.updateEmailTmp = newmail;
+				user.updateEmailToken = token;
+				user.updateEmailExpires = Date.now() + 3600000; // Update token valid for one hour
 				user.save(function (err) {
 					if (err) return next(err);
 					var smtpTransport = nodemailer.createTransport('SMTP', {
