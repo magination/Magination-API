@@ -159,6 +159,7 @@ module.exports = function (app) {
 				user.updateEmailTmp = newmail;
 				user.updateEmailToken = token;
 				user.updateEmailExpires = Date.now() + 3600000; // Update token valid for one hour
+				user.password = req.body.oldPassword;
 				user.save(function (err) {
 					if (err) return next(err);
 					var smtpTransport = nodemailer.createTransport('SMTP', {
