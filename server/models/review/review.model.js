@@ -27,9 +27,11 @@ reviewSchema.statics.pushToGameAndAddRating = function (gameId, review) {
 	{$addToSet: {'reviews': review._id}},
 	function (err, game) {
 		if (err) throw new Error(err);
-		game.sumOfVotes += this.rating;
+		game.sumOfVotes += review.rating;
 		game.numberOfVotes ++;
-		game.save();
+		game.save(function (err) {
+			if (err) throw new Error(err);
+		});
 	});
 };
 
@@ -39,7 +41,9 @@ reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating
 		if (err) throw new Error(err);
 		game.sumOfVotes -= oldRating;
 		game.sumOfVotes += newRating;
-		game.save();
+		game.save(function (err) {
+			if (err) throw new Error(err);
+		});
 	}
 	);
 };
@@ -51,7 +55,9 @@ reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
 		if (err) throw new Error(err);
 		game.numberOfVotes --;
 		game.sumOfVotes -= review.rating;
-		game.save();
+		game.save(function (err) {
+			if (err) throw new Error(err);
+		});
 	}
 	);
 };

@@ -30,11 +30,15 @@ module.exports = function (app) {
 	};
 
 	router.post('/games/:gameId/reviews', verifyToken, verifyReviewRequest, function (req, res) {
-		var review = new Review({game: req.params.gameId, owner: req.verified.id, reviewText: req.body.reviewText, rating: req.body.rating});
-		review.save(function (err) {
+		Review.findOne({owner: req.verified.id, game: req.params.gameId}, function (err, review) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			Review.pushToGameAndAddRating(req.params.gameId, review);
-			return res.status(201).json(review);
+			if (review) return res.status(409).json({message: constants.httpResponseMessages.conflict});
+			var newReview = new Review({game: req.params.gameId, owner: req.verified.id, reviewText: req.body.reviewText, rating: req.body.rating});
+			newReview.save(function (err) {
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				Review.pushToGameAndAddRating(req.params.gameId, newReview);
+				return res.status(201).json(newReview);
+			});
 		});
 	});
 

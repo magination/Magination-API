@@ -70,6 +70,20 @@ module.exports = function (app) {
 		]);
 	});
 
+	router.post('/login/update/:emailToken', function (req, res) {
+		User.findOne({updateEmailToken: req.params.emailToken, updateEmailExpires: { $gt: Date.now() }}, function (err, user) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			user.email = user.updateEmailTmp;
+			user.updateEmailToken = undefined;
+			user.updateEmailExpires = undefined;
+			user.save(function (err) {
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				else return res.status(200).json({message: constants.httpResponseMessages.ok});
+			});
+		});
+	});
+
 	router.post('/login/forgot/:resetToken', function (req, res) {
 		if (!req.body.password || !req.params.resetToken) return res.status(422);
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {

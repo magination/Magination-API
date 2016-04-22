@@ -104,7 +104,7 @@ module.exports = function (app) {
 	});
 
 	router.put('/users/:id/', verifyToken, function (req, res) {
-		if (req.verified.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findById({_id: req.verified.id}, function (err, user) {
 			if (err) {
@@ -117,7 +117,10 @@ module.exports = function (app) {
 					if (!result) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 					else {
 						if (req.body.email) {
-							user.email = req.body.email;
+							if (!validator.isEmail(req.body.email)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+							generateEmailUpdateTokenAndSendMail(req.body.email, user, req, res, function (err) {
+								if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+							});
 						}
 						if (req.body.password) {
 							if (!req.body.password.length > 0) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
@@ -146,14 +149,14 @@ module.exports = function (app) {
 		});
 	});
 
-	var generateEmailUpdateTokenAndSendMail = function (newmail, req, res, next) {
+	var generateEmailUpdateTokenAndSendMail = function (newmail, user, req, res, next) {
 		crypto.randomBytes(20, function (err, buf) {
 			if (err) return next(err);
 			var token = buf.toString('hex');
 			User.findOne({_id: req.verified.id}, function (err, user) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				user.emailUpdateNewMail = newmail;
+				user.emailUpdateTmp = newmail;
 				user.emailUpdateToken = token;
 				user.emailUpdateExpires = Date.now() + 3600000; // Update token valid for one hour
 				user.save(function (err) {
@@ -171,7 +174,7 @@ module.exports = function (app) {
 						subject: 'Magination Game Site Update Mail',
 						text: 'You are receiving this because you (or someone else) have requested updating the email for your account.\n\n' +
 						'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-						'http://localhost:8080' + '/updateEmail/' + token + '\n\n' +
+						'http://localhost:8080' + '/verifyEmailChange/' + token + '\n\n' +
 						'If you did not request this, please ignore this email.\n'
 					};
 					smtpTransport.sendMail(mailOptions);

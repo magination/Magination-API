@@ -12,6 +12,7 @@ var userSchema = new mongoose.Schema({
 	resetPasswordExpires: Date,
 	updateEmailToken: String,
 	updateEmailExpires: Date,
+	updateEmailTmp: String,
 	userVersion: Number
 });
 
