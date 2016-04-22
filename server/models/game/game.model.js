@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var validators = require('mongoose-validators');
 var gameSchema = new mongoose.Schema({
 	title: {type: String, required: true, autoIndex: true},
-	mainDescription: {type: String, maxlength: 255, required: true, autoIndex: true},
+	shortDescription: {type: String, maxlength: 255, required: true, autoIndex: true},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
