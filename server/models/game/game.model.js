@@ -9,8 +9,8 @@ var gameSchema = new mongoose.Schema({
 		triples: {type: Number, default: 0, min: 0}
 	},
 	numberOfPlayers: {type: Number, default: 0},
-	canBePlaydeByMorePlayers: {type: Boolean, default: false},
-	canBePlayedInTeams: {type: Boolean, default: false},
+	isPlayableWithMorePlayers: {type: Boolean, default: false},
+	isPlayableInTeams: {type: Boolean, default: false},
 	otherObjects: [{type: String}],
 	rules: [{type: String}],
 	alternativeRules: [{type: String}],
