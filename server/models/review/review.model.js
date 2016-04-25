@@ -50,7 +50,7 @@ reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating
 
 reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
 	Game.findByIdAndUpdate(gameId,
-	{$pull: {'reviews': review}},
+	{$pull: {'reviews': review._id}},
 	function (err, game) {
 		if (err) throw new Error(err);
 		game.numberOfVotes --;

@@ -22,6 +22,15 @@ module.exports = function (app) {
 		});
 	});
 
+	router.get('/games/:gameId/reviews/:reviewId', function (req, res) {
+		if (!validator.isValidId(req.params.gameId) || !validator.isValidId(req.params.reviewId)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		Review.findOne({_id: req.params.reviewId}, function (err, review) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			else return res.status(200).json(review);
+		});
+	});
+
 	var verifyReviewRequest = function (req, res, next) {
 		if (!req.body.reviewText || !req.body.rating || !validator.isValidId(req.params.gameId)) {
 			return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
@@ -51,11 +60,13 @@ module.exports = function (app) {
 			if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			var oldRating = review.rating;
 			var newRating = null;
-			if (req.body.review.text) {
+			if (req.body.reviewText) {
 				review.reviewText = req.body.reviewText;
-				newRating = req.body.rating;
 			}
-			if (req.body.rating) review.rating = req.body.rating;
+			if (req.body.rating) {
+				newRating = req.body.rating;
+				review.rating = req.body.rating;
+			}
 			review.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (newRating != null) Review.updateRatingInGame(req.params.gameId, oldRating, newRating);
@@ -74,7 +85,7 @@ module.exports = function (app) {
 			Review.pullFromGameAndRemoveRating(req.params.gameId, review);
 			Review.remove({_id: review._id}, function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				return res.status(200).json({message: 'review has been deleted'});
+				return res.status(204).json({message: 'review has been deleted'});
 			});
 		});
 	});

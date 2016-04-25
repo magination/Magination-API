@@ -25,9 +25,11 @@ describe('Starting tests', function () {
 	importTest('Testing game.model', './models/game/game.model.test');
 	importTest('Testing comment.model', './models/comment/comment.model.test');
 	importTest('Testing rating.model', './models/rating/rating.model.test');
+	importTest('Testing review.model', './models/review/review.model.test');
 	importTest('Testing user.route', './routes/user/user.route.test');
 	importTest('Testing game.route', './routes/game/game.route.test');
 	importTest('Testing login.route', './routes/login/login.route.test');
+	importTest('Testing review.route', './routes/review/review.route.test');
 
 	after(function (done) {
 		mongoose.connection.db.dropDatabase(function (err) {
