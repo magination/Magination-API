@@ -4,20 +4,7 @@ var User = require('../../models/user/user.model');
 var validator = require('validator');
 var constants = require('../../config/constants.config');
 
-passport.serializeUser(function (user, done) {
-	done(null, user.id);
-});
-
-passport.deserializeUser(function (id, done) {
-	User.findById(id, function (err, user) {
-		done(err, user);
-	});
-});
-
 passport.use('username', new LocalStrategy(
-	{
-		session: false
-	},
 	function (username, password, done) {
 		User.findOne({ username: username }, function (err, user) {
 			if (err) { return done(err); }
@@ -34,9 +21,6 @@ passport.use('username', new LocalStrategy(
 ));
 
 passport.use('email', new LocalStrategy(
-	{
-		session: false
-	},
 	function (username, password, done) {
 		User.findOne({ email: username }, function (err, user) {
 			if (err) return done(err);
@@ -65,13 +49,13 @@ module.exports = function (req, res, next) {
 	if (validator.isEmail(req.body.username)) {
 		passport.authenticate('email', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-			else req.logIn(user, next);
+			else req.logIn(user, {session: false}, next);
 		})(req, res, next);
 	}
 	else {
 		passport.authenticate('username', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-			else req.logIn(user, next);
+			else req.logIn(user, {session: false}, next);
 		})(req, res, next);
 	}
 };
