@@ -72,6 +72,17 @@ it('GET /games/:gameId/reviews - should return 200 and list of reviews in game',
 	});
 });
 
+it('GET /games/:gameId/reviews?userId=someid- should return 200 and a review if the user has a review on the specified game', function (done) {
+	request(url)
+	.get('/api/games/' + currentGame._id + '/reviews?userId=' + currentUser._id)
+	.set('Accept', 'application/json')
+	.expect(200)
+	.end(function (err, res) {
+		if (err) return done(err);
+		done();
+	});
+});
+
 it('PUT /games/:gameId/reviews/:reviewId - should return 200, and update the reviewText field', function (done) {
 	request(url)
 	.put('/api/games/' + currentGame._id + '/reviews/' + currentReview._id)

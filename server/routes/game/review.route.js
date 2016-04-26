@@ -10,23 +10,25 @@ module.exports = function (app) {
 	router.get('/games/:gameId/reviews', function (req, res) {
 		if (!validator.isValidId(req.params.gameId)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		if (req.query.userId) {
-			Review.findById({_id: req.params.gameId}, function (err, review) {
+			Review.findOne({owner: req.query.userId, game: req.params.gameId}, function (err, review) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				else return res.status(200).json(review);
+				return res.status(200).json(review);
 			}).populate('owner', 'username');
 		}
-		Game.findById({_id: req.params.gameId}, function (err, game) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			else return res.status(200).json(game);
-		}).select('reviews -_id').populate({
-			path: 'reviews',
-			populate: {
-				path: 'owner',
-				select: 'username'
-			}
-		});
+		else {
+			Game.findById({_id: req.params.gameId}, function (err, game) {
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+				return res.status(200).json(game);
+			}).select('reviews -_id').populate({
+				path: 'reviews',
+				populate: {
+					path: 'owner',
+					select: 'username'
+				}
+			});
+		}
 	});
 
 	router.get('/games/:gameId/reviews/:reviewId', function (req, res) {
