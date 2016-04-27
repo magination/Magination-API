@@ -55,7 +55,7 @@ module.exports = function (app) {
 			newReview.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				Review.pushToGameAndAddRating(req.params.gameId, newReview);
-				Review.populate(review, {path: 'owner', select: 'username'}, function (err, review) {
+				Review.populate(newReview, {path: 'owner', select: 'username'}, function (err, review) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					return res.status(201).json(review);
 				});
