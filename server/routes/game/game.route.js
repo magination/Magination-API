@@ -32,6 +32,7 @@ module.exports = function (app) {
 
 	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
 		var game = new Game(_.extend(req.body, {owner: req.verified.id}));
+		if (!req.body.parentGame) game.parentGame = undefined;
 		game.save(function (err) {
 			if (err) {
 				console.log(err);

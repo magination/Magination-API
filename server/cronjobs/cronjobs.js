@@ -16,7 +16,7 @@ var cronjobs = {
 				winston.log('info', 'updateTopGames job ran. Did not find a topGames list to update.');
 			}
 			else {
-				Game.find({}, function (err, games) {
+				Game.find({sumOfVotes: {$gt: 0}, numberOfVotes: {$gt: 0}}, function (err, games) {
 					if (err) return winston.log('error', err);
 					games.sort(function (a, b) {
 						return parseFloat(a.sumOfVotes / a.numberOfVotes) - parseFloat(b.sumOfVotes / b.numberOfVotes);
