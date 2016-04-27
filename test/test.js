@@ -5,6 +5,7 @@ var Game = require('../server/models/game/game.model');
 var dbConfig = require('../server/config/db.config');
 var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Done to accept self signed HTTPS certfificate
+var init = require('../server/init/init');
 
 function importTest (name, path) {
 	describe(name, function () {
@@ -52,6 +53,28 @@ describe('Starting tests', function () {
 							},
 							isPlayableWithMorePlayers: true,
 							isPlayableWithTeams: true,
+							sumOfVotes: 4,
+							numberOfVotes: 1,
+							numberOfPlayers: 3,
+							images: ['http://www.magination.no/images/game1_crop.jpg',
+									'http://www.magination.no/images/game2_crop.jpg',
+									'http://www.magination.no/images/game3_crop.jpg'],
+							otherObjects: ['cup', 'book'],
+							rules: ['rule 1', 'rule 2'],
+							alternativeRules: ['alt rule 1', 'alt rule 2'],
+							owner: testUser._id});
+						var game2 = new Game(
+							{title: 'test game 2',
+							shortDescription: 'this is a short description 2',
+							pieces: {
+								singles: 4,
+								doubles: 5,
+								triples: 6
+							},
+							isPlayableWithMorePlayers: true,
+							isPlayableWithTeams: true,
+							sumOfVotes: 3,
+							numberOfVotes: 1,
 							numberOfPlayers: 3,
 							images: ['http://www.magination.no/images/game1_crop.jpg',
 									'http://www.magination.no/images/game2_crop.jpg',
@@ -62,8 +85,10 @@ describe('Starting tests', function () {
 							owner: testUser._id});
 						game.save(function (err, user) {
 							if (err) return done(err);
-							mongoose.connection.close(function (err) {
+							game2.save(function (err, user) {
 								if (err) return done(err);
+								init.initFeaturedGames();
+								init.initTopGames();
 								return done();
 							});
 						});
