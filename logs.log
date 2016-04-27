@@ -1,0 +1,58 @@
+{"level":"info","message":"testlog","timestamp":"2016-04-26T12:19:42.096Z"}
+{"level":"info","message":"testlog","timestamp":"2016-04-26T12:24:31.222Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461743880700","timestamp":"2016-04-27T07:58:00.701Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461743880703","timestamp":"2016-04-27T07:58:00.703Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461744117707. It removed [object Object] expired tokens.","timestamp":"2016-04-27T08:01:57.708Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461744117709. It removed [object Object] expired tokens.","timestamp":"2016-04-27T08:01:57.710Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461744584840","timestamp":"2016-04-27T08:09:44.842Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461744584844","timestamp":"2016-04-27T08:09:44.845Z"}
+{"code":11000,"index":0,"errmsg":"E11000 duplicate key error collection: test.gamelists index: title_1 dup key: { : null }","op":{"_id":"572073c83c7f98782a4139a7","games":["572072040167c91812e92332","572072040167c91812e92331"],"__v":0}}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461744824144","timestamp":"2016-04-27T08:13:44.147Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461744824149","timestamp":"2016-04-27T08:13:44.150Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461745069702","timestamp":"2016-04-27T08:17:49.705Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461745069707","timestamp":"2016-04-27T08:17:49.707Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747143931","timestamp":"2016-04-27T08:52:23.933Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747143934","timestamp":"2016-04-27T08:52:23.934Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747296150","timestamp":"2016-04-27T08:54:56.152Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747296153","timestamp":"2016-04-27T08:54:56.153Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747554788","timestamp":"2016-04-27T08:59:14.789Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747554791","timestamp":"2016-04-27T08:59:14.791Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747727004","timestamp":"2016-04-27T09:02:07.006Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747727007","timestamp":"2016-04-27T09:02:07.008Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747782489","timestamp":"2016-04-27T09:03:02.492Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747782494","timestamp":"2016-04-27T09:03:02.494Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747809383","timestamp":"2016-04-27T09:03:29.385Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747809387","timestamp":"2016-04-27T09:03:29.387Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747839016","timestamp":"2016-04-27T09:03:59.017Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747839019","timestamp":"2016-04-27T09:03:59.019Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747867285","timestamp":"2016-04-27T09:04:27.288Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747867289","timestamp":"2016-04-27T09:04:27.290Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461747997120","timestamp":"2016-04-27T09:06:37.122Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461747997123","timestamp":"2016-04-27T09:06:37.123Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461748386824","timestamp":"2016-04-27T09:13:06.826Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461748386827","timestamp":"2016-04-27T09:13:06.828Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran at: 1461748553526","timestamp":"2016-04-27T09:15:53.528Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran at: 1461748553530","timestamp":"2016-04-27T09:15:53.530Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-27T10:04:46.194Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-27T10:04:46.195Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:04:46.249Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-27T10:05:21.302Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-27T10:05:21.304Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:05:21.357Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:16:12.113Z"}
+{"level":"info","message":"updateTopGames job ran. Did not find a topGames list to update.","timestamp":"2016-04-27T10:20:00.010Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:22:00.011Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:24:00.007Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:26:00.010Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-27T10:30:00.008Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-27T10:30:00.010Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:30:00.018Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-27T10:32:00.003Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-27T10:32:00.005Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:32:00.011Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-27T10:34:00.005Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-27T10:34:00.006Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:34:00.016Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-27T10:36:00.006Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-27T10:36:00.011Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-27T10:36:00.012Z"}

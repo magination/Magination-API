@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Game = require('../../models/game/game.model');
+var GameList = require('../../models/gameList/gameList.model');
 var User = require('../../models/user/user.model');
 var verifyToken = require('../login/verifyToken');
 var Rating = require('../../models/rating/rating.model');
@@ -17,6 +18,17 @@ module.exports = function (app) {
 		if (!req.body.title || !req.body.shortDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		else next();
 	};
+
+	router.get('/topgames', function (req, res) {
+		GameList.findOne({title: 'topGames'}, function (err, gameList) {
+			if (err) {
+				console.log(err);
+				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			}
+			if (!gameList) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			return res.status(200).json(gameList);
+		}).populate('games');
+	});
 
 	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
 		var game = new Game(_.extend(req.body, {owner: req.verified.id}));
@@ -55,7 +67,7 @@ module.exports = function (app) {
 		if (req.query.owner) {
 			User.findOne({username: req.query.owner}, '-password -__v', function (err, user) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				if (user == null) return res.status(200).json({});
+				if (user == null) return res.status(404).json({});
 				else req.query.owner = user._id;
 				next();
 			});

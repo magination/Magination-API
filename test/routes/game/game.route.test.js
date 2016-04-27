@@ -69,7 +69,7 @@ it('GET /api/games?owner=doesnotexist - should return 0 games with owner that do
 	request(url)
 	.get('/api/games?owner=doesnotexist')
 	.set('Accept', 'application/json')
-	.expect(200)
+	.expect(404)
 	.end(function (err, res) {
 		if (err) return done(err);
 		res.body.should.be.empty;
@@ -81,7 +81,7 @@ it('GET /api/games?title=doesnotexist - should return 0 games with title that do
 	request(url)
 	.get('/api/games?owner=doesnotexist')
 	.set('Accept', 'application/json')
-	.expect(200)
+	.expect(404)
 	.end(function (err, res) {
 		if (err) return done(err);
 		res.body.should.be.empty;

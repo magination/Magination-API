@@ -7,7 +7,13 @@ var router 			= require('./routes');
 var dbConfig 		= require('./config/db.config');
 var serverConfig 	= require('./config/server.config');
 var https 			= require('https');
-var fs = require('fs');
+var fs 				= require('fs');
+var helmet 			= require('helmet');
+var contentLength 	= require('express-content-length-validator');
+var crontab = require('node-crontab');
+var crontabjobs = require('./cronjobs/cronjobs');
+var winston = require('winston');
+var init = require('./init/init');
 
 if (mongoose.connection.readyState === 0) {
 	mongoose.connect(dbConfig.DATABASE.test, function (err) {
@@ -16,6 +22,10 @@ if (mongoose.connection.readyState === 0) {
 	});
 };
 
+//	app.use(helmet);
+
+app.use(contentLength.validateMax({max: serverConfig.MAX_CONTENT_LENGTH_ACCEPTED, status: 400, message: 'Content Length is not accepted.'}));
+
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -23,6 +33,7 @@ app.use(function (req, res, next) {
 	next();
 });
 
+// HTTPS OPTIONS
 var options = {
 	key: fs.readFileSync('./server/https/key.pem'),
 	cert: fs.readFileSync('./server/https/cert.pem')
@@ -32,6 +43,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 app.use('/api', router(app));
+
+// WINSTON LOGGER INIT
+winston.add(winston.transports.File, { filename: 'logs.log' });
+winston.remove(winston.transports.Console);
+
+// Init functions should be called here. This is now done after tests are run, move this before running in production.
+// init.initTopGames();
+// init.initFeaturedGames();
+
+// CRONTAB JOBS
+var cron1 = crontab.scheduleJob('*/2 * * * *', crontabjobs.updateTopGames);
+var cron2 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
+var cron3 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 
 https.createServer(options, app).listen(serverConfig.PORT, function (err) {
 	if (err) console.log(err);
