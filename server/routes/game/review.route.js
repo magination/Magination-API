@@ -79,7 +79,10 @@ module.exports = function (app) {
 			review.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (newRating != null) Review.updateRatingInGame(req.params.gameId, oldRating, newRating);
-				return res.status(200).json(review);
+				Review.populate(review, {path: 'owner', select: 'username'}, function (err, review) {
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					return res.status(200).json(review);
+				});
 			});
 		});
 	});
