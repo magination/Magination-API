@@ -3,5 +3,7 @@ node_modules
 .DS_Store
 server/config/email.config.js
 logs.log
+public
+server/config/server.config.js
 #webstorm
 .idea/
