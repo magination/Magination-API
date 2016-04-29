@@ -87,7 +87,7 @@ module.exports = function (app) {
 				res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
 				console.log(err);
 			}
-			else res.json(games);
+			else res.status(200).json({games: games});
 		}).populate('owner', 'username');
 	});
 

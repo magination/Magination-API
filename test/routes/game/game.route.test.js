@@ -36,7 +36,7 @@ it('GET /api/games - should return availiable games', function (done) {
 	.expect(200)
 	.end(function (err, res) {
 		if (err) return done(err);
-		assert.lengthOf(res.body, 1);
+		assert.lengthOf(res.body.games, 1);
 		done();
 	});
 });
@@ -48,7 +48,7 @@ it('GET /api/games?title=test - should return game with title "test"', function 
 	.expect(200)
 	.end(function (err, res) {
 		if (err) return done(err);
-		assert.lengthOf(res.body, 1);
+		assert.lengthOf(res.body.games, 1);
 		done();
 	});
 });
@@ -60,7 +60,7 @@ it('GET /api/games?owner=admin - should return game with owner "admin"', functio
 	.expect(200)
 	.end(function (err, res) {
 		if (err) return done(err);
-		assert.lengthOf(res.body, 1);
+		assert.lengthOf(res.body.games, 1);
 		done();
 	});
 });
