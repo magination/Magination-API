@@ -11,6 +11,8 @@ var emailconfig = require('../../config/email.config');
 var constants = require('../../config/constants.config');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
+var imageRouter = require('./image.route');
+router.use('/', imageRouter());
 
 /*
 TODO: Split this component up. Nev should be configured in a seperate file.

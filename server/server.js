@@ -10,10 +10,11 @@ var https 			= require('https');
 var fs 				= require('fs');
 var helmet 			= require('helmet');
 var contentLength 	= require('express-content-length-validator');
-var crontab = require('node-crontab');
-var crontabjobs = require('./cronjobs/cronjobs');
-var winston = require('winston');
-var init = require('./init/init');
+var crontab 		= require('node-crontab');
+var crontabjobs 	= require('./cronjobs/cronjobs');
+var winston 		= require('winston');
+var init 			= require('./init/init');
+var path 			= require('path');
 
 if (mongoose.connection.readyState === 0) {
 	mongoose.connect(dbConfig.DATABASE.test, function (err) {
@@ -32,6 +33,8 @@ app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Headers', 'Origin, Authorization, X-Requested-With, Content-Type, Accept');
 	next();
 });
+// Make public dir accessible
+app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // HTTPS OPTIONS
 var options = {
