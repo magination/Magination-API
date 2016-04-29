@@ -3,7 +3,7 @@ var request = require('supertest');
 var User = require('../../../server/models/user/user.model');
 var serverconfig = require('../../../server/config/server.config');
 var testconfig = require('../../test.config');
-var url = serverconfig.ADRESS + serverconfig.PORT;
+var url = serverconfig.ADDRESS + serverconfig.PORT;
 var dbConfig = require('../../../server/config/db.config');
 var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 

@@ -6,7 +6,7 @@ var Game = require('../../../server/models/game/game.model');
 var mongoose = require('mongoose');
 var assert = require('chai').assert;
 var should = require('chai').should();
-var url = serverconfig.ADRESS + serverconfig.PORT;
+var url = serverconfig.ADDRESS + serverconfig.PORT;
 var dbConfig = require('../../../server/config/db.config');
 var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 
