@@ -50,6 +50,7 @@ module.exports = function (app) {
 
 	var parseSearchQuery = function (req, res, next) {
 		var query = {};
+		var options = {};
 		if (req.query.title) query.title = {'$regex': req.query.title, '$options': 'i'};
 		if (req.query.singles) query['pieces.singles'] = {'$lte': req.query.singles};
 		if (req.query.doubles) query['pieces.doubles'] = {'$lte': req.query.doubles};
@@ -57,7 +58,10 @@ module.exports = function (app) {
 		if (req.query.numberOfPlayers) query.numberOfPlayers = {'$lte': req.query.numberOfPlayers};
 		if (req.query.owner) query.owner = req.query.owner;
 		if (req.query.search) query['$text'] = {$search: req.query.search};
+		if (req.query.start) options.skip = parseInt(req.query.start);
+		if (req.query.quantity) options.limit = parseInt(req.query.quantity);
 		req.query = query;
+		req.options = options;
 		next();
 	};
 
@@ -78,9 +82,12 @@ module.exports = function (app) {
 	};
 
 	router.route('/games').get(populateOwnerField, parseSearchQuery, function (req, res) {
-		Game.find(req.query, '-__v', function (err, game) {
-			if (err) res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-			else res.json(game);
+		Game.find(req.query, '-__v', req.options, function (err, games) {
+			if (err) {
+				res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+				console.log(err);
+			}
+			else res.json(games);
 		}).populate('owner', 'username');
 	});
 
