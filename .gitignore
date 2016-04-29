@@ -2,7 +2,7 @@
 node_modules
 .DS_Store
 server/config/email.config.js
-logs.log
+./logs.log
 public
 server/config/server.config.js
 #webstorm

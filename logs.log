@@ -145,3 +145,9 @@
 {"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T11:20:00.004Z"}
 {"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T11:20:00.010Z"}
 {"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T11:20:00.010Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T12:56:00.007Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T12:56:00.013Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T12:56:00.021Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T12:58:00.004Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T12:58:00.005Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T12:58:00.010Z"}

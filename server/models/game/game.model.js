@@ -22,6 +22,6 @@ var gameSchema = new mongoose.Schema({
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'}
 });
 
-gameSchema.index({title: 'text', mainDescription: 'text'});
+gameSchema.index({title: 'text', shortDescription: 'text'});
 
 module.exports = mongoose.model('game', gameSchema);
