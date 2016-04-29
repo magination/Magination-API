@@ -10,6 +10,7 @@ var _ = require('lodash');
 module.exports = function (app) {
 	router.post('/unpublishedGames', verifyToken, function (req, res) {
 		var unpublishedGame = new UnpublishedGame(_.extend(req.body, {owner: req.verified.id}));
+		if (!req.body.parentGame) unpublishedGame.parentGame = undefined;
 		unpublishedGame.save(function (err) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			unpublishedGame.populate('owner', 'username', function (err) {
@@ -21,7 +22,7 @@ module.exports = function (app) {
 
 	router.get('/users/:userId/unpublishedGames', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.userId)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-		if (req.params.userId !== req.verified.id) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.userId) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
 		UnpublishedGame.find({owner: req.verified.id}, function (err, games) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			else return res.status(200).json(games);

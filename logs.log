@@ -151,3 +151,19 @@
 {"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T12:58:00.004Z"}
 {"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T12:58:00.005Z"}
 {"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T12:58:00.010Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T13:02:00.007Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T13:02:00.009Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T13:02:00.016Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T13:06:00.005Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T13:06:00.007Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T13:06:00.015Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T13:08:00.007Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T13:08:00.008Z"}
+{"level":"info","message":"updateTopGames job ran. Did not find a topGames list to update.","timestamp":"2016-04-29T13:08:00.008Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T13:10:00.007Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T13:10:00.008Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T13:10:00.028Z"}
+{"message":"No matching document found.","stack":"VersionError: No matching document found.\n    at C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\lib\\model.js:214:19\n    at C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\lib\\model.js:167:9\n    at handleCallback (C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\node_modules\\mongodb\\lib\\utils.js:96:12)\n    at C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\node_modules\\mongodb\\lib\\collection.js:1010:5\n    at commandCallback (C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\node_modules\\mongodb\\node_modules\\mongodb-core\\lib\\topologies\\server.js:1161:9)\n    at Callbacks.emit (C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\node_modules\\mongodb\\node_modules\\mongodb-core\\lib\\topologies\\server.js:119:3)\n    at null.messageHandler (C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\node_modules\\mongodb\\node_modules\\mongodb-core\\lib\\topologies\\server.js:295:23)\n    at Socket.<anonymous> (C:\\Users\\Steffen\\Desktop\\Maginationapiworkdraft\\node_modules\\mongoose\\node_modules\\mongodb\\node_modules\\mongodb-core\\lib\\connection\\connection.js:285:22)\n    at emitOne (events.js:77:13)\n    at Socket.emit (events.js:169:7)\n    at readableAddChunk (_stream_readable.js:146:16)\n    at Socket.Readable.push (_stream_readable.js:110:10)\n    at TCP.onread (net.js:523:20)","name":"VersionError","level":"error","timestamp":"2016-04-29T13:10:00.029Z"}
+{"level":"info","message":"removeExpiredUpdateEmailTokens job ran.","timestamp":"2016-04-29T13:12:00.005Z"}
+{"level":"info","message":"removeExpiredResetPasswordTokens job ran.","timestamp":"2016-04-29T13:12:00.006Z"}
+{"level":"info","message":"updateTopGames job ran.","timestamp":"2016-04-29T13:12:00.015Z"}
