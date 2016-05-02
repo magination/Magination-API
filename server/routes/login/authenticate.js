@@ -3,6 +3,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var User = require('../../models/user/user.model');
 var validator = require('validator');
 var constants = require('../../config/constants.config');
+var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 
 passport.use('username', new LocalStrategy(
 	function (username, password, done) {
@@ -49,13 +50,19 @@ module.exports = function (req, res, next) {
 	if (validator.isEmail(req.body.username)) {
 		passport.authenticate('email', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-			else req.logIn(user, {session: false}, next);
+			else {
+				req.brute.reset();
+				req.logIn(user, {session: false}, next);
+			}
 		})(req, res, next);
 	}
 	else {
 		passport.authenticate('username', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-			else req.logIn(user, {session: false}, next);
+			else {
+				req.brute.reset();
+				req.logIn(user, {session: false}, next);
+			}
 		})(req, res, next);
 	}
 };

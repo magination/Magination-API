@@ -11,6 +11,8 @@ var emailconfig = require('../../config/email.config');
 var constants = require('../../config/constants.config');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
+var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
+var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var imageRouter = require('./image.route');
 router.use('/', imageRouter());
 
@@ -78,10 +80,11 @@ module.exports = function (app) {
 		});
 	});
 
-	router.post('/resendVerificationEmail', function (req, res) {
-		/*
-		TODO: this is doomed to be missused. Should prevent multiple requests etc.
-		 */
+	router.post('/resendVerificationEmail', globalBruteForce.prevent, userBruteForce.getMiddleware({
+		key: function (req, res, next) {
+			next(req.body.email);
+		}
+	}), function (req, res) {
 		if (!req.body.email || !validator.isEmail(req.body.email)) {
 			return res.status(400).json({message: 'bad request'});
 		}
@@ -134,8 +137,12 @@ module.exports = function (app) {
 					else {
 						if (req.body.email) {
 							if (!validator.isEmail(req.body.email)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-							generateEmailUpdateTokenAndSendMail(req.body.email, user, req, res, function (err) {
+							User.findOne({email: req.body.email}, function (err, user2) {
 								if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+								if (user2) return res.status(409).json({message: 'Email allready in use.'});
+								generateEmailUpdateTokenAndSendMail(req.body.email, user, req, res, function (err) {
+									if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+								});
 							});
 						}
 						if (req.body.password) {
