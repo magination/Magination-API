@@ -57,7 +57,12 @@ reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
 		if (err) throw new Error(err);
 		game.numberOfVotes --;
 		game.sumOfVotes -= review.rating;
-		game.rating = (game.sumOfVotes / game.numberOfVotes);
+		if (game.sumOfVotes === 0) {
+			game.rating = 0;
+		}
+		else {
+			game.rating = (game.sumOfVotes / game.numberOfVotes);
+		}
 		game.save(function (err) {
 			if (err) throw new Error(err);
 		});
