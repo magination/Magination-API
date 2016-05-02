@@ -145,23 +145,25 @@ module.exports = function (app) {
 								});
 							});
 						}
-						if (req.body.password) {
-							if (!req.body.password.length > 0) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-							user.password = req.body.password;
-						}
 						else {
-							user.password = req.body.oldPassword;
-						}
-						user.save(function (err) {
-							if (err) {
-								console.log(err);
-								if (err.name === 'ValidationError') return res.status(409).json({message: 'Email already in use'});
-								return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+							if (req.body.password) {
+								if (!req.body.password.length > 0) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+								user.password = req.body.password;
 							}
-							user.password = undefined;
-							user.__v = undefined;
-							return res.status(200).json(user);
-						});
+							else {
+								user.password = req.body.oldPassword;
+							}
+							user.save(function (err) {
+								if (err) {
+									console.log(err);
+									if (err.name === 'ValidationError') return res.status(409).json({message: 'Email already in use'});
+									return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+								}
+								user.password = undefined;
+								user.__v = undefined;
+								return res.status(200).json(user);
+							});
+						}
 					}
 				}).catch(function (err) {
 					if (err) {
