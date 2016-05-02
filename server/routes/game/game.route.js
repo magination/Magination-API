@@ -61,6 +61,7 @@ module.exports = function (app) {
 		if (req.query.search) query['$text'] = {$search: req.query.search};
 		if (req.query.start) options.skip = parseInt(req.query.start);
 		if (req.query.quantity) options.limit = parseInt(req.query.quantity);
+		if (req.query.sortBy) options['sort'] = {rating: -1};
 		req.query = query;
 		req.options = options;
 		next();

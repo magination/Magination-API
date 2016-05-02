@@ -61,11 +61,9 @@ module.exports = function (app) {
 					'http://localhost:8080' + '/confirmforgotpassword/' + token + '\n\n' +
 					'If you did not request this, please ignore this email and your password will remain unchanged.\n'
 				};
-				smtpTransport.sendMail(mailOptions, function (err) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					res.status(200).json({message: 'email has been sent'});
-					done(err, 'done');
-				});
+				smtpTransport.sendMail(mailOptions);
+				res.status(200).json({message: 'email has been sent'});
+				done(null, 'done');
 			}
 		]);
 	});
