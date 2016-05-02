@@ -105,6 +105,20 @@ module.exports = function (app) {
 		});
 	});
 
+	router.put('/users/:id/pieces', verifyToken, function (req, res) {
+		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
+		if (!req.body.pieces) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		User.findByIdAndUpdate({_id: req.verified.id}, {pieces: req.body.pieces}, {new: true}, function (err, user) {
+			if (err) {
+				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			}
+			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			user.password = undefined;
+			user.__v = undefined;
+			return res.status(200).json(user);
+		});
+	});
+
 	router.put('/users/:id/', verifyToken, function (req, res) {
 		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});

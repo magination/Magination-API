@@ -57,9 +57,11 @@ module.exports = function (app) {
 		if (req.query.triples) query['pieces.triples'] = {'$lte': req.query.triples};
 		if (req.query.numberOfPlayers) query.numberOfPlayers = {'$lte': req.query.numberOfPlayers};
 		if (req.query.owner) query.owner = req.query.owner;
+		if (req.query.rating) query.rating = {'$gte': req.query.rating};
 		if (req.query.search) query['$text'] = {$search: req.query.search};
 		if (req.query.start) options.skip = parseInt(req.query.start);
 		if (req.query.quantity) options.limit = parseInt(req.query.quantity);
+		if (req.query.sortBy) options['sort'] = {rating: -1};
 		req.query = query;
 		req.options = options;
 		next();
