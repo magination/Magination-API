@@ -55,9 +55,10 @@ describe('Starting tests', function () {
 								triples: 6
 							},
 							isPlayableWithMorePlayers: true,
-							isPlayableWithTeams: true,
+							isPlayableInTeams: true,
 							sumOfVotes: 4,
 							numberOfVotes: 1,
+							rating: 4,
 							numberOfPlayers: 3,
 							images: ['http://www.magination.no/images/game1_crop.jpg',
 									'http://www.magination.no/images/game2_crop.jpg',
@@ -75,9 +76,10 @@ describe('Starting tests', function () {
 								triples: 6
 							},
 							isPlayableWithMorePlayers: true,
-							isPlayableWithTeams: true,
+							isPlayableInTeams: true,
 							sumOfVotes: 3,
 							numberOfVotes: 1,
+							rating: 3,
 							numberOfPlayers: 3,
 							images: ['http://www.magination.no/images/game1_crop.jpg',
 									'http://www.magination.no/images/game2_crop.jpg',
@@ -91,7 +93,6 @@ describe('Starting tests', function () {
 							game2.save(function (err, user) {
 								if (err) return done(err);
 								init.initFeaturedGames();
-								init.initTopGames();
 								return done();
 							});
 						});
