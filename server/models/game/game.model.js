@@ -18,6 +18,7 @@ var gameSchema = new mongoose.Schema({
 	reviews: [{type: mongoose.Schema.Types.ObjectId, ref: 'review'}],
 	numberOfVotes: {type: Number, default: 0},
 	sumOfVotes: {type: Number, default: 0},
+	rating: {type: Number, default: 0},
 	images: [{type: String, validate: validators.isURL()}],
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'}
 });

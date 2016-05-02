@@ -29,6 +29,7 @@ reviewSchema.statics.pushToGameAndAddRating = function (gameId, review) {
 		if (err) throw new Error(err);
 		game.sumOfVotes += review.rating;
 		game.numberOfVotes ++;
+		game.rating = (game.sumOfVotes / game.numberOfVotes);
 		game.save(function (err) {
 			if (err) throw new Error(err);
 		});
@@ -41,6 +42,7 @@ reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating
 		if (err) throw new Error(err);
 		game.sumOfVotes -= oldRating;
 		game.sumOfVotes += newRating;
+		game.rating = (game.sumOfVotes / game.numberOfVotes);
 		game.save(function (err) {
 			if (err) throw new Error(err);
 		});
@@ -55,6 +57,7 @@ reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
 		if (err) throw new Error(err);
 		game.numberOfVotes --;
 		game.sumOfVotes -= review.rating;
+		game.rating = (game.sumOfVotes / game.numberOfVotes);
 		game.save(function (err) {
 			if (err) throw new Error(err);
 		});
