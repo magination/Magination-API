@@ -42,7 +42,7 @@ var options = {
 	cert: fs.readFileSync('./server/https/cert.pem')
 };
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true, colorize: true}));
 
 app.use(passport.initialize());
 app.use('/api', router(app));
@@ -51,12 +51,12 @@ app.use('/api', router(app));
 winston.add(winston.transports.File, { filename: 'logs.log' });
 winston.remove(winston.transports.Console);
 
+winston.log('error', 'test error');
+
 // Init functions should be called here. This is now done after tests are run, move this before running in production.
-// init.initTopGames();
 // init.initFeaturedGames();
 
 // CRONTAB JOBS
-var cron1 = crontab.scheduleJob('*/2 * * * *', crontabjobs.updateTopGames);
 var cron2 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
 var cron3 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 

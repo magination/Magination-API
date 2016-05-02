@@ -6,37 +6,6 @@ var winston = require('winston');
 var init = require('../init/init');
 
 var cronjobs = {
-	updateTopGames: function () {
-		GameList.findOne({title: 'topGames'}, function (err, list) {
-			if (err) {
-				winston.log('error', err);
-				return;
-			}
-			if (!list) {
-				winston.log('info', 'updateTopGames job ran. Did not find a topGames list to update.');
-			}
-			else {
-				Game.find({sumOfVotes: {$gt: 0}, numberOfVotes: {$gt: 0}}, function (err, games) {
-					if (err) return winston.log('error', err);
-					games.sort(function (a, b) {
-						return parseFloat(a.sumOfVotes / a.numberOfVotes) - parseFloat(b.sumOfVotes / b.numberOfVotes);
-					});
-					list.games = [];
-					var topGamesList = games.slice(0, 11);
-					topGamesList.forEach(function (game) {
-						list.games.push(game._id);
-					});
-					list.save(function (err) {
-						if (err) {
-							winston.log('error', err);
-							return;
-						}
-						winston.log('info', 'updateTopGames job ran.');
-					});
-				});
-			}
-		});
-	},
 	removeExpiredResetPasswordTokens: function () {
 		User.update({resetPasswordExpires: { $lt: Date.now() }},
 			{

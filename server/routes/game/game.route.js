@@ -9,6 +9,7 @@ var constants = require('../../config/constants.config');
 var validator = require('../../validator/validator');
 var check = require('check-types');
 var _ = require('lodash');
+var bruteforce = require('../../bruteforce/bruteForce');
 
 router.use(function (req, res, next) {
 	next();
@@ -19,17 +20,6 @@ module.exports = function (app) {
 		if (!req.body.title || !req.body.shortDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		else next();
 	};
-
-	router.get('/topgames', function (req, res) {
-		GameList.findOne({title: 'topGames'}, function (err, gameList) {
-			if (err) {
-				console.log(err);
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			}
-			if (!gameList) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			return res.status(200).json(gameList);
-		}).populate('games');
-	});
 
 	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
 		var game = new Game(_.extend(req.body, {owner: req.verified.id}));
@@ -55,7 +45,13 @@ module.exports = function (app) {
 		if (req.query.singles) query['pieces.singles'] = {'$lte': req.query.singles};
 		if (req.query.doubles) query['pieces.doubles'] = {'$lte': req.query.doubles};
 		if (req.query.triples) query['pieces.triples'] = {'$lte': req.query.triples};
-		if (req.query.numberOfPlayers) query.numberOfPlayers = {'$lte': req.query.numberOfPlayers};
+		if (req.query.numberOfPlayers) {
+			query.$or = [{'numberOfPlayers': req.query.numberOfPlayers}, {'isPlayableWithMorePlayers': true, numberOfPlayers: {$lte: req.query.numberOfPlayers}}];
+		};
+		if (req.query.otherObjects === 'true') query.otherObjects = {$gt: []};
+		else if (req.query.otherObjects === 'false') query.otherObjects = {$lte: []};
+		if (req.query.teams === 'true') query.isPlayableInTeams = true;
+		else if (req.query.teams === 'false') query.isPlayableInTeams = false;
 		if (req.query.owner) query.owner = req.query.owner;
 		if (req.query.rating) query.rating = {'$gte': req.query.rating};
 		if (req.query.search) query['$text'] = {$search: req.query.search};
@@ -67,6 +63,9 @@ module.exports = function (app) {
 		next();
 	};
 
+	router.route('/testBruteForce').get(bruteforce.globalBruteForce.prevent, function (req, res) {
+		return res.status(200).json('bruteforce he he he');
+	});
 	var populateOwnerField = function (req, res, next) {
 		if (!req.query) {
 			req.query = {};
