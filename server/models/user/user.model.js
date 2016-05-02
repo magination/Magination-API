@@ -13,7 +13,12 @@ var userSchema = new mongoose.Schema({
 	updateEmailToken: String,
 	updateEmailExpires: Date,
 	updateEmailTmp: String,
-	userVersion: Number
+	userVersion: Number,
+	pieces: {
+		singles: {type: Number, default: 0, min: 0},
+		doubles: {type: Number, default: 0, min: 0},
+		triples: {type: Number, default: 0, min: 0}
+	}
 });
 
 userSchema.pre('save', function (next) {
