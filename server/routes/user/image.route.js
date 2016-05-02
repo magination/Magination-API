@@ -8,6 +8,7 @@ var multer = require('multer');
 var storage;
 var fs = require('fs');
 var config = require('../../config/server.config');
+var User = require('../../models/user/user.model');
 
 router.use(function (req, res, next) {
 	next();
@@ -15,8 +16,13 @@ router.use(function (req, res, next) {
 
 module.exports = function (app) {
 	router.post('/users/:user_id/images', verifyToken, setupMulter, function (req, res) {
-		if (req.imagePath) return res.status(422).json({message: 'Missing image file'});
 		return res.status(202).send();
+	});
+	router.get('/users/:user_id/images', function (req, res) {
+		User.findById({_id: req.params.user_id}, function (err, user) {
+			if (err) return res.status(500).send();
+			return res.status(200).json(user.images);
+		});
 	});
 	return router;
 };
@@ -33,12 +39,21 @@ var setupMulter = function (req, res, next) {
 				cb(null, dir);
 			},
 			filename: function (req, file, cb) {
-				var fileName = file.originalname;
+				var fileName = file.originalname.replace(/ /g, '_');
 				if (fs.existsSync(dir + '/' + fileName)) {
 					return;
 				}
 				imagePath += fileName;
-				cb(null, fileName);
+				var absolutePath = config.ABSOLUTE_IMAGE_PATH_ROOT + req.params.user_id + '/' + fileName;
+				User.findByIdAndUpdate(req.verified.id, {$push: {images: absolutePath}}, {safe: true, upsert: false},
+					function (err, model) {
+						if (err) {
+							console.log(err);
+							cb(err, fileName);
+						}
+						cb(null, fileName);
+					}
+				);
 			}
 		});
 		var upload = multer({ storage: storage }).single('image');

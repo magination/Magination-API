@@ -18,7 +18,8 @@ var userSchema = new mongoose.Schema({
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
 		triples: {type: Number, default: 0, min: 0}
-	}
+	},
+	images: [String]
 });
 
 userSchema.pre('save', function (next) {
