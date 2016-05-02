@@ -55,7 +55,7 @@ describe('Starting tests', function () {
 								triples: 6
 							},
 							isPlayableWithMorePlayers: true,
-							isPlayableWithTeams: true,
+							isPlayableInTeams: true,
 							sumOfVotes: 4,
 							numberOfVotes: 1,
 							rating: 4,
@@ -76,7 +76,7 @@ describe('Starting tests', function () {
 								triples: 6
 							},
 							isPlayableWithMorePlayers: true,
-							isPlayableWithTeams: true,
+							isPlayableInTeams: true,
 							sumOfVotes: 3,
 							numberOfVotes: 1,
 							rating: 3,
@@ -93,7 +93,6 @@ describe('Starting tests', function () {
 							game2.save(function (err, user) {
 								if (err) return done(err);
 								init.initFeaturedGames();
-								init.initTopGames();
 								return done();
 							});
 						});
