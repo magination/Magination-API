@@ -63,9 +63,6 @@ module.exports = function (app) {
 		next();
 	};
 
-	router.route('/testBruteForce').get(bruteforce.globalBruteForce.prevent, function (req, res) {
-		return res.status(200).json('bruteforce he he he');
-	});
 	var populateOwnerField = function (req, res, next) {
 		if (!req.query) {
 			req.query = {};

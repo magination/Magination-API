@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../../models/user/user.model');
+var Game = require('../../models/game/game.model');
 var requestValidator = require('./user.request.validate');
 var uniqueValidator = require('./user.unique.validate');
 var validator = require('validator');
@@ -98,7 +99,7 @@ module.exports = function (app) {
 	});
 
 	router.get('/users/:id/', verifyToken, function (req, res) {
-		if (req.verified.id !== req.params.id) return res.status(403).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 		User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			else if (user == null) {
@@ -109,7 +110,7 @@ module.exports = function (app) {
 	});
 
 	router.put('/users/:id/pieces', verifyToken, function (req, res) {
-		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 		if (!req.body.pieces) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findByIdAndUpdate({_id: req.verified.id}, {pieces: req.body.pieces}, {new: true}, function (err, user) {
 			if (err) {
@@ -122,8 +123,16 @@ module.exports = function (app) {
 		});
 	});
 
+	router.get('/users/:id/games', verifyToken, function (req, res) {
+		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+		Game.find({owner: req.veirifed.id}, function (err, games) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			return res.status(200).json(games);
+		});
+	});
+
 	router.put('/users/:id/', verifyToken, function (req, res) {
-		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.forbidden});
+		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findById({_id: req.verified.id}, function (err, user) {
 			if (err) {

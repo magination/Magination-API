@@ -4,8 +4,8 @@ var Game = require('../game/game.model');
 var _ = require('lodash');
 
 var unpublishedGameSchema = new mongoose.Schema({
-	title: {type: String, required: true},
-	shortDescription: {type: String, maxlength: 255, required: true},
+	title: {type: String},
+	shortDescription: {type: String, maxlength: 255},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
@@ -28,7 +28,7 @@ var unpublishedGameSchema = new mongoose.Schema({
 unpublishedGameSchema.methods.publishGame = function (callback) {
 	/*
 	Method that created game from the unpublished game.
-	Returns the callback with callback(err, publishedGame).
+	Returns with callback(err, publishedGame).
 	 */
 	var publishedGame = new Game(_.omit(this.toObject(), ['_id', '__v']));
 	publishedGame.save(function (err) {
