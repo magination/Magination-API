@@ -10,20 +10,33 @@ var crypto = require('crypto');
 var User = require('../../models/user/user.model');
 var validator = require('validator');
 var nodemailer = require('nodemailer');
+var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
+var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var emailconfig = require('../../config/email.config');
 
 module.exports = function (app) {
-	router.post('/login', authenticate, signToken, function (req, res, next) {
-		if (req.user && req.data) return res.status(200).json(req.data);
+	router.post('/login', globalBruteForce.prevent,
+						userBruteForce.getMiddleware({
+							key: function (req, res, next) {
+								next(req.body.username);
+							}
+						}), authenticate,
+						signToken,
+		function (req, res, next) {
+			if (req.user && req.data) return res.status(200).json(req.data);
+			else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+		});
+
+	router.get('/login/refresh', globalBruteForce.prevent, verifyToken, refreshToken, function (req, res) {
+		if (req.data) return res.status(200).json(req.data);
 		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 	});
 
-	router.get('/login/refresh', verifyToken, refreshToken, function (req, res) {
-		if (req.refreshedToken) return res.status(200).json(req.refreshedToken);
-		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-	});
-
-	router.post('/login/forgot', function (req, res) {
+	router.post('/login/forgot', globalBruteForce.prevent, userBruteForce.getMiddleware({
+		key: function (req, res, next) {
+			next(req.body.email);
+		}
+	}), function (req, res) {
 		if (!req.body.email) return res.status(422);
 		if (!validator.isEmail(req.body.email)) return res.status(422);
 		async.waterfall([
@@ -61,16 +74,34 @@ module.exports = function (app) {
 					'http://localhost:8080' + '/confirmforgotpassword/' + token + '\n\n' +
 					'If you did not request this, please ignore this email and your password will remain unchanged.\n'
 				};
-				smtpTransport.sendMail(mailOptions, function (err) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					res.status(200).json({message: 'email has been sent'});
-					done(err, 'done');
-				});
+				smtpTransport.sendMail(mailOptions);
+				res.status(200).json({message: 'email has been sent'});
+				req.brute.reset();
+				done(null, 'done');
 			}
 		]);
 	});
 
-	router.post('/login/forgot/:resetToken', function (req, res) {
+	router.post('/login/update/:emailToken', globalBruteForce.prevent, userBruteForce.getMiddleware({
+		key: function (req, res, next) {
+			next(req.body.email);
+		}
+	}), function (req, res) {
+		User.findOne({updateEmailToken: req.params.emailToken, updateEmailExpires: { $gt: Date.now() }}, function (err, user) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			var newEmail = user.updateEmailTmp;
+			User.findOneAndUpdate({updateEmailToken: req.params.emailToken, updateEmailExpires: { $gt: Date.now() }},
+			{updateEmailToken: undefined, updateEmailExpires: undefined, updateEmailTmp: undefined, email: newEmail},
+			function (err, user) {
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+				else return res.status(200).json({message: constants.httpResponseMessages.success});
+			});
+		});
+	});
+
+	router.post('/login/forgot/:resetToken', globalBruteForce.prevent, function (req, res) {
 		if (!req.body.password || !req.params.resetToken) return res.status(422);
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});

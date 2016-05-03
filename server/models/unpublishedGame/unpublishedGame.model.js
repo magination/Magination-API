@@ -1,8 +1,11 @@
 var mongoose = require('mongoose');
 var validators = require('mongoose-validators');
-var gameSchema = new mongoose.Schema({
-	title: {type: String, required: true, autoIndex: true, unique: true},
-	shortDescription: {type: String, maxlength: 255, required: true, autoIndex: true},
+var Game = require('../game/game.model');
+var _ = require('lodash');
+
+var unpublishedGameSchema = new mongoose.Schema({
+	title: {type: String},
+	shortDescription: {type: String, maxlength: 255},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
@@ -18,12 +21,23 @@ var gameSchema = new mongoose.Schema({
 	reviews: [{type: mongoose.Schema.Types.ObjectId, ref: 'review'}],
 	numberOfVotes: {type: Number, default: 0},
 	sumOfVotes: {type: Number, default: 0},
-	rating: {type: Number, default: 0},
 	images: [{type: String, validate: validators.isURL()}],
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'},
-	unpublishedGame: {type: mongoose.Schema.Types.ObjectId, ref: 'unpublishedGame'}
+	publishedGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'}
 });
 
-gameSchema.index({title: 'text', shortDescription: 'text'});
+unpublishedGameSchema.methods.publishGame = function (callback) {
+	/*
+	Method that created game from the unpublished game.
+	Returns with callback(err, publishedGame).
+	 */
+	var publishedGame = new Game(_.omit(this.toObject(), ['_id', '__v']));
+	publishedGame.save(function (err) {
+		if (err) {
+			callback(err, null);
+		}
+		else callback(null, publishedGame);
+	});
+};
 
-module.exports = mongoose.model('game', gameSchema);
+module.exports = mongoose.model('unpublishedGame', unpublishedGameSchema);

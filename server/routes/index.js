@@ -4,6 +4,8 @@ var gameRouter = require('./game/game.route');
 var loginRouter = require('./login/login.route');
 var userRouter = require('./user/user.route');
 var commentRouter = require('./game/comment.route');
+var reviewRouter = require('./game/review.route');
+var unpublishedGameRouter = require('./game/unpublishedGame.route');
 
 module.exports = function (app) {
 	router.get('/', function (req, res) {
@@ -14,5 +16,7 @@ module.exports = function (app) {
 	router.use('/', loginRouter());
 	router.use('/', userRouter());
 	router.use('/', commentRouter());
+	router.use('/', reviewRouter());
+	router.use('/', unpublishedGameRouter());
 	return router;
 };

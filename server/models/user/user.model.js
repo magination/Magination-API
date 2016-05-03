@@ -9,7 +9,17 @@ var userSchema = new mongoose.Schema({
 	email: {type: String, required: true, unique: true},
 	password: {type: String, required: true},
 	resetPasswordToken: String,
-	resetPasswordExpires: Date
+	resetPasswordExpires: Date,
+	updateEmailToken: String,
+	updateEmailExpires: Date,
+	updateEmailTmp: String,
+	userVersion: Number,
+	pieces: {
+		singles: {type: Number, default: 0, min: 0},
+		doubles: {type: Number, default: 0, min: 0},
+		triples: {type: Number, default: 0, min: 0}
+	},
+	images: [String]
 });
 
 userSchema.pre('save', function (next) {
@@ -17,6 +27,8 @@ userSchema.pre('save', function (next) {
 		if (err) throw new Error(err);
 		else {
 			this.password = hash;
+			if (!this.userVersion) this.userVersion = 1;
+			else this.userVersion ++;
 			next();
 		};
 	}.bind(this));
