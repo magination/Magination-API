@@ -14,6 +14,7 @@ var userSchema = new mongoose.Schema({
 	updateEmailExpires: Date,
 	updateEmailTmp: String,
 	userVersion: Number,
+	privileges: {type: Number, default: 0, min: 0, max: 2},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
@@ -35,6 +36,12 @@ userSchema.pre('save', function (next) {
 });
 
 userSchema.plugin(uniqueValidator);
+
+userSchema.statics.privileges = {
+	USER: 0,
+	MODERATOR: 1,
+	ADMINISRATOR: 2
+};
 
 userSchema.methods.validPassword = function (password) {
 	return bcrypt

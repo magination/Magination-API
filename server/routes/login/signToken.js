@@ -5,6 +5,7 @@ module.exports = function (req, res, next) {
 	var token = jwt.sign({
 		id: req.user.id,
 		userVersion: req.user.userVersion,
+		privileges: req.user.privileges,
 		expiresIn: 60 * 60 * 12
 	}, serverConfig.SECRET);
 
