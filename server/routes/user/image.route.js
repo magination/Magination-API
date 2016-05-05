@@ -9,12 +9,17 @@ var storage;
 var fs = require('fs');
 var config = require('../../config/server.config');
 var User = require('../../models/user/user.model');
+var dirTree = require('directory-tree');
 
 router.use(function (req, res, next) {
 	next();
 });
 
 module.exports = function (app) {
+	router.get('/public/img/publicImages/pieces', function (req, res) {
+		var tree = dirTree('public/img/pieces');
+		return res.status(200).json(tree);
+	});
 	router.post('/users/:user_id/images', verifyToken, setupMulter, function (req, res) {
 		return res.status(202).send();
 	});
@@ -28,7 +33,7 @@ module.exports = function (app) {
 };
 var setupMulter = function (req, res, next) {
 	try {
-		var dir = config.LOCAL_ROOT_IMAGE_PATH + '/' + req.params.user_id;
+		var dir = config.LOCAL_ROOT_IMAGE_PATH + '/upload/' + req.params.user_id;
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir);
 		}
