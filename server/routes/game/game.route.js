@@ -23,17 +23,17 @@ module.exports = function (app) {
 
 	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
 		var newgame = new Game(_.extend(req.body, {owner: req.verified.id}));
-		if (!req.body.parentGame) game.parentGame = undefined;
-		Game.findOne({title: req.body.title}, function (err, game){
+		if (!req.body.parentGame) newgame.parentGame = undefined;
+		Game.findOne({title: req.body.title}, function (err, game) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (game) return res.status(409).json({message: constants.httpResponseMessages.conflict});	
+			if (game) return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			newgame.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				newgame.populate('owner', 'username', function (err) {
 					if (err) res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					else return res.status(201).json(newgame);
 				});
-			})
+			});
 		});
 	});
 
