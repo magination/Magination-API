@@ -63,17 +63,12 @@ module.exports = function (app) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+			if (!game.title || !game.shortDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 			game.publishGame(function (err, publishedGame) {
-				if (err) {
-					console.log('publish err: ' + err);
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				}
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!publishedGame) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				UnpublishedGame.findByIdAndRemove({_id: game._id}, function (err) {
-					if (err) {
-						console.log('remove err: ' + err);
-						return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					}
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					return res.status(200).json(publishedGame);
 				});
 			});

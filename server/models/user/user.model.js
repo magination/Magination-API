@@ -27,11 +27,11 @@ userSchema.pre('save', function (next) {
 		if (err) throw new Error(err);
 		else {
 			this.password = hash;
+			if (!this.userVersion) this.userVersion = 1;
+			else this.userVersion ++;
 			next();
 		};
 	}.bind(this));
-	if (!this.userVersion) this.userVersion = 1;
-	else this.userVersion ++;
 });
 
 userSchema.plugin(uniqueValidator);
