@@ -22,19 +22,18 @@ module.exports = function (app) {
 	};
 
 	router.post('/games', verifyToken, validateGameQuery, function (req, res) {
-		var game = new Game(_.extend(req.body, {owner: req.verified.id}));
+		var newgame = new Game(_.extend(req.body, {owner: req.verified.id}));
 		if (!req.body.parentGame) game.parentGame = undefined;
-		game.save(function (err) {
-			if (err) {
-				console.log(err);
-				res.status(500);
-				res.json({message: constants.httpResponseMessages.internalServerError});
-				return;
-			}
-			game.populate('owner', 'username', function (err) {
-				if (err) res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				else return res.status(201).json(game);
-			});
+		Game.findOne({title: req.body.title}, function (err, game){
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (game) return res.status(409).json({message: constants.httpResponseMessages.conflict});	
+			newgame.save(function (err) {
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				newgame.populate('owner', 'username', function (err) {
+					if (err) res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					else return res.status(201).json(newgame);
+				});
+			})
 		});
 	});
 
@@ -134,8 +133,9 @@ module.exports = function (app) {
 			game.parentGame = game._id;
 			game._id = undefined;
 			game.owner = undefined;
-			game.numberOfVotes = undefined;
-			game.sumOfVotes = undefined;
+			game.numberOfVotes = 0;
+			game.sumOfVotes = 0;
+			game.rating = 0;
 			game.reviews = undefined;
 			return res.status(200).json(game);
 		});

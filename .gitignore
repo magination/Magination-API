@@ -1,9 +1,8 @@
 #all the modules used by node
 node_modules
 .DS_Store
-server/config/email.config.js
 /logs.log
 public
-server/config/server.config.js
+server/config/
 #webstorm
 .idea/
