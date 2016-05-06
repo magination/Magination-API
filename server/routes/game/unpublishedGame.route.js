@@ -8,7 +8,12 @@ var constants = require('../../config/constants.config');
 var _ = require('lodash');
 
 module.exports = function (app) {
-	router.post('/unpublishedGames', verifyToken, function (req, res) {
+	var verifyPostRequest = function (req, res, next) {
+		if (req.body._id) return res.status(422).json({message: 'A unpublishedGame can not be created with a given _id.'});
+		next();
+	};
+
+	router.post('/unpublishedGames', verifyToken, verifyPostRequest, function (req, res) {
 		var unpublishedGame = new UnpublishedGame(_.extend(req.body, {owner: req.verified.id}));
 		if (!req.body.parentGame) unpublishedGame.parentGame = undefined;
 		unpublishedGame.save(function (err) {

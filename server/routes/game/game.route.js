@@ -19,6 +19,7 @@ router.use(function (req, res, next) {
 module.exports = function (app) {
 	var validateGameQuery = function (req, res, next) {
 		if (!req.body.title || !req.body.shortDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		if (req.body._id) return res.status(422).json({message: 'a game can not be created with a given id.'});
 		else next();
 	};
 
