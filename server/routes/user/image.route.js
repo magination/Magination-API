@@ -33,7 +33,7 @@ module.exports = function (app) {
 };
 var setupMulter = function (req, res, next) {
 	try {
-		var dir = config.LOCAL_ROOT_IMAGE_PATH + '/upload/' + req.params.user_id;
+		var dir = config.LOCAL_ROOT_IMAGE_PATH + 'upload/' + req.params.user_id;
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir);
 		}
