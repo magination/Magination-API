@@ -59,6 +59,7 @@ winston.log('error', 'test error');
 // CRONTAB JOBS
 var cron2 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
 var cron3 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
+var cron4 = crontab.scheduleJob('*/1 * * * *', crontabjobs.removeInvalidReports);
 
 https.createServer(options, app).listen(serverConfig.PORT, function (err) {
 	if (err) console.log(err);
