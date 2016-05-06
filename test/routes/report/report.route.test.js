@@ -15,16 +15,18 @@ var currentReport = null;
 
 before(function (done) {
 	currentUser = new User(testconfig.USER_TESTUSER);
-	currentUser.save();
-	request(url)
-	.post('/api/login')
-	.set('Accept', 'application/json')
-	.send(testconfig.USER_TESTUSER)
-	.expect(200)
-	.end(function (err, res) {
+	currentUser.save(function (err) {
 		if (err) return done(err);
-		token = res.body.token;
-		done();
+		request(url)
+		.post('/api/login')
+		.set('Accept', 'application/json')
+		.send(testconfig.USER_TESTUSER)
+		.expect(200)
+		.end(function (err, res) {
+			if (err) return done(err);
+			token = res.body.token;
+			done();
+		});
 	});
 });
 
