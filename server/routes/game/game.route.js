@@ -150,10 +150,7 @@ module.exports = function (app) {
 			if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			var unpubGame = new UnpublishedGame(_.omit(game.toObject(), ['_id', '__v']));
 			unpubGame.save(function (err) {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				}
+				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				Game.remove({_id: game._id}, function (err, game) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
