@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Game = require('../../models/game/game.model');
+var UnpublishedGame = require('../../models/unpublishedGame/unpublishedGame.model');
 var GameList = require('../../models/gameList/gameList.model');
 var User = require('../../models/user/user.model');
 var verifyToken = require('../login/verifyToken');
@@ -100,7 +101,7 @@ module.exports = function (app) {
 			Game.findById({_id: req.params.game_id}, function (err, game) { // TODO: Validate id before doing db call
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!game) return res.status(404).json({message: constants.httpResponseMessages.badRequest});
-				if (game.owner !== req.verified.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+				if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 				if (req.body.title) game.title = req.body.title;
 				if (req.body.mainDescription) game.mainDescription = req.body.mainDescription;
 				game.save(function (err, game) {
@@ -116,7 +117,7 @@ module.exports = function (app) {
 			Game.findById({_id: req.params.game_id}, function (err, game) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				if (game.owner !== req.verified.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+				if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 				Game.remove({_id: req.params.game_id}, function (err, game) {
 					if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
@@ -138,6 +139,27 @@ module.exports = function (app) {
 			game.rating = 0;
 			game.reviews = undefined;
 			return res.status(200).json(game);
+		});
+	});
+
+	router.route('/games/:game_id/unpublish').post(verifyToken, function (req, res) {
+		if (!validator.isValidId(req.params.game_id)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		Game.findById({_id: req.params.game_id}, function (err, game) {
+			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+			var unpubGame = new UnpublishedGame(_.omit(game.toObject(), ['_id', '__v']));
+			unpubGame.save(function (err) {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				}
+				Game.remove({_id: game._id}, function (err, game) {
+					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+					else res.status(200).json(unpubGame);
+				});
+			});
 		});
 	});
 
