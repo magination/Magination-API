@@ -61,7 +61,6 @@ module.exports = function (app) {
 				});
 			}
 			else {
-				console.log('Brukernavn: ' + req.body.username + '. Epost: ' + req.body.email);
 				return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			}
 		});
@@ -156,7 +155,7 @@ module.exports = function (app) {
 						}
 						else {
 							if (req.body.password) {
-								if (!req.body.password.length > 0) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+								if (!req.body.password.length > 6) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 								user.password = req.body.password;
 							}
 							else {
