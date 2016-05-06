@@ -16,7 +16,7 @@ router.use(function (req, res, next) {
 });
 
 module.exports = function (app) {
-	router.get('/public/img/publicImages/pieces', function (req, res) {
+	router.get('/public/pieces', function (req, res) {
 		var tree = dirTree('public/img/pieces');
 		return res.status(200).json(tree);
 	});
