@@ -1,9 +1,12 @@
+var User = require('../server/models/user/user.model');
+
 var testconfig = {
 	USER_TESTUSER:
 	{
 		username: 'admin',
 		email: 'testuser@test.test',
-		password: 'admin'
+		password: 'admin',
+		privileges: User.privileges.ADMINISRATOR
 	},
 	USER_TESTUSER2:
 	{

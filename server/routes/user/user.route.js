@@ -125,7 +125,7 @@ module.exports = function (app) {
 
 	router.get('/users/:id/games', verifyToken, function (req, res) {
 		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-		Game.find({owner: req.veirifed.id}, function (err, games) {
+		Game.find({owner: req.verified.id}, function (err, games) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			return res.status(200).json(games);
 		});
