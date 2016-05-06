@@ -57,7 +57,7 @@ module.exports = function (app) {
 			UnpublishedGame.remove({_id: req.params.id}, function (err, game) {
 				if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				else res.status(204).json({message: constants.httpResponseMessages.deleted});
+				else res.status(200).json(game);
 			});
 		});
 	});
