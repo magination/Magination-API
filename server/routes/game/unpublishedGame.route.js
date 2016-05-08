@@ -36,15 +36,10 @@ module.exports = function (app) {
 
 	router.put('/unpublishedGames/:id', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-		UnpublishedGame.findById({_id: req.params.id}, function (err, game) {
+		UnpublishedGame.findAndUpdate({_id: req.params.id, owner: req.verified.id}, {new: true}, function (err, game) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-			UnpublishedGame.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}, function (err, game) {
-				if (err) res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				if (!game) res.status(404).json({message: constants.httpResponseMessages.notFound});
-				return res.status(200).json(game);
-			});
+			return res.status(200).json(game);
 		});
 	});
 
