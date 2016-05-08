@@ -20,7 +20,8 @@ var userSchema = new mongoose.Schema({
 		doubles: {type: Number, default: 0, min: 0},
 		triples: {type: Number, default: 0, min: 0}
 	},
-	images: [String]
+	images: [String],
+	gameCreators: [{type: mongoose.Schema.Types.ObjectId, required: true, ref: 'gameCreator'}]
 });
 
 userSchema.pre('save', function (next) {

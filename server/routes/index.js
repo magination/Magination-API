@@ -7,6 +7,7 @@ var commentRouter = require('./game/comment.route');
 var reviewRouter = require('./game/review.route');
 var unpublishedGameRouter = require('./game/unpublishedGame.route');
 var reportRouter = require('./report/report.route');
+var gameCreatorRoute = require('./gameCreator/gameCreator.route');
 
 module.exports = function (app) {
 	router.get('/', function (req, res) {
@@ -20,5 +21,6 @@ module.exports = function (app) {
 	router.use('/', reviewRouter());
 	router.use('/', unpublishedGameRouter());
 	router.use('/', reportRouter());
+	router.use('/', gameCreatorRoute());
 	return router;
 };
