@@ -36,7 +36,8 @@ module.exports = function (app) {
 
 	router.put('/unpublishedGames/:id', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
-		UnpublishedGame.findAndUpdate({_id: req.params.id, owner: req.verified.id}, {new: true}, function (err, game) {
+		if (req.body.parentGame === '') req.body.parentGame = undefined;
+		UnpublishedGame.findOneAndUpdate({_id: req.params.id, owner: req.verified.id}, req.body, {new: true}, function (err, game) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			return res.status(200).json(game);
@@ -52,7 +53,7 @@ module.exports = function (app) {
 			UnpublishedGame.remove({_id: req.params.id}, function (err, game) {
 				if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				else res.status(200).json(game);
+				else res.status(200).json();
 			});
 		});
 	});
