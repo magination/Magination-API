@@ -24,6 +24,28 @@ module.exports = function (app) {
 	router.post('/users/:user_id/images', verifyToken, setupMulter, function (req, res) {
 		return res.status(202).send();
 	});
+
+	router.delete('/users/:user_id/images', verifyToken, function (req, res) {
+		if (req.params.user_id !== req.verified.id) return res.status(401).send();
+		if (!req.body.url) return res.status(400).send();
+		var imageURL = req.body.url;
+		var imageName = getImageNameFromUrl(imageURL);
+		var pathToImg = config.LOCAL_ROOT_IMAGE_PATH + '/upload/' + req.verified.id + '/' + imageName;
+		if (!fs.existsSync(pathToImg)) {
+			return res.status(404).send();
+		}
+		else {
+			fs.unlink(pathToImg, function (err) {
+				if (err) return res.status(500).send();
+				User.findByIdAndUpdate(req.verified.id, {$pull: {images: imageURL}}, {safe: true}, function (err, model) {
+					if (err) return res.status(500).send();
+					if (!model) return res.status(404).send();
+					else return res.status(204).send();
+				});
+			});
+		}
+	});
+
 	router.get('/users/:user_id/images', function (req, res) {
 		User.findById({_id: req.params.user_id}, function (err, user) {
 			if (err) return res.status(500).send();
@@ -31,4 +53,9 @@ module.exports = function (app) {
 		});
 	});
 	return router;
+};
+
+var getImageNameFromUrl = function (url) {
+	var name = url.substr(url.lastIndexOf('/') + 1, url.length);
+	return name;
 };
