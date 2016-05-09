@@ -47,11 +47,16 @@ app.use(bodyParser.urlencoded({extended: true, colorize: true}));
 app.use(passport.initialize());
 app.use('/api', router(app));
 
+// Default error-handler. Errors should be handled before they get here.
+app.use(function (err, req, res, next) {
+	winston.log('error', 'Error caught in the default error-handler. This should probably not happen. Error: ' + err);
+	res.status(err.status || 500);
+	res.json({error: err.message});
+});
+
 // WINSTON LOGGER INIT
 winston.add(winston.transports.File, { filename: 'logs.log' });
 winston.remove(winston.transports.Console);
-
-winston.log('error', 'test error');
 
 // Init functions should be called here. This is now done after tests are run, move this before running in production.
 // init.initFeaturedGames();
