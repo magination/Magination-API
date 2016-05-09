@@ -23,7 +23,7 @@ if (mongoose.connection.readyState === 0) {
 	});
 };
 
-//	app.use(helmet);
+app.use(helmet());
 
 app.use(contentLength.validateMax({max: serverConfig.MAX_CONTENT_LENGTH_ACCEPTED, status: 400, message: 'Content Length is not accepted.'}));
 
@@ -57,8 +57,10 @@ app.use(function (err, req, res, next) {
 winston.add(winston.transports.File, { filename: 'logs.log' });
 winston.remove(winston.transports.Console);
 
-// Init functions should be called here. This is now done after tests are run, move this before running in production.
-// init.initFeaturedGames();
+if (process.env.NODE_ENV === 'production') {
+	console.log('node started in production, baby');
+	init.initFeaturedGames;
+}
 
 // CRONTAB JOBS
 var cron2 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
