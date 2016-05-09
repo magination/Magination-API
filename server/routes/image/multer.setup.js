@@ -34,6 +34,11 @@ module.exports = function (req, res, next) {
 						if (err) {
 							winston.log('error', err);
 							cb(err, fileName);
+							return res.status(500).send();
+						}
+						if (parseInt(model.numberOfAllowedPictures) <= parseInt(model.images.length)) {
+							cb(new Error('Number of allowed pictures exceeded.'), fileName);
+							return res.status(400).json({message: 'Number of allowed pictures exceeded'});
 						}
 						cb(null, fileName);
 					}

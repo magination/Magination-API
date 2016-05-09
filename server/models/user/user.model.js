@@ -15,6 +15,7 @@ var userSchema = new mongoose.Schema({
 	updateEmailTmp: String,
 	userVersion: Number,
 	privileges: {type: Number, default: 0, min: 0, max: 2},
+	numberOfAllowedPictures: {type: Number, default: 20},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
