@@ -18,7 +18,7 @@ module.exports = function (req, res, next) {
 
 	var data = {
 		token: token,
-		refreshToken: refreshToken,
+		refreshToken: refreshToken
 	};
 
 	req.data = data;
