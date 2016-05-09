@@ -50,8 +50,7 @@ app.use('/api', router(app));
 // Default error-handler. Errors should be handled before they get here.
 app.use(function (err, req, res, next) {
 	winston.log('error', 'Error caught in the default error-handler. This should probably not happen. Error: ' + err);
-	res.status(err.status || 500);
-	res.json({error: err.message});
+	return res.status(err.status || 500).json({error: err.message});
 });
 
 // WINSTON LOGGER INIT
