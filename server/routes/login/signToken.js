@@ -19,8 +19,6 @@ module.exports = function (req, res, next) {
 	var data = {
 		token: token,
 		refreshToken: refreshToken,
-		id: req.user.id,
-		expiresIn: Date.now() + (60 * 60 * 1000)
 	};
 
 	req.data = data;
