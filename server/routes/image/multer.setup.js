@@ -25,7 +25,7 @@ module.exports = function (req, res, next) {
 					cb(new Error('Filename length empty'), null);
 					return res.status(400).json({message: 'filname can not be empty.'});
 				}
-				if (!req.body.overwrite === 'false') {
+				if (req.params.overwrite === 'false') {
 					if (fs.existsSync(dir + '/' + fileName)) {
 						cb(new Error('Conflict'), null);
 						return res.status(409).send();
