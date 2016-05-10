@@ -56,7 +56,7 @@ var cronjobs = {
 					User.findById({_id: reports[i].id}, function (err, user) {
 						if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
 						if (!user) {
-							Report[i].remove(function (err) {
+							reports[i].remove(function (err) {
 								if (err) {
 									winston.log('error', err);
 								}
@@ -68,7 +68,7 @@ var cronjobs = {
 					Review.findById({_id: reports[i].id}, function (err, review) {
 						if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
 						if (!review) {
-							Report[i].remove(function (err) {
+							reports[i].remove(function (err) {
 								if (err) {
 									winston.log('error', err);
 								}
