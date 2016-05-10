@@ -44,7 +44,7 @@ var cronjobs = {
 					Game.findById({_id: reports[i].id}, function (err, game) {
 						if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
 						if (!game) {
-							Report[i].remove(function (err) {
+							reports[i].remove(function (err) {
 								if (err) {
 									winston.log('error', err);
 								}
