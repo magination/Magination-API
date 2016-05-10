@@ -3,6 +3,7 @@ var User = require('../../models/user/user.model');
 var winston = require('winston');
 var config = require('../../config/server.config');
 var multer = require('multer');
+var imageConfig = require('./image.config.js');
 var storage;
 
 module.exports = function (req, res, next) {
@@ -19,12 +20,20 @@ module.exports = function (req, res, next) {
 			},
 			filename: function (req, file, cb) {
 				var fileName = file.originalname.replace(/ /g, '_');
-
+				fileName = fileName.replace('/', '');
+				if (fileName.length === 0) {
+					cb(new Error('Filename length empty'), null);
+					return res.status(400).json({message: 'filname can not be empty.'});
+				}
 				if (!req.body.overwrite === 'false') {
 					if (fs.existsSync(dir + '/' + fileName)) {
 						cb(new Error('Conflict'), null);
 						return res.status(409).send();
 					}
+				}
+				if (imageConfig.ACCEPTED_MIME_TYPES.indexOf(file.mimetype) === -1) {
+					cb(new Error('Image mimetype not accepted.'), null);
+					return res.status(400).json({message: 'mimetype not accepted.'});
 				}
 				imagePath += fileName;
 				var absolutePath = config.ABSOLUTE_IMAGE_PATH_ROOT + req.verified.id + '/' + fileName;
@@ -36,6 +45,7 @@ module.exports = function (req, res, next) {
 							cb(err, fileName);
 							return res.status(500).send();
 						}
+						if (!model) return res.status(404).send();
 						if (parseInt(model.numberOfAllowedPictures) <= parseInt(model.images.length)) {
 							cb(new Error('Number of allowed pictures exceeded.'), fileName);
 							return res.status(400).json({message: 'Number of allowed pictures exceeded'});
