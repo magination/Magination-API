@@ -8,7 +8,7 @@ gulp.task('server', function () {
    nodemon({
     script: './server/server.js'
   , env: { 'NODE_ENV': 'development' }
-  }).on('start', ['test'])
+  })
 });
 
 gulp.task('lint', function () {
@@ -21,9 +21,9 @@ gulp.task('lint', function () {
 gulp.task('test', function(done) {
     return gulp.src('./test/test.js', {read: false})
         // gulp-mocha needs filepaths so you can't have any plugins before it
-        .pipe(mocha({reporter: 'nyan'}));
+        .pipe(mocha({reporter: 'nyan'}))
 });
 
 gulp.task('default', ['lint'], function(){
-	runsequence('server');
+	runsequence('server', 'test');
 });
