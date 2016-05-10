@@ -3,6 +3,7 @@ var router = express.Router();
 var authenticate = require('./authenticate');
 var signToken = require('./signToken');
 var verifyToken = require('./verifyToken');
+var verifyRefreshToken = require('./verifyRefreshToken');
 var refreshToken = require('./refreshToken');
 var async = require('async');
 var constants = require('../../config/constants.config');
@@ -27,7 +28,7 @@ module.exports = function (app) {
 			else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 		});
 
-	router.get('/login/refresh', globalBruteForce.prevent, verifyToken, refreshToken, function (req, res) {
+	router.get('/login/refresh', globalBruteForce.prevent, verifyRefreshToken, refreshToken, function (req, res) {
 		if (req.data) return res.status(200).json(req.data);
 		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 	});

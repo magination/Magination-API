@@ -38,6 +38,7 @@ describe('Starting tests', function () {
 	importTest('Testing unpublishedGame.route', './routes/unpublishedGame/unpublishedGame.route.test');
 	importTest('Testing report.route', './routes/report/report.route.test');
 	importTest('Testing gameCreator.route', './routes/gameCreator/gameCreator.route.test');
+	importTest('Testing image.route', './routes/image/image.route.test');
 
 	after(function (done) {
 		mongoose.connection.db.dropDatabase(function (err) {

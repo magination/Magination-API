@@ -14,8 +14,6 @@ var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
-var imageRouter = require('./image.route');
-router.use('/', imageRouter());
 
 /*
 TODO: Split this component up. Nev should be configured in a seperate file.

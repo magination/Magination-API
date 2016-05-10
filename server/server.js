@@ -58,14 +58,13 @@ winston.add(winston.transports.File, { filename: 'logs.log' });
 winston.remove(winston.transports.Console);
 
 if (process.env.NODE_ENV === 'production') {
-	console.log('node started in production, baby');
 	init.initFeaturedGames;
 }
 
 // CRONTAB JOBS
-var cron2 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
-var cron3 = crontab.scheduleJob('*/2 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
-var cron4 = crontab.scheduleJob('*/1 * * * *', crontabjobs.removeInvalidReports);
+var cron2 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
+var cron3 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
+var cron4 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeInvalidReports);
 
 https.createServer(options, app).listen(serverConfig.PORT, function (err) {
 	if (err) console.log(err);

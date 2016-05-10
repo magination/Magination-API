@@ -10,7 +10,7 @@ var fs = require('fs');
 var config = require('../../config/server.config');
 var User = require('../../models/user/user.model');
 var dirTree = require('directory-tree');
-var setupMulter = require('../image/multer.setup');
+var setupMulter = require('./multer.setup');
 
 router.use(function (req, res, next) {
 	next();
