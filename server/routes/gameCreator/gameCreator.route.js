@@ -82,6 +82,27 @@ module.exports = function (app) {
 			});
 		});
 	});
+
+	router.delete('/users/:userId/gameCreatorObjects/:gameCreatorId', verifyToken, function (req, res) {
+		if (req.params.userId !== req.verified.id) return res.status(401).send();
+		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
+		GameCreator.remove({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, gameCreator) {
+			if (err) {
+				winston.log('error', err);
+				return res.status(500).send();
+			}
+			if (!gameCreator) return res.status(404).send();
+			User.findByIdAndUpdate(req.verified.id, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, user) {
+				if (err) {
+					winston.log('error', err);
+					return res.status(500).send();
+				}
+				if (!user) return res.status(404).send();
+				else return res.status(204).send();
+			});
+		});
+	});
+
 	return router;
 };
 

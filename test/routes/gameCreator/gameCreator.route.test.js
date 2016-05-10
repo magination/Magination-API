@@ -73,3 +73,23 @@ it('GET /api/users/:userId/gameCreatorObjects - should return 200 and al ist of 
 		assert.lengthOf(res.body, 1);
 	});
 });
+
+it('DELETE /api/users/:userId/gameCreatorObjects/:gameCreatorId - should return 204, delete the gameCreator and pull the gameCreator from user.', function (done) {
+	request(url)
+	.delete('/api/users/' + currentUser._id + '/gameCreatorObjects/' + currentGameCreator._id)
+	.set('Authorization', token)
+	.set('Accept', 'application/json')
+	.expect(204)
+	.end(function (err, res) {
+		if (err) return done(err);
+		request(url)
+		.get('/api/users/' + currentUser._id + '/gameCreatorObjects/')
+		.set('Authorization', token)
+		.set('Accept', 'application/json')
+		.expect(200)
+		.end(function (err, res) {
+			done(err);
+			assert.lengthOf(res.body, 0);
+		});
+	});
+});
