@@ -14,6 +14,7 @@ var nodemailer = require('nodemailer');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var emailconfig = require('../../config/email.config');
+var serverConfig = require('../../config/server.config');
 
 module.exports = function (app) {
 	router.post('/login', globalBruteForce.prevent,
@@ -72,7 +73,7 @@ module.exports = function (app) {
 					subject: 'Magination Game Site Reset Password',
 					text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
 					'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-					'http://localhost:8080' + '/confirmforgotpassword/' + token + '\n\n' +
+					serverConfig.REMOTE_GAME_SITE + '/confirmforgotpassword/' + token + '\n\n' +
 					'If you did not request this, please ignore this email and your password will remain unchanged.\n'
 				};
 				smtpTransport.sendMail(mailOptions);

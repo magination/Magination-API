@@ -9,6 +9,7 @@ var verifyToken = require('../login/verifyToken');
 var mongoose = require('mongoose');
 var nev = require('email-verification')(mongoose);
 var emailconfig = require('../../config/email.config');
+var serverConfig = require('../../config/server.config');
 var constants = require('../../config/constants.config');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
@@ -19,7 +20,7 @@ var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 TODO: Split this component up. Nev should be configured in a seperate file.
  */
 nev.configure({
-	verificationURL: 'http://localhost:8080/confirmation/${URL}',
+	verificationURL: serverConfig.REMOTE_GAME_SITE + '/confirmation/${URL}',
 	persistentUserModel: User,
 	tempUserCollection: 'magination_tempusers',
 
@@ -206,7 +207,7 @@ module.exports = function (app) {
 						subject: 'Magination Game Site Update Mail',
 						text: 'You are receiving this because you (or someone else) have requested updating the email for your account.\n\n' +
 						'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-						'http://localhost:8080' + '/verifyEmailChange/' + token + '\n\n' +
+						serverConfig.REMOTE_GAME_SITE + '/verifyEmailChange/' + token + '\n\n' +
 						'If you did not request this, please ignore this email.\n'
 					};
 					smtpTransport.sendMail(mailOptions);
