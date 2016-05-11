@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var validators = require('mongoose-validators');
 var Game = require('../game/game.model');
+var Review = require('../review/review.model');
+var winston = require('winston');
 var _ = require('lodash');
 
 var unpublishedGameSchema = new mongoose.Schema({
@@ -33,11 +35,20 @@ unpublishedGameSchema.methods.publishGame = function (callback) {
 	Returns with callback(err, publishedGame).
 	 */
 	var publishedGame = new Game(_.omit(this.toObject(), ['_id', '__v']));
+
 	publishedGame.save(function (err) {
 		if (err) {
 			callback(err, null);
 		}
-		else callback(null, publishedGame);
+		// If the game has reviews, these needs to point to the new game._id.
+		if (publishedGame.reviews) {
+			publishedGame.reviews.forEach(function (review) {
+				Review.findByIdAndUpdate({_id: review}, {game: publishedGame._id}, function (err, model) {
+					if (err) winston.log('error', err);
+				});
+			});
+		}
+		callback(null, publishedGame);
 	});
 };
 
