@@ -61,14 +61,17 @@ module.exports = function (app) {
 	});
 
 	router.post('/unpublishedGames/:id/publish', verifyToken, function (req, res) {
-		if (!validator.isValidId(req.params.id)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		if (!validator.isValidId(req.params.id)) return res.status(422).send();
 		UnpublishedGame.findById({_id: req.params.id}, function (err, game) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
-			if (!game.title || !game.shortDescription) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+			if (err) return res.status(500).send();
+			if (!game) return res.status(404).send();
+			if (!game.owner.equals(req.verified.id)) return res.status(401).send();
+			if (!game.title || !game.shortDescription) return res.status(422).send();
 			game.publishGame(function (err, publishedGame) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (err) {
+					if (err.code === 11000) return res.status(409).send(); // duplicate key. Title is in use.
+					return res.status(500).send();
+				}
 				if (!publishedGame) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				UnpublishedGame.findByIdAndRemove({_id: game._id}, function (err) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});

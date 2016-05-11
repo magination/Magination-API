@@ -38,7 +38,7 @@ unpublishedGameSchema.methods.publishGame = function (callback) {
 
 	publishedGame.save(function (err) {
 		if (err) {
-			callback(err, null);
+			return callback(err, null);
 		}
 		// If the game has reviews, these needs to point to the new game._id.
 		if (publishedGame.reviews) {
@@ -48,7 +48,7 @@ unpublishedGameSchema.methods.publishGame = function (callback) {
 				});
 			});
 		}
-		callback(null, publishedGame);
+		return callback(null, publishedGame);
 	});
 };
 
