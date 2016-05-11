@@ -7,8 +7,10 @@ var User = require('../../models/user/user.model');
 var verifyToken = require('../login/verifyToken');
 var Rating = require('../../models/rating/rating.model');
 var constants = require('../../config/constants.config');
+var Report = require('../../models/report/report.model');
 var validator = require('../../validator/validator');
 var check = require('check-types');
+var winston = require('winston');
 var _ = require('lodash');
 var bruteforce = require('../../bruteforce/bruteForce');
 
@@ -150,56 +152,36 @@ module.exports = function (app) {
 			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			if (!game.owner.equals(req.verified.id)) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			var unpubGame = new UnpublishedGame(_.omit(game.toObject(), ['_id', '__v']));
+			var oldGame = game;
 			unpubGame.save(function (err) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				Game.remove({_id: game._id}, function (err, game) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 					if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-					else res.status(200).json(unpubGame);
+					else {
+						moveReportsFromPublishedToUnpublishedGame(oldGame, unpubGame);
+						res.status(200).json(unpubGame);
+					}
 				});
 			});
 		});
 	});
 
-	router.route('/games/:game_id/ratings')
-		.put(verifyToken, function (req, res) {
-			if (!req.body.rating) {
-				return res.status(400).json({message: constants.httpResponseMessages.badRequest});
-			}
-			Game.findById(req.params.game_id, function (err, game) {
-				if (err) {
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				}
-				if (game === null) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				var newRating;
-				var newVoteCount;
-				Rating.findOne({_userId: req.verified.id, _gameId: req.params.game_id}, function (err, rating) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					if (rating !== null) {
-						if (rating.rating === req.params.rating) {
-							return res.status(409).json({message: constants.httpResponseMessages.conflict});
-						}
-						newRating = game.sumOfVotes;
-						newRating -= rating.rating;
-						newRating += req.body.rating;
-						newVoteCount = game.numberOfVotes;
-					}
-					else {
-						newRating = game.sumOfVotes + req.body.rating;
-						newVoteCount = game.numberOfVotes;
-						newVoteCount++;
-					};
-					Rating.findOneAndUpdate({_userId: req.verified.id, _gameId: req.params.game_id}, {rating: req.body.rating}, {upsert: true}, function (err) {
-						if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-						Game.findOneAndUpdate({_id: req.params.game_id}, {numberOfVotes: newVoteCount, sumOfVotes: newRating}, {upsert: false}, function (err) {
-							if (err) {
-								return;
-							}
-							return res.status(204).json({message: constants.httpResponseMessages.ok});
-						});
-					});
-				});
+	return router;
+};
+
+var moveReportsFromPublishedToUnpublishedGame = function (oldGame, newGame) {
+	/*
+	method to update reports when a game is published/unpublished.
+	 */
+	Report.find({id: oldGame._id, type: Report.types.GAME}, function (err, reports) {
+		if (err) winston.log('error', err);
+		reports.forEach(function (report) {
+			report.id = newGame._id;
+			report.type = Report.types.UNPUBLISHED_GAME;
+			report.save(function (err) {
+				if (err) winston.log('error', err);
 			});
 		});
-	return router;
+	});
 };

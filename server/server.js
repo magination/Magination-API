@@ -64,7 +64,7 @@ if (process.env.NODE_ENV === 'production') {
 // CRONTAB JOBS
 var cron2 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
 var cron3 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
-var cron4 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeInvalidReports);
+// var cron4 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeInvalidReports);
 
 https.createServer(options, app).listen(serverConfig.PORT, function (err) {
 	if (err) console.log(err);
