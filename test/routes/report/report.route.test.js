@@ -34,27 +34,15 @@ after(function (done) {
 	clearDB(done);
 });
 
-it('POST /api/reports - should return 201 and create a report', function (done) {
+it('POST /api/reports - should return 201 and create a report on a user', function (done) {
 	request(url)
-	.post('/api/reports')
+	.post('/api/reports/users')
 	.set('Accept', 'application/json')
 	.set('Authorization', token)
-	.send({reportText: 'the user spams', id: currentUser._id, type: 'user'})
+	.send({reportText: 'the user spams', id: currentUser._id})
 	.expect(201)
 	.end(function (err, res) {
 		currentReport = res.body;
-		done(err);
-	});
-});
-
-it('GET /api/reports - should return 200 and a list of reports if the user has moderator or administrator rights', function (done) {
-	request(url)
-	.get('/api/reports')
-	.set('Accept', 'application/json')
-	.set('Authorization', token)
-	.expect(200)
-	.end(function (err, res) {
-		assert.lengthOf(res.body, 1);
 		done(err);
 	});
 });
@@ -66,7 +54,7 @@ it('GET /api/reports/users - should return 200 and a list of reports contaning t
 	.set('Authorization', token)
 	.expect(200)
 	.end(function (err, res) {
-		assert.lengthOf(res.body, 1);
+		assert.lengthOf(res.body.reportedObjects, 1);
 		done(err);
 	});
 });
@@ -78,7 +66,7 @@ it('GET /api/reports/games - should return 200 and a list of reports contaning t
 	.set('Authorization', token)
 	.expect(200)
 	.end(function (err, res) {
-		assert.lengthOf(res.body, 0);
+		assert.lengthOf(res.body.reportedObjects, 0);
 		done(err);
 	});
 });
@@ -90,14 +78,14 @@ it('GET /api/reports/reviews - should return 200 and a list of reports contaning
 	.set('Authorization', token)
 	.expect(200)
 	.end(function (err, res) {
-		assert.lengthOf(res.body, 0);
+		assert.lengthOf(res.body.reportedObjects, 0);
 		done(err);
 	});
 });
 
-it('DELETE /api/reports/:id - should return 204 and delete the report', function (done) {
+it('DELETE /api/reports/users/:id - should return 204 and delete the report', function (done) {
 	request(url)
-	.delete('/api/reports/' + currentReport._id)
+	.delete('/api/reports/users/' + currentUser._id)
 	.set('Accept', 'application/json')
 	.set('Authorization', token)
 	.expect(204)
@@ -105,3 +93,15 @@ it('DELETE /api/reports/:id - should return 204 and delete the report', function
 		done(err);
 	});
 });
+
+it('DELETE /api/reports/games/:id - should return 404 if report does not exist', function (done) {
+	request(url)
+	.delete('/api/reports/games/' + currentUser._id)
+	.set('Accept', 'application/json')
+	.set('Authorization', token)
+	.expect(404)
+	.end(function (err, res) {
+		done(err);
+	});
+});
+

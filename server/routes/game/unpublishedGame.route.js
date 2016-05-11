@@ -6,6 +6,8 @@ var verifyToken = require('../login/verifyToken');
 var validator = require('../../validator/validator');
 var constants = require('../../config/constants.config');
 var _ = require('lodash');
+var Report = require('../../models/report/report.model');
+var winston = require('winston');
 
 module.exports = function (app) {
 	var verifyPostRequest = function (req, res, next) {
@@ -70,11 +72,30 @@ module.exports = function (app) {
 				if (!publishedGame) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				UnpublishedGame.findByIdAndRemove({_id: game._id}, function (err) {
 					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					return res.status(200).json(publishedGame);
+					else {
+						moveReportsFromUnpublishedToPublishedGame(game, publishedGame);
+						return res.status(200).json(publishedGame);
+					}
 				});
 			});
 		});
 	});
 
 	return router;
+};
+
+var moveReportsFromUnpublishedToPublishedGame = function (oldGame, newGame) {
+	/*
+	method to update reports when a game is published/unpublished.
+	 */
+	Report.find({id: oldGame._id, type: Report.types.UNPUBLISHED_GAME}, function (err, reports) {
+		if (err) winston.log('error', err);
+		reports.forEach(function (report) {
+			report.id = newGame._id;
+			report.type = Report.types.GAME;
+			report.save(function (err) {
+				if (err) winston.log('error', err);
+			});
+		});
+	});
 };

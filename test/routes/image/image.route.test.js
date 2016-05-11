@@ -32,4 +32,28 @@ before(function (done) {
 after(function (done) {
 	clearDB(done);
 });
-// TODO: ADD TESTS
+
+it('GET /api/public/pieces - should return 200 and a list of pieces', function (done) {
+	request(url)
+	.get('/api/public/pieces')
+	.set('Accept', 'application/json')
+	.expect(200)
+	.end(function (err, res) {
+		if (err) return done(err);
+		done();
+	});
+});
+
+it('DELETE /users/:userId/images - should return 404 if image does not exist', function (done) {
+	request(url)
+	.delete('/api/users/' + currentUser._id + '/images')
+	.set('Accept', 'application/json')
+	.set('Authorization', token)
+	.send({url: '/doesnotexist.png'})
+	.expect(404)
+	.end(function (err, res) {
+		if (err) return done(err);
+		done();
+	});
+});
+

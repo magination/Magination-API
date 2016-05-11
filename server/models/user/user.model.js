@@ -16,6 +16,7 @@ var userSchema = new mongoose.Schema({
 	userVersion: Number,
 	privileges: {type: Number, default: 0, min: 0, max: 2},
 	numberOfAllowedPictures: {type: Number, default: 20},
+	isBanned: {type: Boolean, default: false},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
