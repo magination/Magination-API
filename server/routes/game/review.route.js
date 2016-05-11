@@ -111,6 +111,30 @@ module.exports = function (app) {
 		});
 	});
 
+	router.delete('/reviews/:reviewId', verifyToken, function (req, res) {
+		if (!validator.isValidId(req.params.reviewId)) return res.status(404).send();
+		Review.findById(req.params.reviewId, function (err, review) {
+			if (err) return res.status(500).send();
+			if (!review) return res.status(404).send();
+			if (req.verified.privileges < 1) {
+				if (req.verified.id !== review.owner) return res.status(401).send();
+			}
+			review.remove(function (err) {
+				if (err) return res.status(500).send();
+				else return res.status(204).send();
+			});
+		});
+	});
+
+	router.get('/reviews/:reviewId', function (req, res) {
+		if (!validator.isValidId(req.params.reviewId)) return res.status(404).send();
+		Review.findById(req.params.reviewId, function (err, review) {
+			if (err) return res.status(500).send();
+			if (!review) return res.status(404).send();
+			else return res.status(200).json(review);
+		});
+	});
+
 	router.delete('/games/:gameId/reviews/:reviewId', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.gameId || !validator.isValidId(req.params.reviewId))) {
 			return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});

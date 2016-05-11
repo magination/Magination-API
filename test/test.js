@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var testConfig = require('./test.config');
 var User = require('../server/models/user/user.model');
 var Game = require('../server/models/game/game.model');
+var Review = require('../server/models/review/review.model');
 var dbConfig = require('../server/config/db.config');
 var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Done to accept self signed HTTPS certfificate
@@ -90,14 +91,21 @@ describe('Starting tests', function () {
 									'http://www.magination.no/images/game2_crop.jpg',
 									'http://www.magination.no/images/game3_crop.jpg'],
 							otherObjects: ['cup', 'book'],
+							reviews: [],
 							rules: ['rule 1', 'rule 2'],
 							alternativeRules: ['alt rule 1', 'alt rule 2'],
 							owner: testUser._id});
+						for (var i = 0; i < 53; i++) {
+							var review = new Review({game: game._id, owner: testUser._id, reviewText: i, rating: 3});
+							review.save();
+							game2.reviews.push(review._id);
+						}
 						game.save(function (err, user) {
 							if (err) return done(err);
 							game2.save(function (err, user) {
 								if (err) return done(err);
 								init.initFeaturedGames();
+
 								return done();
 							});
 						});
