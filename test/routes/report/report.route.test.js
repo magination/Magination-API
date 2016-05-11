@@ -54,7 +54,7 @@ it('GET /api/reports/users - should return 200 and a list of reports contaning t
 	.set('Authorization', token)
 	.expect(200)
 	.end(function (err, res) {
-		assert.lengthOf(res.body.users, 1);
+		assert.lengthOf(res.body.reportedObjects, 1);
 		done(err);
 	});
 });
@@ -66,7 +66,7 @@ it('GET /api/reports/games - should return 200 and a list of reports contaning t
 	.set('Authorization', token)
 	.expect(200)
 	.end(function (err, res) {
-		assert.lengthOf(res.body.games, 0);
+		assert.lengthOf(res.body.reportedObjects, 0);
 		done(err);
 	});
 });
@@ -78,7 +78,7 @@ it('GET /api/reports/reviews - should return 200 and a list of reports contaning
 	.set('Authorization', token)
 	.expect(200)
 	.end(function (err, res) {
-		assert.lengthOf(res.body.reviews, 0);
+		assert.lengthOf(res.body.reportedObjects, 0);
 		done(err);
 	});
 });

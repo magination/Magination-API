@@ -123,33 +123,36 @@ module.exports = function (app) {
 
 	router.get('/reports/games', verifyToken, verifyPrivileges, function (req, res) {
 		var data = {
-			games: []
+			type: 'games',
+			reportedObjects: []
 		};
 		Report.find({type: Report.types.GAME}, function (err, reports) {
 			if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-			data.games = orderById(reports);
+			data.reportedObjects = orderById(reports);
 			return res.status(200).json(data);
 		});
 	});
 
 	router.get('/reports/users', verifyToken, verifyPrivileges, function (req, res) {
 		var data = {
-			users: []
+			type: 'users',
+			reportedObjects: []
 		};
 		Report.find({type: Report.types.USER}, function (err, reports) {
 			if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-			data.users = orderById(reports);
+			data.reportedObjects = orderById(reports);
 			return res.status(200).json(data);
 		});
 	});
 
 	router.get('/reports/reviews', verifyToken, verifyPrivileges, function (req, res) {
 		var data = {
-			reviews: []
+			type: 'reviews',
+			reportedObjects: []
 		};
 		Report.find({type: Report.types.REVIEW}, function (err, reports) {
 			if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-			data.reviews = orderById(reports);
+			data.reportedObjects = orderById(reports);
 			return res.status(200).json(data);
 		});
 	});
