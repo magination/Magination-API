@@ -133,16 +133,20 @@ module.exports = function (app) {
 		Game.findById({_id: req.params.game_id}, function (err, game) {
 			if (err) return res.status(500).send();
 			if (!game) return res.status(404).send();
-			game.parentGame = game._id;
-			game._id = undefined;
-			game.__ = undefined;
-			game.owner = req.verified.id;
-			game.numberOfVotes = 0;
-			game.sumOfVotes = 0;
-			game.rating = 0;
-			game.reviews = undefined;
-			var unpubGame = new UnpublishedGame(game);
-			return res.status(200).json(unpubGame);
+			var forkedGame = game.toObject();
+			delete forkedGame._id;
+			delete forkedGame.__v;
+			forkedGame.parentGame = game._id;
+			forkedGame.owner = req.verified.id;
+			forkedGame.numberOfVotes = 0;
+			forkedGame.sumOfVotes = 0;
+			forkedGame.rating = 0;
+			forkedGame.reviews = undefined;
+			var unpubGame = new UnpublishedGame(forkedGame);
+			unpubGame.save(function (err) {
+				if (err) return res.status(500).send();
+				return res.status(200).json(unpubGame);
+			});
 		});
 	});
 
