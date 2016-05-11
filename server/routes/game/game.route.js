@@ -128,19 +128,21 @@ module.exports = function (app) {
 			});
 		});
 
-	router.route('/games/:game_id/fork').get(function (req, res) {
-		if (!validator.isValidId(req.params.game_id)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+	router.route('/games/:game_id/fork').post(verifyToken, function (req, res) {
+		if (!validator.isValidId(req.params.game_id)) return res.status(422).send();
 		Game.findById({_id: req.params.game_id}, function (err, game) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (err) return res.status(500).send();
+			if (!game) return res.status(404).send();
 			game.parentGame = game._id;
 			game._id = undefined;
-			game.owner = undefined;
+			game.__ = undefined;
+			game.owner = req.verified.id;
 			game.numberOfVotes = 0;
 			game.sumOfVotes = 0;
 			game.rating = 0;
 			game.reviews = undefined;
-			return res.status(200).json(game);
+			var unpubGame = new UnpublishedGame(game);
+			return res.status(200).json(unpubGame);
 		});
 	});
 
