@@ -5,7 +5,6 @@ var UnpublishedGame = require('../../models/unpublishedGame/unpublishedGame.mode
 var GameList = require('../../models/gameList/gameList.model');
 var User = require('../../models/user/user.model');
 var verifyToken = require('../login/verifyToken');
-var Rating = require('../../models/rating/rating.model');
 var constants = require('../../config/constants.config');
 var Report = require('../../models/report/report.model');
 var validator = require('../../validator/validator');

@@ -25,8 +25,6 @@ describe('Starting tests', function () {
 	// MODELS
 	importTest('Testing user.model', './models/user/user.model.test');
 	importTest('Testing game.model', './models/game/game.model.test');
-	importTest('Testing comment.model', './models/comment/comment.model.test');
-	importTest('Testing rating.model', './models/rating/rating.model.test');
 	importTest('Testing review.model', './models/review/review.model.test');
 	importTest('Testing unpublishedGame.model', './models/unpublishedGame/unpublishedGame.model.test');
 	importTest('Testing report.model', './models/report/report.model.test');
