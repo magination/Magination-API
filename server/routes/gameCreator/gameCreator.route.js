@@ -41,7 +41,7 @@ module.exports = function (app) {
 				winston.log('error', err);
 				return res.status(500).send();
 			}
-			else return res.status(200).json(gameCreators);
+			else return res.status(200).json({gameCreators: gameCreators});
 		});
 	});
 
