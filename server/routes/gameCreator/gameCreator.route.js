@@ -83,7 +83,7 @@ module.exports = function (app) {
 		});
 	});
 
-	router.delete('/unpublishedGame/:gameId/gameCreatos/:gameCreatorId', verifyToken, function (req, res) {
+	router.delete('/unpublishedGame/:gameId/gameCreators/:gameCreatorId', verifyToken, function (req, res) {
 		if (req.params.userId !== req.verified.id) return res.status(401).send();
 		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
 		GameCreator.remove({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, gameCreator) {
@@ -131,7 +131,7 @@ var verfiyOwnerOfGameCreator = function (req, res, next) {
 
 var verfiyOwnerOfGameCreatorAndSetPictureName = function (req, res, next) {
 	if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
-	GameCreator.findById(req.params.gameId, function (err, gameCreator) {
+	GameCreator.findById(req.params.gameCreatorId, function (err, gameCreator) {
 		if (err) return res.status(500).send();
 		if (!gameCreator) return res.status(404).send();
 		if (!gameCreator.owner.equals(req.verified.id)) return res.status(401).send();
