@@ -25,6 +25,7 @@ var unpublishedGameSchema = new mongoose.Schema({
 	sumOfVotes: {type: Number, default: 0},
 	rating: {type: Number, default: 0},
 	images: [{type: String, validate: validators.isURL()}],
+	gameCreators: [{type: mongoose.Schema.Types.ObjectId, ref: 'gameCreator'}],
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'},
 	publishedGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'}
 });

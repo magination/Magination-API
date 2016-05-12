@@ -8,22 +8,24 @@ var userSchema = new mongoose.Schema({
 	username: {type: String, required: true, unique: true},
 	email: {type: String, required: true, unique: true},
 	password: {type: String, required: true},
-	resetPasswordToken: String,
-	resetPasswordExpires: Date,
-	updateEmailToken: String,
-	updateEmailExpires: Date,
-	updateEmailTmp: String,
-	userVersion: Number,
+	resetPasswordToken: {type: String},
+	resetPasswordExpires: {type: Date},
+	updateEmailToken: {type: String},
+	updateEmailExpires: {type: Date},
+	updateEmailTmp: {type: String},
+	confirmEmailToken: {type: String},
+	confirmEmailExpires: {type: Date},
+	userVersion: {type: Number},
 	privileges: {type: Number, default: 0, min: 0, max: 2},
 	numberOfAllowedPictures: {type: Number, default: 20},
+	isConfirmed: {type: Boolean, default: false},
 	isBanned: {type: Boolean, default: false},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
 		doubles: {type: Number, default: 0, min: 0},
 		triples: {type: Number, default: 0, min: 0}
 	},
-	images: [String],
-	gameCreators: [{type: mongoose.Schema.Types.ObjectId, required: true, ref: 'gameCreator'}]
+	images: [String]
 });
 
 userSchema.pre('save', function (next) {
