@@ -19,8 +19,15 @@ module.exports = function (req, res, next) {
 				cb(null, dir);
 			},
 			filename: function (req, file, cb) {
-				var fileName = file.originalname.replace(/ /g, '_');
-				fileName = fileName.replace('/', '');
+				var fileName = null;
+				if (req.body.setPictureName) {
+					console.log(req.body.setPictureName);
+					fileName = req.body.setPictureName;
+				}
+				else {
+					fileName = file.originalname.replace(/ /g, '_');
+					fileName = fileName.replace('/', '');
+				}
 				if (fileName.length === 0) {
 					cb(new Error('Filename length empty'), null);
 					return res.status(400).json({message: 'filname can not be empty.'});

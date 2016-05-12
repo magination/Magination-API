@@ -13,6 +13,7 @@ var serverConfig = require('../../config/server.config');
 var constants = require('../../config/constants.config');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
+var winston = require('winston');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 
@@ -36,6 +37,13 @@ nev.configure({
 		subject: 'Please confirm account',
 		html: 'Click the following link to confirm your account:</p><p>${URL}</p>',
 		text: 'Please confirm your account by clicking the following link: ${URL}'
+	},
+	sendConfirmationEmail: false,
+	verifySendMailCallback: function (err, info) {
+		if (err) winston.log('error', 'error in verifySendMailCallback at nev. Error:' + err);
+	},
+	confirmSendMailCallback: function (err, info) {
+		if (err) winston.log('error', 'error in confirmSendMailCallback at nev. Error:' + err);
 	}
 });
 

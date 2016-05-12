@@ -53,7 +53,7 @@ module.exports = function (app) {
 			if (!model) return res.status(404).send();
 			if (!model.owner.equals(req.verified.id)) return res.status(401).send();
 			if (req.body.json) model.json = JSON.stringify(req.body.json);
-			if (req.body.tile) model.title = req.body.title;
+			if (req.body.title) model.title = req.body.title;
 			model.save(function (err) {
 				if (err) {
 					winston.log('error', err);
@@ -83,8 +83,7 @@ module.exports = function (app) {
 		});
 	});
 
-	router.delete('/unpublishedGame/:gameId/gameCreators/:gameCreatorId', verifyToken, function (req, res) {
-		if (req.params.userId !== req.verified.id) return res.status(401).send();
+	router.delete('/unpublishedGames/:gameId/gameCreators/:gameCreatorId', verifyToken, verifyOwnerOfGame, function (req, res) {
 		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
 		GameCreator.remove({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, gameCreator) {
 			if (err) {
@@ -92,7 +91,7 @@ module.exports = function (app) {
 				return res.status(500).send();
 			}
 			if (!gameCreator) return res.status(404).send();
-			UnpublishedGame.findByIdAndUpdate(req.verified.id, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
+			UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
 				if (err) {
 					winston.log('error', err);
 					return res.status(500).send();
@@ -121,7 +120,7 @@ var verifyOwnerOfGame = function (req, res, next) {
 
 var verfiyOwnerOfGameCreator = function (req, res, next) {
 	if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
-	GameCreator.findById(req.params.gameId, function (err, gameCreator) {
+	GameCreator.findById(req.params.gameCreatorId, function (err, gameCreator) {
 		if (err) return res.status(500).send();
 		if (!gameCreator) return res.status(404).send();
 		if (!gameCreator.owner.equals(req.verified.id)) return res.status(401).send();

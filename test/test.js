@@ -28,7 +28,7 @@ describe('Starting tests', function () {
 	importTest('Testing review.model', './models/review/review.model.test');
 	importTest('Testing unpublishedGame.model', './models/unpublishedGame/unpublishedGame.model.test');
 	importTest('Testing report.model', './models/report/report.model.test');
-	// importTest('Testing gameCreator.model', './models/gameCreator/gameCreator.model.test');
+	importTest('Testing gameCreator.model', './models/gameCreator/gameCreator.model.test');
 	// ROUTES
 	importTest('Testing user.route', './routes/user/user.route.test');
 	importTest('Testing game.route', './routes/game/game.route.test');
@@ -36,7 +36,7 @@ describe('Starting tests', function () {
 	importTest('Testing review.route', './routes/review/review.route.test');
 	importTest('Testing unpublishedGame.route', './routes/unpublishedGame/unpublishedGame.route.test');
 	importTest('Testing report.route', './routes/report/report.route.test');
-	// importTest('Testing gameCreator.route', './routes/gameCreator/gameCreator.route.test');
+	importTest('Testing gameCreator.route', './routes/gameCreator/gameCreator.route.test');
 	importTest('Testing image.route', './routes/image/image.route.test');
 
 	after(function (done) {
