@@ -45,6 +45,7 @@ module.exports = function (app) {
 		var query = {};
 		var options = {};
 		if (req.query.title) query.title = {'$regex': req.query.title, '$options': 'i'};
+		if (req.query.exactTitle) query.title = req.query.exactTitle;
 		if (req.query.singles) query['pieces.singles'] = {'$lte': req.query.singles};
 		if (req.query.doubles) query['pieces.doubles'] = {'$lte': req.query.doubles};
 		if (req.query.triples) query['pieces.triples'] = {'$lte': req.query.triples};
@@ -154,13 +155,23 @@ module.exports = function (app) {
 						copiedGameCreator.save();
 						data.push(copiedGameCreator._id);
 					});
+					console.log(forkedGame.gameCreators);
+					forkedGame.gameCreators = data;
+					console.log(data);
+					var unpubGame = new UnpublishedGame(forkedGame);
+					unpubGame.save(function (err) {
+						if (err) return res.status(500).send();
+						return res.status(200).json(unpubGame);
+					});
 				});
 			}
-			var unpubGame = new UnpublishedGame(forkedGame);
-			unpubGame.save(function (err) {
-				if (err) return res.status(500).send();
-				return res.status(200).json(unpubGame);
-			});
+			else {
+				var unpubGame = new UnpublishedGame(forkedGame);
+				unpubGame.save(function (err) {
+					if (err) return res.status(500).send();
+					return res.status(200).json(unpubGame);
+				});
+			}
 		});
 	});
 
