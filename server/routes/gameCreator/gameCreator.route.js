@@ -47,14 +47,15 @@ module.exports = function (app) {
 
 	router.put('/users/:userId/gameCreatorObjects/:gameCreatorId', verifyToken, requestValidator, function (req, res) {
 		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
-		if (!req.body.json) return res.status(422).send();
+		if (!req.body.json && !req.body.title) return res.status(422).send();
 		GameCreator.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
 			if (err) {
 				console.log(err);
 				return res.status(500).send();
 			}
 			if (!model) return res.status(404).send();
-			model.json = JSON.stringify(req.body.json);
+			if (req.body.json) model.json = JSON.stringify(req.body.json);
+			if (req.body.tile) model.title = req.body.title;
 			model.save(function (err) {
 				if (err) {
 					winston.log('error', err);
