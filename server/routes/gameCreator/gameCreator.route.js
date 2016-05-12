@@ -134,7 +134,7 @@ var verfiyOwnerOfGameCreatorAndSetPictureName = function (req, res, next) {
 		if (err) return res.status(500).send();
 		if (!gameCreator) return res.status(404).send();
 		if (!gameCreator.owner.equals(req.verified.id)) return res.status(401).send();
-		req.body.setPictureName = gameCreator._id;
+		req.params.setPictureName = gameCreator._id.toString() + '.png';
 		next();
 	});
 };
