@@ -6,13 +6,15 @@ var testconfig = {
 		username: 'admin',
 		email: 'testuser@test.test',
 		password: 'admin',
+		isConfirmed: true,
 		privileges: User.privileges.ADMINISRATOR
 	},
 	USER_TESTUSER2:
 	{
 		username: 'admin2',
 		email: 'test2test2@test2.com',
-		password: 'admin'
+		password: 'admin',
+		isConfirmed: true
 	},
 	USER_VALID:
 	{

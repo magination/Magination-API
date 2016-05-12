@@ -17,74 +17,52 @@ var winston = require('winston');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 
-/*
-TODO: Split this component up. Nev should be configured in a seperate file.
- */
-nev.configure({
-	verificationURL: serverConfig.REMOTE_GAME_SITE + '/confirmation/${URL}',
-	persistentUserModel: User,
-	tempUserCollection: 'magination_tempusers',
+var generateConfirmEmailToken = function (req, res, next) {
+	crypto.randomBytes(20, function (err, buf) {
+		if (err) return res.status(500).send();
+		req.body.confirmEmailToken = buf.toString('hex');
+		next();
+	});
+};
 
-	transportOptions: {
+var sendConfirmationEmail = function (email, token) {
+	var smtpTransport = nodemailer.createTransport('SMTP', {
 		service: 'Gmail',
 		auth: {
 			user: emailconfig.EMAIL_ADRESS,
 			pass: emailconfig.EMAIL_PASSWORD
 		}
-	},
-	verifyMailOptions: {
-		from: 'Do Not Reply <maginationtest@gmail.com>',
+	});
+	var url = serverConfig.REMOTE_GAME_SITE + '/confirmation/' + token;
+	var mailOptions = {
+		to: email,
+		from: 'maginationtest@gmail.com',
 		subject: 'Please confirm account',
-		html: 'Click the following link to confirm your account:</p><p>${URL}</p>',
-		text: 'Please confirm your account by clicking the following link: ${URL}'
-	},
-	sendConfirmationEmail: false,
-	verifySendMailCallback: function (err, info) {
-		if (err) winston.log('error', 'error in verifySendMailCallback at nev. Error:' + err);
-	},
-	confirmSendMailCallback: function (err, info) {
-		if (err) winston.log('error', 'error in confirmSendMailCallback at nev. Error:' + err);
-	}
-});
-
-nev.generateTempUserModel(User);
+		html: 'Click the following link to confirm your account:<p>' + url + '</p>',
+		text: 'Please confirm your account by clicking the following link: ' + url
+	};
+	smtpTransport.sendMail(mailOptions);
+};
 
 module.exports = function (app) {
-	router.post('/users', requestValidator, uniqueValidator, function (req, res) {
-		var newUser = new User({username: req.body.username, email: req.body.email, password: req.body.password});
-		nev.createTempUser(newUser, function (err, newTempUser) {
-			if (err) {
-				if (err.name === 'ValidationError') {
-					return res.status(409).json({message: constants.httpResponseMessages.conflict});
-				}
-				else {
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				}
-			}
-			if (newTempUser) {
-				nev.registerTempUser(newTempUser, function (err) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					return res.status(200).json({message: 'Success. A confirmation email has been sent.'});
-				});
-			}
-			else {
-				return res.status(409).json({message: constants.httpResponseMessages.conflict});
-			}
+	router.post('/users', requestValidator, uniqueValidator, generateConfirmEmailToken, function (req, res) {
+		var confirmEmailExpires = Date.now() + 3600000;
+		var newUser = new User({username: req.body.username, email: req.body.email, password: req.body.password, confirmEmailToken: req.body.confirmEmailToken, confirmEmailExpires: confirmEmailExpires});
+		newUser.save(function (err) {
+			if (err) return res.status(500).send();
+			sendConfirmationEmail(newUser.email, newUser.confirmEmailToken);
+			return res.status(200).send();
 		});
 	});
 
-	router.post('/confirmation/:id', function (req, res) {
-		nev.confirmTempUser(req.params.id, function (err, user) {
-			if (err) {
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			}
-			if (user) {
-				return res.status(200).json(user);
-			}
-			else {
-				return res.status(400).json({message: constants.httpResponseMessages.badRequest});
-			}
-		});
+	router.post('/confirmation/:confirmEmailToken', function (req, res) {
+		User.findOneAndUpdate({confirmEmailToken: req.params.confirmEmailToken, confirmEmailExpires: {$gt: Date.now()}},
+			{confirmEmailToken: undefined, confirmEmailExpires: undefined, isConfirmed: true},
+			function (err, user) {
+				if (err) return res.status(500).send();
+				if (!user) return res.status(404).send();
+				else return res.status(200).send();
+			});
 	});
 
 	router.post('/resendVerificationEmail', globalBruteForce.prevent, userBruteForce.getMiddleware({
@@ -96,10 +74,11 @@ module.exports = function (app) {
 			return res.status(400).json({message: 'bad request'});
 		}
 		else {
-			nev.resendVerificationEmail(req.body.email, function (err, emailSent) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				if (emailSent) return res.status(200).json({message: 'Verification email has been resent.'});
-				else return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			User.findOne({email: req.body.email, confirmEmailExpires: {$gt: Date.now()}}, function (err, user) {
+				if (err) return res.status(500).send();
+				if (!user) return res.status(404).send();
+				sendConfirmationEmail(user.email, user.confirmEmailToken);
+				return res.status(200).send();
 			});
 		}
 	});

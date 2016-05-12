@@ -7,6 +7,7 @@ var User = require('../../models/user/user.model');
 var verifyToken = require('../login/verifyToken');
 var constants = require('../../config/constants.config');
 var Report = require('../../models/report/report.model');
+var GameCreator = require('../../models/gameCreator/gameCreator.model');
 var validator = require('../../validator/validator');
 var check = require('check-types');
 var winston = require('winston');
@@ -28,12 +29,12 @@ module.exports = function (app) {
 		var newgame = new Game(_.extend(req.body, {owner: req.verified.id}));
 		if (!req.body.parentGame) newgame.parentGame = undefined;
 		Game.findOne({title: req.body.title}, function (err, game) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (game) return res.status(409).json({message: constants.httpResponseMessages.conflict});
+			if (err) return res.status(500).send();
+			if (game) return res.status(409).send();
 			newgame.save(function (err) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (err) return res.status(500).send();
 				newgame.populate('owner', 'username', function (err) {
-					if (err) res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					if (err) res.status(500).send();
 					else return res.status(201).json(newgame);
 				});
 			});
@@ -142,6 +143,19 @@ module.exports = function (app) {
 			forkedGame.sumOfVotes = 0;
 			forkedGame.rating = 0;
 			forkedGame.reviews = undefined;
+			if (forkedGame.gameCreators) {
+				var data = [];
+				GameCreator.find({_id: {$in: forkedGame.gameCreators}}, function (err, gameCreators) {
+					if (err) return res.status(500).send();
+					gameCreators.forEach(function (gameCreator) {
+						var oldGameCreator = _.omit(gameCreator.toObject(), ['_id', '__v']);
+						oldGameCreator.owner = req.verified.id;
+						var copiedGameCreator = new GameCreator(oldGameCreator);
+						copiedGameCreator.save();
+						data.push(copiedGameCreator._id);
+					});
+				});
+			}
 			var unpubGame = new UnpublishedGame(forkedGame);
 			unpubGame.save(function (err) {
 				if (err) return res.status(500).send();

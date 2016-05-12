@@ -20,9 +20,9 @@ module.exports = function (req, res, next) {
 			},
 			filename: function (req, file, cb) {
 				var fileName = null;
-				if (req.body.setPictureName) {
-					console.log(req.body.setPictureName);
-					fileName = req.body.setPictureName;
+				if (req.params.setPictureName) {
+					console.log(req.params.setPictureName);
+					fileName = req.params.setPictureName;
 				}
 				else {
 					fileName = file.originalname.replace(/ /g, '_');

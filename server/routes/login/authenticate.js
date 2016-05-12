@@ -10,6 +10,8 @@ passport.use('username', new LocalStrategy(
 		User.findOne({ username: username }, function (err, user) {
 			if (err) { return done(err); }
 			if (!user) return done('Incorrect username');
+			if (user.isBanned) return done('User is banned');
+			if (!user.isConfirmed) return done('User email is not confirmed');
 			user.validPassword(password)
 			.then(function (result) {
 				if (result) return done(null, user);
@@ -26,6 +28,8 @@ passport.use('email', new LocalStrategy(
 		User.findOne({ email: username }, function (err, user) {
 			if (err) return done(err);
 			if (!user) return done('Incorrect email');
+			if (user.isBanned) return done('User is banned');
+			if (!user.isConfirmed) return done('User email is not confirmed');
 			user.validPassword(password)
 			.then(function (result) {
 				if (result) return done(null, user);
@@ -51,7 +55,6 @@ module.exports = function (req, res, next) {
 		passport.authenticate('email', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			else {
-				if (user.isBanned) return res.status(403).send();
 				req.brute.reset();
 				req.logIn(user, {session: false}, next);
 			}
@@ -61,7 +64,7 @@ module.exports = function (req, res, next) {
 		passport.authenticate('username', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			else {
-				if (user.isBanned) return res.status(403).send();
+				if (user.isBanned || !user.isConfirmed) return res.status(403).send();
 				req.brute.reset();
 				req.logIn(user, {session: false}, next);
 			}
