@@ -20,7 +20,7 @@ var testconfig = {
 	{
 		username: 'test',
 		email: 'test@test.test',
-		password: 'test'
+		password: 'test1234'
 	},
 	USER_INVALID:
 	{
