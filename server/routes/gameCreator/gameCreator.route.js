@@ -20,7 +20,7 @@ var setupMulter = require('../image/multer.setup');
 
 module.exports = function (app) {
 	router.post('/unpublishedGames/:gameId/gameCreators', verifyToken, verifyOwnerOfGame, function (req, res) {
-		var gameCreator = new GameCreator({json: JSON.stringify(req.body.json), owner: req.verified.id});
+		var gameCreator = new GameCreator({json: JSON.stringify(req.body.json), owner: req.verified.id, title: req.body.title});
 		gameCreator.save(function (err) {
 			if (err) return res.status(500).send();
 			UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$push: {gameCreators: gameCreator._id}}, {safe: true, upsert: false}, function (err, game) {
