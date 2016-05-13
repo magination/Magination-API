@@ -10,6 +10,7 @@ var mongoose = require('mongoose');
 var nev = require('email-verification')(mongoose);
 var emailconfig = require('../../config/email.config');
 var serverConfig = require('../../config/server.config');
+var userConfig = require('../../config/user.config');
 var constants = require('../../config/constants.config');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
@@ -141,7 +142,9 @@ module.exports = function (app) {
 						}
 						else {
 							if (req.body.password) {
-								if (!req.body.password.length > 6) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+								if (req.body.password.length < userConfig.MIN_PASSWORD_LENGTH) {
+									return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+								}
 								user.password = req.body.password;
 							}
 							else {

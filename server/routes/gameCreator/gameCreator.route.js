@@ -13,6 +13,7 @@ var config = require('../../config/server.config');
 var fs = require('fs');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
+var logger = require('../../logger/logger');
 var storage;
 var multer = require('multer');
 var winston = require('winston');
@@ -25,10 +26,10 @@ module.exports = function (app) {
 			if (err) return res.status(500).send();
 			UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$push: {gameCreators: gameCreator._id}}, {safe: true, upsert: false}, function (err, game) {
 				if (err) {
-					winston.log('error', err);
+					logger.log('error', 'POST /unpublishedGames/:gameId/gameCreators', err);
 					return res.status(500).send();
 				}
-				if (!game) return res.status(404).send();
+				else if (!game) return res.status(404).send();
 				else return res.status(201).json(gameCreator);
 			});
 		});
@@ -36,7 +37,10 @@ module.exports = function (app) {
 
 	router.get('/unpublishedGames/:gameId/gameCreators', function (req, res) {
 		UnpublishedGame.findById(req.params.gameId, function (err, game) {
-			if (err) return res.status(500).send();
+			if (err) {
+				logger.log('error', 'GET /unpublishedGames/:gameId/gameCreators', err);
+				return res.status(500).send();
+			}
 			if (!game) return res.status(404).send();
 			return res.status(200).json({gameCreators: game.gameCreators});
 		}).populate('gameCreators');
@@ -47,7 +51,7 @@ module.exports = function (app) {
 		if (!req.body.json && !req.body.title) return res.status(422).send();
 		GameCreator.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
 			if (err) {
-				console.log(err);
+				logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 				return res.status(500).send();
 			}
 			if (!model) return res.status(404).send();
@@ -56,8 +60,7 @@ module.exports = function (app) {
 			if (req.body.title) model.title = req.body.title;
 			model.save(function (err) {
 				if (err) {
-					winston.log('error', err);
-					console.log(err);
+					logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 					return res.status(500).send();
 				}
 				else return res.status(200).json(model);
@@ -68,14 +71,14 @@ module.exports = function (app) {
 	router.put('/unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', verifyToken, verfiyOwnerOfGameCreatorAndSetPictureName, setupMulter, function (req, res) {
 		GameCreator.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', err);
 				return res.status(500).send();
 			}
 			if (!model) return res.status(404).send();
 			model.image = req.body.absolutePath;
 			model.save(function (err) {
 				if (err) {
-					winston.log('error', err);
+					logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', err);
 					return res.status(500).send();
 				}
 				else return res.status(200).json(model);
@@ -87,13 +90,13 @@ module.exports = function (app) {
 		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
 		GameCreator.remove({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, gameCreator) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 				return res.status(500).send();
 			}
 			if (!gameCreator) return res.status(404).send();
 			UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
 				if (err) {
-					winston.log('error', err);
+					logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 					return res.status(500).send();
 				}
 				if (!game) return res.status(404).send();
@@ -111,7 +114,10 @@ var verifyOwnerOfGame = function (req, res, next) {
 	 */
 	if (!validator.isValidId(req.params.gameId)) return res.status(404).send();
 	UnpublishedGame.findById(req.params.gameId, function (err, game) {
-		if (err) return res.status(500).send();
+		if (err) {
+			logger.log('error', 'verifyOwnerOfGame() in gameCreator.route', err);
+			return res.status(500).send();
+		}
 		if (!game) return res.status(404).send();
 		if (!game.owner.equals(req.verified.id)) return res.status(401).send();
 		next();
@@ -121,7 +127,10 @@ var verifyOwnerOfGame = function (req, res, next) {
 var verfiyOwnerOfGameCreator = function (req, res, next) {
 	if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
 	GameCreator.findById(req.params.gameCreatorId, function (err, gameCreator) {
-		if (err) return res.status(500).send();
+		if (err) {
+			logger.log('error', 'verifyOwnerOfGameCreator() in gameCreator.route', err);
+			return res.status(500).send();
+		}
 		if (!gameCreator) return res.status(404).send();
 		if (!gameCreator.owner.equals(req.verified.id)) return res.status(401).send();
 		next();
@@ -131,7 +140,10 @@ var verfiyOwnerOfGameCreator = function (req, res, next) {
 var verfiyOwnerOfGameCreatorAndSetPictureName = function (req, res, next) {
 	if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
 	GameCreator.findById(req.params.gameCreatorId, function (err, gameCreator) {
-		if (err) return res.status(500).send();
+		if (err) {
+			logger.log('error', 'verifyOwnerOfGame() in gameCreator.route', err);
+			return res.status(500).send();
+		}
 		if (!gameCreator) return res.status(404).send();
 		if (!gameCreator.owner.equals(req.verified.id)) return res.status(401).send();
 		req.params.setPictureName = gameCreator._id.toString() + '.png';
@@ -141,16 +153,19 @@ var verfiyOwnerOfGameCreatorAndSetPictureName = function (req, res, next) {
 
 var requestValidator = function (req, res, next) {
 	if (req.verified.id !== req.params.userId) return res.status(401).send();
-	next();
+	else next();
 };
 
 var storeGameCreatorObject = function (req, res, next) {
 	var gameCreator = new GameCreator({json: req.body.jsonData, img: req.body.absolutePath});
 	gameCreator.save(function (err) {
-		if (err) return res.status(500).send();
+		if (err) {
+			logger.log('error', 'storeGameCreatorObject() in gameCreator.route', err);
+			return res.status(500).send();
+		}
 		User.findByIdAndUpdate(req.verified.id, {$push: {gameCreators: gameCreator._id}}, {safe: true, upsert: false}, function (err, user) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'storeGameCreatorObject() in gameCreator.route', err);
 				return res.status(500).send();
 			}
 			if (!user) return res.status(404).send();
