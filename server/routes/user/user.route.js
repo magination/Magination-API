@@ -207,27 +207,5 @@ module.exports = function (app) {
 		});
 	};
 
-	router.put('/reset', function (req, res) {
-		User.findOne({username: req.body.username}, function (err, user) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-			if (!user) {
-				user = new User({
-					username: 'per',
-					password: 'per',
-					email: 'per.per@per.no'
-				});
-			}
-			else {
-				user.password = req.body.password;
-			}
-			var userToReturn = user;
-			user.update(function (err) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				userToReturn.password = undefined;
-				userToReturn.__v = undefined;
-				return res.status(200).json(userToReturn);
-			});
-		});
-	});
 	return router;
 };
