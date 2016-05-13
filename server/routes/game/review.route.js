@@ -5,28 +5,29 @@ var Game = require('../../models/game/game.model');
 var verifyToken = require('../login/verifyToken');
 var validator = require('../../validator/validator');
 var constants = require('../../config/constants.config');
+var logger = require('../../logger/logger');
 var winston = require('winston');
 
 module.exports = function (app) {
 	router.get('/games/:gameId/reviews', function (req, res) {
-		if (!validator.isValidId(req.params.gameId)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		if (!validator.isValidId(req.params.gameId)) return res.status(422).send();
 		if (req.query.userId) {
 			Review.findOne({owner: req.query.userId, game: req.params.gameId}, function (err, review) {
 				if (err) {
-					winston.log('error', err);
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					logger.log('error', 'GET /games/:gameId/reviews', err);
+					return res.status(500).send();
 				}
-				if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+				if (!review) return res.status(404).send();
 				return res.status(200).json(review);
 			}).populate('owner', 'username');
 		}
 		else {
 			Game.findById({_id: req.params.gameId}, function (err, game) {
 				if (err) {
-					winston.log('error', err);
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					logger.log('error', 'GET /games/:gameId/reviews', err);
+					return res.status(500).send();
 				}
-				if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+				if (!game) return res.status(404).send();
 				return res.status(200).json(game);
 			}).select('reviews -_id').populate({
 				path: 'reviews',
@@ -39,20 +40,20 @@ module.exports = function (app) {
 	});
 
 	router.get('/games/:gameId/reviews/:reviewId', function (req, res) {
-		if (!validator.isValidId(req.params.gameId) || !validator.isValidId(req.params.reviewId)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		if (!validator.isValidId(req.params.gameId) || !validator.isValidId(req.params.reviewId)) return res.status(422).send();
 		Review.findOne({_id: req.params.reviewId}, function (err, review) {
 			if (err) {
-				winston.log('error', err);
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				logger.log('error', 'GET /games/:gameId/reviews/:reviewId', err);
+				return res.status(500).send();
 			}
-			if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (!review) return res.status(404).send();
 			else return res.status(200).json(review);
 		});
 	});
 
 	var verifyReviewRequest = function (req, res, next) {
 		if (!req.body.reviewText || !req.body.rating || !validator.isValidId(req.params.gameId)) {
-			return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+			return res.status(422).json.send();
 		}
 		else next();
 	};
@@ -61,7 +62,7 @@ module.exports = function (app) {
 		Review.findOne({owner: req.verified.id, game: req.params.gameId}, function (err, review) {
 			if (err) {
 				winston.log('error', err);
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				return res.status(500).send();
 			}
 			if (review) return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			var newReview = new Review({game: req.params.gameId, owner: req.verified.id, reviewText: req.body.reviewText, rating: req.body.rating});
@@ -70,8 +71,8 @@ module.exports = function (app) {
 				Review.pushToGameAndAddRating(req.params.gameId, newReview);
 				Review.populate(newReview, {path: 'owner', select: 'username'}, function (err, review) {
 					if (err) {
-						winston.log('error', err);
-						return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+						logger.log('error', 'POST /games/:gameId/reviews', err);
+						return res.status(500).send();
 					}
 					return res.status(201).json(review);
 				});
@@ -81,14 +82,14 @@ module.exports = function (app) {
 
 	router.put('/games/:gameId/reviews/:reviewId', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.gameId || !validator.isValidId(req.params.reviewId))) {
-			return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+			return res.status(422).send();
 		}
 		Review.findOne({_id: req.params.reviewId, game: req.params.gameId, owner: req.verified.id}, function (err, review) {
 			if (err) {
-				winston.log('error', err);
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				logger.log('error', 'PUT /games/:gameId/reviews/:reviewId', err);
+				return res.status(500).json.send();
 			}
-			if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (!review) return res.status(404).json.send();
 			var oldRating = review.rating;
 			var newRating = null;
 			if (req.body.reviewText) {
@@ -100,28 +101,17 @@ module.exports = function (app) {
 			}
 			review.save(function (err) {
 				if (err) {
-					winston.log('error', err);
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				}				if (newRating != null) Review.updateRatingInGame(req.params.gameId, oldRating, newRating);
+					logger.log('error', 'PUT /games/:gameId/reviews/:reviewId', err);
+					return res.status(500).send();
+				}
+				if (newRating != null) Review.updateRatingInGame(req.params.gameId, oldRating, newRating);
 				Review.populate(review, {path: 'owner', select: 'username'}, function (err, review) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					if (err) {
+						logger.log('error', 'PUT /games/:gameId/reviews/:reviewId', err);
+						return res.status(500).send();
+					}
 					return res.status(200).json(review);
 				});
-			});
-		});
-	});
-
-	router.delete('/reviews/:reviewId', verifyToken, function (req, res) {
-		if (!validator.isValidId(req.params.reviewId)) return res.status(404).send();
-		Review.findById(req.params.reviewId, function (err, review) {
-			if (err) return res.status(500).send();
-			if (!review) return res.status(404).send();
-			if (req.verified.privileges < 1) {
-				if (req.verified.id !== review.owner) return res.status(401).send();
-			}
-			review.remove(function (err) {
-				if (err) return res.status(500).send();
-				else return res.status(204).send();
 			});
 		});
 	});
@@ -129,7 +119,10 @@ module.exports = function (app) {
 	router.get('/reviews/:reviewId', function (req, res) {
 		if (!validator.isValidId(req.params.reviewId)) return res.status(404).send();
 		Review.findById(req.params.reviewId, function (err, review) {
-			if (err) return res.status(500).send();
+			if (err) {
+				logger.log('error', 'GET /reviews/:reviewId', err);
+				return res.status(500).send();
+			}
 			if (!review) return res.status(404).send();
 			else return res.status(200).json(review);
 		});
@@ -141,17 +134,17 @@ module.exports = function (app) {
 		}
 		Review.findOne({_id: req.params.reviewId, owner: req.verified.id, game: req.params.gameId}, function (err, review) {
 			if (err) {
-				winston.log('error', err);
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				logger.log('error', 'DELETE /games/:gameId/reviews/:reviewId', err);
+				return res.status(500).send();
 			}
 			if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 			Review.pullFromGameAndRemoveRating(req.params.gameId, review);
 			Review.remove({_id: review._id}, function (err) {
 				if (err) {
-					winston.log('error', err);
-					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+					logger.log('error', 'DELETE /games/:gameId/reviews/:reviewId', err);
+					return res.status(500).send();
 				}
-				return res.status(204).json({message: 'review has been deleted'});
+				return res.status(204).send();
 			});
 		});
 	});
