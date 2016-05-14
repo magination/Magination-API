@@ -27,13 +27,7 @@ var generateConfirmEmailToken = function (req, res, next) {
 };
 
 var sendConfirmationEmail = function (email, token) {
-	var smtpTransport = nodemailer.createTransport('SMTP', {
-		service: 'Gmail',
-		auth: {
-			user: emailconfig.EMAIL_ADRESS,
-			pass: emailconfig.EMAIL_PASSWORD
-		}
-	});
+	var smtpTransport = nodemailer.createTransport('smtps://maginationtest%40gmail.com:magination@smtp.gmail.com');
 	var url = serverConfig.REMOTE_GAME_SITE + '/confirmation/' + token;
 	var mailOptions = {
 		to: email,
@@ -82,6 +76,17 @@ module.exports = function (app) {
 				return res.status(200).send();
 			});
 		}
+	});
+
+	router.get('/users', function (req, res) {
+		var query = {};
+		if (!req.query.username && !req.query.email) return res.status(422).send();
+		if (req.query.username) query.username = req.query.username;
+		if (req.query.email) query.email = req.query.email;
+		User.find(query, function (err, users) {
+			if (err) return res.satus(500).send();
+			else return res.status(200).json({users: users});
+		}).select('username -_id');
 	});
 
 	router.get('/users/:id/', verifyToken, function (req, res) {
