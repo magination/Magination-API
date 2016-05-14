@@ -47,7 +47,8 @@ module.exports = function (app) {
 				logger.log('error', 'GET /games/featured', err);
 				return res.status(500).send(err);
 			}
-			return res.status(200).json(list[0].games);
+			if (!list) return res.status(200).json([]);
+			else return res.status(200).json(list[0].games);
 		}).select('games -_id').populate({
 			path: 'games',
 			populate: {
