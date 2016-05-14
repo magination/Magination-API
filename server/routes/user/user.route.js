@@ -15,6 +15,7 @@ var constants = require('../../config/constants.config');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 var winston = require('winston');
+var logger = require('../../logger/logger');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 
@@ -54,7 +55,10 @@ module.exports = function (app) {
 		User.findOneAndUpdate({confirmEmailToken: req.params.confirmEmailToken, confirmEmailExpires: {$gt: Date.now()}},
 			{confirmEmailToken: undefined, confirmEmailExpires: undefined, isConfirmed: true},
 			function (err, user) {
-				if (err) return res.status(500).send();
+				if (err) {
+					logger.log('error', 'POST /confirmation/:confirmEmailToken', err);
+					return res.status(500).send();
+				}
 				if (!user) return res.status(404).send();
 				else return res.status(200).send();
 			});
@@ -84,17 +88,23 @@ module.exports = function (app) {
 		if (req.query.username) query.username = req.query.username;
 		if (req.query.email) query.email = req.query.email;
 		User.find(query, function (err, users) {
-			if (err) return res.satus(500).send();
+			if (err) {
+				logger.log('error', 'GET /users', err);
+				return res.satus(500).send();
+			}
 			else return res.status(200).json({users: users});
 		}).select('username -_id');
 	});
 
 	router.get('/users/:id/', verifyToken, function (req, res) {
-		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+		if (req.verified.id !== req.params.id) return res.status(401).send();
 		User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (err) {
+				logger.log('error', 'GET /users/:id', err);
+				return res.status(500).send();
+			}
 			else if (user == null) {
-				return res.status(404).json({message: constants.httpResponseMessages.notFound});
+				return res.status(404).send();
 			}
 			else return res.status(200).json(user);
 		});
@@ -105,9 +115,10 @@ module.exports = function (app) {
 		if (!req.body.pieces) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findByIdAndUpdate({_id: req.verified.id}, {pieces: req.body.pieces}, {new: true}, function (err, user) {
 			if (err) {
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				logger.log('error', 'PUT /users/:id/pieces', err);
+				return res.status(500).send();
 			}
-			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (!user) return res.status(404).send();
 			user.password = undefined;
 			user.__v = undefined;
 			return res.status(200).json(user);
@@ -115,40 +126,49 @@ module.exports = function (app) {
 	});
 
 	router.get('/users/:id/games', verifyToken, function (req, res) {
-		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+		if (req.verified.id !== req.params.id) return res.status(401).send();
 		Game.find({owner: req.verified.id}, function (err, games) {
-			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+			if (err) {
+				logger.log('error', 'GET /users/:id/games', err);
+				return res.status(500).send();
+			}
 			return res.status(200).json(games);
 		});
 	});
 
-	router.put('/users/:id/', verifyToken, function (req, res) {
+	router.put('/users/:id', verifyToken, function (req, res) {
 		if (req.verified.id !== req.params.id) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 		if (!req.body.email && !req.body.password || !req.body.oldPassword) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		User.findById({_id: req.verified.id}, function (err, user) {
 			if (err) {
-				console.log(err);
-				return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				logger.log('error', 'PUT /users/:id', err);
+				return res.status(500).send();
 			}
-			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (!user) return res.status(404).send();
 			user.validPassword(req.body.oldPassword)
 				.then(function (result) {
-					if (!result) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
+					if (!result) return res.status(401).send();
 					else {
 						if (req.body.email) {
-							if (!validator.isEmail(req.body.email)) return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+							if (!validator.isEmail(req.body.email)) return res.status(422).send();
 							User.findOne({email: req.body.email}, function (err, user2) {
-								if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-								if (user2) return res.status(409).json({message: 'Email allready in use.'});
+								if (err) {
+									logger.log('error', 'PUT /users/:id', err);
+									return res.status(500).send();
+								}
+								if (user2) return res.status(409).send();
 								generateEmailUpdateTokenAndSendMail(req.body.email, user, req, res, function (err) {
-									if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+									if (err) {
+										logger.log('error', 'PUT /users/:id', err);
+										return res.status(500).send();
+									}
 								});
 							});
 						}
 						else {
 							if (req.body.password) {
 								if (req.body.password.length < userConfig.MIN_PASSWORD_LENGTH) {
-									return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+									return res.status(422).send();
 								}
 								user.password = req.body.password;
 							}
@@ -157,9 +177,9 @@ module.exports = function (app) {
 							}
 							user.save(function (err) {
 								if (err) {
-									console.log(err);
+									logger.log('error', 'PUT /users/:id', err);
 									if (err.name === 'ValidationError') return res.status(409).json({message: 'Email already in use'});
-									return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+									return res.status(500).send();
 								}
 								user.password = undefined;
 								user.__v = undefined;
@@ -169,8 +189,8 @@ module.exports = function (app) {
 					}
 				}).catch(function (err) {
 					if (err) {
-						console.log(err);
-						return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+						logger.log('error', 'PUT /users/:id', err);
+						return res.status(500).send();
 					}
 				});
 		});
@@ -181,8 +201,11 @@ module.exports = function (app) {
 			if (err) return next(err);
 			var token = buf.toString('hex');
 			User.findOne({_id: req.verified.id}, function (err, user) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+				if (err) {
+					logger.log('error', 'generateEmailUpdateTokenAndSendMail() in user.route', err);
+					return res.status(500).send();
+				}
+				if (!user) return res.status(404).send();
 				user.updateEmailTmp = newmail;
 				user.updateEmailToken = token;
 				user.updateEmailExpires = Date.now() + 3600000; // Update token valid for one hour
