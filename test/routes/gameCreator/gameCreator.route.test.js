@@ -85,7 +85,7 @@ it('DELETE /api/unpublishedGames/:gameId/gameCreators/:gameCreatorId - should re
 	.delete('/api/unpublishedGames/' + currentUnpublishedGame._id + '/gameCreators/' + currentGameCreator._id)
 	.set('Authorization', token)
 	.set('Accept', 'application/json')
-	.expect(204)
+	.expect(200)
 	.end(function (err, res) {
 		if (err) return done(err);
 		request(url)

@@ -88,19 +88,25 @@ module.exports = function (app) {
 
 	router.delete('/unpublishedGames/:gameId/gameCreators/:gameCreatorId', verifyToken, verifyOwnerOfGame, function (req, res) {
 		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
-		GameCreator.remove({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, gameCreator) {
+		GameCreator.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, gameCreator) {
 			if (err) {
 				logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 				return res.status(500).send();
 			}
 			if (!gameCreator) return res.status(404).send();
-			UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
+			gameCreator.remove(function (err) {
 				if (err) {
 					logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 					return res.status(500).send();
 				}
-				if (!game) return res.status(404).send();
-				else return res.status(204).send();
+				UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
+					if (err) {
+						logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
+						return res.status(500).send();
+					}
+					if (!game) return res.status(404).send();
+					else return res.status(200).json(gameCreator);
+				});
 			});
 		});
 	});
