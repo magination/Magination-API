@@ -30,6 +30,69 @@ module.exports = function (app) {
 		}).populate('owner', 'username');
 	});
 
+	router.route('/games/top').get(function (req, res) {
+		Game.find({}, '-__v', {sort: '-rating', limit: 16}, function (err, games) {
+			if (err) {
+				logger.log('error', 'GET /games/new', err);
+				return res.status(500).send();
+			}
+			else return res.status(200).json({games: games});
+		}).populate('owner', 'username');
+	});
+
+	router.route('/games/featured')
+	.get(function (req, res) {
+		GameList.find({title: 'featuredGames'}, function (err, list) {
+			if (err) {
+				logger.log('error', 'GET /games/featured', err);
+				return res.status(500).send();
+			}
+			return res.status(200).json(list);
+		}).select('games -__v').populate({
+			path: 'games',
+			populate: {
+				path: 'owner',
+				select: 'username'
+			}
+		});
+	})
+	.put(verifyToken, verifyPrivileges, function (req, res) {
+		if (!req.body.gameId || !validator.isValidId(req.body.gameId)) return res.status(422).send();
+		GameList.findOne({title: 'featuredGames'}, function (err, list) {
+			if (err) {
+				logger.log('error', 'PUT /games/featured', err);
+				return res.status(500).send();
+			}
+			else if (!list) {
+				var gameList = new GameList({title: 'featuredGames'});
+				gameList.games.push(req.body.gameId);
+				gameList.save(function (err) {
+					if (err) return res.status(500).send();
+					else return res.status(200).json(gameList);
+				});
+			}
+			else {
+				if (list.games.indexOf(req.body.gameId) < 0) {
+					list.games.push(req.body.gameId);
+				}
+				list.save(function (err) {
+					if (err) return res.status(500).send();
+					else return res.status(200).json(list);
+				});
+			}
+		});
+	});
+
+	router.route('/games/new').get(function (req, res) {
+		Game.find({}, '-__v', {sort: '-date', limit: 8}, function (err, games) {
+			if (err) {
+				logger.log('error', 'GET /games/new', err);
+				return res.status(500).send();
+			}
+			else return res.status(200).json({games: games});
+		}).populate('owner', 'username');
+	});
+
 	router.route('/games/:game_id')
 		.get(function (req, res) {
 			if (!validator.isValidId(req.params.game_id)) return res.status(422).send();
@@ -130,6 +193,11 @@ module.exports = function (app) {
 	});
 
 	return router;
+};
+
+var verifyPrivileges = function (req, res, next) {
+	if (req.verified.privileges >= User.privileges.MODERATOR) next();
+	else return res.status(401).send();
 };
 
 var parseSearchQuery = function (req, res, next) {
