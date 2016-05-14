@@ -36,7 +36,7 @@ module.exports = function (app) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
 			}
-			else return res.status(200).json({games: games});
+			else return res.status(200).json(games);
 		}).populate('owner', 'username');
 	});
 
@@ -45,10 +45,10 @@ module.exports = function (app) {
 		GameList.find({title: 'featuredGames'}, function (err, list) {
 			if (err) {
 				logger.log('error', 'GET /games/featured', err);
-				return res.status(500).send();
+				return res.status(500).send(err);
 			}
-			return res.status(200).json(list);
-		}).select('games -__v').populate({
+			return res.status(200).json(list[0].games);
+		}).select('games -_id').populate({
 			path: 'games',
 			populate: {
 				path: 'owner',
@@ -89,7 +89,7 @@ module.exports = function (app) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
 			}
-			else return res.status(200).json({games: games});
+			else return res.status(200).json(games);
 		}).populate('owner', 'username');
 	});
 
