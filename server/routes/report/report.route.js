@@ -8,6 +8,7 @@ var validator = require('../../validator/validator');
 var verifyToken = require('../login/verifyToken');
 var mongoose = require('mongoose');
 var constants = require('../../config/constants.config');
+var	logger = require('../../logger/logger');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 
@@ -28,14 +29,20 @@ module.exports = function (app) {
 		}
 		else if (req.body.type === Report.types.REVIEW) {
 			Review.findById({_id: req.body.id}, function (err, review) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (err) {
+					logger.log('error', 'checkIfIdExists() in report.route', err);
+					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				}
 				if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				next();
 			});
 		}
 		else if (req.body.type === Report.types.USER) {
 			User.findById({_id: req.body.id}, function (err, user) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (err) {
+					logger.log('error', 'checkIfIdExists() in report.route', err);
+					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				}
 				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				next();
 			});
@@ -53,11 +60,17 @@ module.exports = function (app) {
 		req.body.type = Report.types.GAME;
 		checkIfIdExists(req, res, function () {
 			Report.findOne({owner: req.verified.id, id: req.body.id, type: req.body.type}, function (err, report) {
-				if (err) return res.status(500).send();
+				if (err) {
+					logger.log('error', 'POST /reports/games', err);
+					return res.status(500).send();
+				}
 				if (report) return res.status(409).send();
 				var newReport = new Report({reportText: req.body.reportText, type: req.body.type, id: req.body.id, owner: req.verified.id});
 				newReport.save(function (err) {
-					if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+					if (err) {
+						logger.log('error', 'POST /reports/games', err);
+						return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+					}
 					else return res.status(201).json(newReport);
 				});
 			});
@@ -68,11 +81,17 @@ module.exports = function (app) {
 		req.body.type = Report.types.USER;
 		checkIfIdExists(req, res, function () {
 			Report.findOne({owner: req.verified.id, id: req.body.id, type: req.body.type}, function (err, report) {
-				if (err) return res.status(500).send();
+				if (err) {
+					logger.log('error', 'POST /reports/users', err);
+					return res.status(500).send();
+				}
 				if (report) return res.status(409).send();
 				var newReport = new Report({reportText: req.body.reportText, type: req.body.type, id: req.body.id, owner: req.verified.id});
 				newReport.save(function (err) {
-					if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+					if (err) {
+						logger.log('error', 'POST /reports/users', err);
+						return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+					}
 					else return res.status(201).json(newReport);
 				});
 			});
@@ -83,11 +102,17 @@ module.exports = function (app) {
 		req.body.type = Report.types.REVIEW;
 		checkIfIdExists(req, res, function () {
 			Report.findOne({owner: req.verified.id, id: req.body.id, type: req.body.type}, function (err, report) {
-				if (err) return res.status(500).send();
+				if (err) {
+					logger.log('error', 'POST /reports/reviews', err);
+					return res.status(500).send();
+				}
 				if (report) return res.status(409).send();
 				var newReport = new Report({reportText: req.body.reportText, type: req.body.type, id: req.body.id, owner: req.verified.id});
 				newReport.save(function (err) {
-					if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+					if (err) {
+						logger.log('error', 'POST /reports/reviews', err);
+						return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+					}
 					else return res.status(201).json(newReport);
 				});
 			});
@@ -127,7 +152,10 @@ module.exports = function (app) {
 			reportedObjects: []
 		};
 		Report.find({type: Report.types.GAME}, function (err, reports) {
-			if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+			if (err) {
+				logger.log('error', 'GET /reports/games', err);
+				return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+			}
 			data.reportedObjects = orderById(reports);
 			return res.status(200).json(data);
 		});
@@ -139,7 +167,10 @@ module.exports = function (app) {
 			reportedObjects: []
 		};
 		Report.find({type: Report.types.USER}, function (err, reports) {
-			if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+			if (err) {
+				logger.log('error', 'GET /reports/users', err);
+				return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+			}
 			data.reportedObjects = orderById(reports);
 			return res.status(200).json(data);
 		});
@@ -151,7 +182,10 @@ module.exports = function (app) {
 			reportedObjects: []
 		};
 		Report.find({type: Report.types.REVIEW}, function (err, reports) {
-			if (err) return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+			if (err) {
+				logger.log('error', 'GET /reports/reviews', err);
+				return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
+			}
 			data.reportedObjects = orderById(reports);
 			return res.status(200).json(data);
 		});
@@ -160,7 +194,10 @@ module.exports = function (app) {
 	router.delete('/reports/games/:id', verifyToken, verifyPrivileges, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(404).send();
 		Report.remove({type: Report.types.GAME, id: req.params.id}, function (err, obj) {
-			if (err) return res.status(500).send();
+			if (err) {
+				logger.log('error', 'DELETE /reports/games/:id', err);
+				return res.status(500).send();
+			}
 			if (obj.result.n === 0) return res.status(404).send();
 			return res.status(204).send();
 		});
@@ -169,7 +206,10 @@ module.exports = function (app) {
 	router.delete('/reports/users/:id', verifyToken, verifyPrivileges, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(404).send();
 		Report.remove({type: Report.types.USER, id: req.params.id}, function (err, obj) {
-			if (err) return res.status(500).send();
+			if (err) {
+				logger.log('error', 'DELETE /reports/users/:id', err);
+				return res.status(500).send();
+			}
 			if (obj.result.n === 0) return res.status(404).send();
 			return res.status(204).send();
 		});
@@ -178,7 +218,10 @@ module.exports = function (app) {
 	router.delete('/reports/reviews/:id', verifyToken, verifyPrivileges, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(404).send();
 		Report.remove({type: Report.types.REVIEW, id: req.params.id}, function (err, obj) {
-			if (err) return res.status(500).send();
+			if (err) {
+				logger.log('error', 'DELETE /reports/reviews/:id', err);
+				return res.status(500).send();
+			}
 			if (obj.result.n === 0) return res.status(404).send();
 			return res.status(204).send();
 		});
