@@ -1,6 +1,6 @@
 var fs = require('fs');
 var User = require('../../models/user/user.model');
-var winston = require('winston');
+var logger = require('../../logger/logger');
 var config = require('../../config/server.config');
 var multer = require('multer');
 var imageConfig = require('./image.config.js');
@@ -21,7 +21,6 @@ module.exports = function (req, res, next) {
 			filename: function (req, file, cb) {
 				var fileName = null;
 				if (req.params.setPictureName) {
-					console.log(req.params.setPictureName);
 					fileName = req.params.setPictureName;
 				}
 				else {
@@ -48,7 +47,7 @@ module.exports = function (req, res, next) {
 				User.findByIdAndUpdate(req.verified.id, {$addToSet: {images: absolutePath}}, {safe: true, upsert: false},
 					function (err, model) {
 						if (err) {
-							winston.log('error', err);
+							logger.log('error', 'multer.setup.js', err);
 							cb(err, fileName);
 							return res.status(500).send();
 						}
@@ -65,14 +64,14 @@ module.exports = function (req, res, next) {
 		var upload = multer({ storage: storage }).single('image');
 		upload(req, res, function (err) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'multer.setup.js', err);
 				return res.status(500).send();
 			}
 			next();
 		});
 	}
 	catch (err) {
-		winston.log('error', err);
+		logger.log('error', 'multer.setup.js', err);
 		return res.status(500).json({message: 'Internal server error'});
 	}
 };

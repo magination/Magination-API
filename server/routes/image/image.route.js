@@ -4,6 +4,7 @@ var verifyToken = require('../login/verifyToken');
 var constants = require('../../config/constants.config');
 var _ = require('lodash');
 var winston = require('winston');
+var logger = require('../../logger/logger');
 var multer = require('multer');
 var storage;
 var fs = require('fs');
@@ -36,9 +37,15 @@ module.exports = function (app) {
 		}
 		else {
 			fs.unlink(pathToImg, function (err) {
-				if (err) return res.status(500).send();
+				if (err) {
+					logger.log('error', 'DELETE /users/:user_id/images', err);
+					return res.status(500).send();
+				}
 				User.findByIdAndUpdate(req.verified.id, {$pull: {images: imageURL}}, {safe: true}, function (err, model) {
-					if (err) return res.status(500).send();
+					if (err) {
+						logger.log('error', 'DELETE /users/:user_id/images', err);
+						return res.status(500).send();
+					}
 					if (!model) return res.status(404).send();
 					else return res.status(204).send();
 				});
@@ -48,7 +55,10 @@ module.exports = function (app) {
 
 	router.get('/users/:user_id/images', function (req, res) {
 		User.findById({_id: req.params.user_id}, function (err, user) {
-			if (err) return res.status(500).send();
+			if (err) {
+				logger.log('error', 'GET /users/:user_id/images', err);
+				return res.status(500).send();
+			}
 			return res.status(200).json(user.images);
 		});
 	});
