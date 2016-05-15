@@ -204,7 +204,7 @@ module.exports = function (app) {
 					return res.status(500).send();
 				}
 				if (!user) return res.status(404).send();
-				user.updateEmailTmp = newmail;
+				user.updateEmailTmp = newmail.toLowerCase();
 				user.updateEmailToken = token;
 				user.updateEmailExpires = Date.now() + 3600000; // Update token valid for one hour
 				user.password = req.body.oldPassword;
