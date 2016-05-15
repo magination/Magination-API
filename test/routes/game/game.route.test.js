@@ -26,7 +26,7 @@ before(function (done) {
 			request(url)
 			.post('/api/login')
 			.set('Accept', 'application/json')
-			.send(testconfig.USER_TESTUSER)
+			.send(testconfig.USER_TESTUSER_LOGINDATA)
 			.expect(200)
 			.end(function (err, res) {
 				if (err) return done(err);

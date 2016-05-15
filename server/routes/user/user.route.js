@@ -43,7 +43,7 @@ var sendConfirmationEmail = function (email, token) {
 module.exports = function (app) {
 	router.post('/users', requestValidator, uniqueValidator, generateConfirmEmailToken, function (req, res) {
 		var confirmEmailExpires = Date.now() + 3600000;
-		var newUser = new User({username: req.body.username.toLowerCase(), email: req.body.email.toLowerCase(), password: req.body.password, confirmEmailToken: req.body.confirmEmailToken, confirmEmailExpires: confirmEmailExpires});
+		var newUser = new User({username: req.body.username, username_lower: req.body.username.toLowerCase(), email: req.body.email.toLowerCase(), password: req.body.password, confirmEmailToken: req.body.confirmEmailToken, confirmEmailExpires: confirmEmailExpires});
 		newUser.save(function (err) {
 			if (err) return res.status(500).send();
 			sendConfirmationEmail(newUser.email, newUser.confirmEmailToken);
@@ -73,7 +73,7 @@ module.exports = function (app) {
 			return res.status(400).json({message: 'bad request'});
 		}
 		else {
-			User.findOne({email: req.body.email, confirmEmailExpires: {$gt: Date.now()}}, function (err, user) {
+			User.findOne({email: req.body.email.toLowerCase(), confirmEmailExpires: {$gt: Date.now()}}, function (err, user) {
 				if (err) return res.status(500).send();
 				if (!user) return res.status(404).send();
 				sendConfirmationEmail(user.email, user.confirmEmailToken);
@@ -149,7 +149,7 @@ module.exports = function (app) {
 					else {
 						if (req.body.email) {
 							if (!validator.isEmail(req.body.email)) return res.status(422).send();
-							User.findOne({email: req.body.email}, function (err, user2) {
+							User.findOne({email: req.body.email.toLowerCase()}, function (err, user2) {
 								if (err) {
 									logger.log('error', 'PUT /users/:id', err);
 									return res.status(500).send();
