@@ -84,9 +84,7 @@ module.exports = function (app) {
 
 	router.get('/users', function (req, res) {
 		var query = {};
-		if (!req.query.username && !req.query.email) return res.status(422).send();
 		if (req.query.username) query.username = req.query.username;
-		if (req.query.email) query.email = req.query.email;
 		User.find(query, function (err, users) {
 			if (err) {
 				logger.log('error', 'GET /users', err);
