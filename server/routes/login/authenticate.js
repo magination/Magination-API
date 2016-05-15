@@ -50,7 +50,7 @@ module.exports = function (req, res, next) {
 	if (!req.body.password || !req.body.username) {
 		return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 	}
-
+	req.body.username = req.body.username.toLowerCase();
 	if (validator.isEmail(req.body.username)) {
 		passport.authenticate('email', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
