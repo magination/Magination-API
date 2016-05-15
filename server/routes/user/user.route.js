@@ -43,7 +43,7 @@ var sendConfirmationEmail = function (email, token) {
 module.exports = function (app) {
 	router.post('/users', requestValidator, uniqueValidator, generateConfirmEmailToken, function (req, res) {
 		var confirmEmailExpires = Date.now() + 3600000;
-		var newUser = new User({username: req.body.username, email: req.body.email, password: req.body.password, confirmEmailToken: req.body.confirmEmailToken, confirmEmailExpires: confirmEmailExpires});
+		var newUser = new User({username: req.body.username.toLowerCase(), email: req.body.email.toLowerCase(), password: req.body.password, confirmEmailToken: req.body.confirmEmailToken, confirmEmailExpires: confirmEmailExpires});
 		newUser.save(function (err) {
 			if (err) return res.status(500).send();
 			sendConfirmationEmail(newUser.email, newUser.confirmEmailToken);
