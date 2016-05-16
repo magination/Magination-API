@@ -18,8 +18,8 @@ router.use(function (req, res, next) {
 });
 
 module.exports = function (app) {
-	router.get('/public/pieces', function (req, res) {
-		var tree = dirTree('public/img/pieces');
+	router.get('/public/editor', function (req, res) {
+		var tree = dirTree('public/img/editor/');
 		return res.status(200).json(tree);
 	});
 	router.post('/users/:user_id/images', verifyToken, setupMulter, function (req, res) {
