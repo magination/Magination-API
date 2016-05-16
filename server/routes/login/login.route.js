@@ -9,12 +9,15 @@ var async = require('async');
 var constants = require('../../config/constants.config');
 var crypto = require('crypto');
 var User = require('../../models/user/user.model');
+var userConfig = require('../../config/user.config');
 var validator = require('validator');
 var nodemailer = require('nodemailer');
+var logger = require('../../logger/logger');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var emailconfig = require('../../config/email.config');
 var serverConfig = require('../../config/server.config');
+var emailTransport = require('../../email/smtpTransport');
 
 module.exports = function (app) {
 	router.post('/login', globalBruteForce.prevent,
@@ -49,24 +52,20 @@ module.exports = function (app) {
 				});
 			},
 			function (token, done) {
-				User.findOne({email: req.body.email}, function (err, user) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-					user.resetPasswordToken = token;
-					user.resetPasswordExpires = Date.now() + 3600000; // Reset token valid for one hour
-					user.save(function (err) {
-						done(err, token, user);
-					});
+				User.findOneAndUpdate({email: req.body.email},
+				{resetPasswordToken: token, resetPasswordExpires: (Date.now() + userConfig.USER_TOKENS.RESET_PASSWORD_TOKEN_EXPIRATIONTIME)},
+				{new: true},
+				function (err, user) {
+					if (err) {
+						logger.log('error', 'POST /confirmation/:confirmEmailToken', err);
+						return res.status(500).send();
+					}
+					else if (!user) return res.status(404).send();
+					else done(err, token, user);
 				});
 			},
 			function (token, user, done) {
-				var smtpTransport = nodemailer.createTransport('SMTP', {
-					service: 'Gmail',
-					auth: {
-						user: emailconfig.EMAIL_ADRESS,
-						pass: emailconfig.EMAIL_PASSWORD
-					}
-				});
+				var smtpTransport = emailTransport;
 				var mailOptions = {
 					to: user.email,
 					from: 'maginationtest@gmail.com',

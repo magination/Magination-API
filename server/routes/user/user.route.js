@@ -18,6 +18,7 @@ var winston = require('winston');
 var logger = require('../../logger/logger');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
+var emailTransport = require('../../email/smtpTransport');
 
 var generateConfirmEmailToken = function (req, res, next) {
 	crypto.randomBytes(20, function (err, buf) {
@@ -28,7 +29,7 @@ var generateConfirmEmailToken = function (req, res, next) {
 };
 
 var sendConfirmationEmail = function (email, token) {
-	var smtpTransport = nodemailer.createTransport('smtps://maginationtest%40gmail.com:magination@smtp.gmail.com');
+	var smtpTransport = emailTransport;
 	var url = serverConfig.REMOTE_GAME_SITE + '/confirmation/' + token;
 	var mailOptions = {
 		to: email,
@@ -206,17 +207,11 @@ module.exports = function (app) {
 				if (!user) return res.status(404).send();
 				user.updateEmailTmp = newmail.toLowerCase();
 				user.updateEmailToken = token;
-				user.updateEmailExpires = Date.now() + 3600000; // Update token valid for one hour
+				user.updateEmailExpires = Date.now() + userConfig.USER_TOKENS.UPDATE_EMAIL_TOKEN_EXPIRATIONTME;
 				user.password = req.body.oldPassword;
 				user.save(function (err) {
 					if (err) return next(err);
-					var smtpTransport = nodemailer.createTransport('SMTP', {
-						service: 'Gmail',
-						auth: {
-							user: emailconfig.EMAIL_ADRESS,
-							pass: emailconfig.EMAIL_PASSWORD
-						}
-					});
+					var smtpTransport = emailTransport;
 					var mailOptions = {
 						to: newmail,
 						from: 'maginationtest@gmail.com',
