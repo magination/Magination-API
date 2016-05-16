@@ -58,8 +58,11 @@ module.exports = function (app) {
 			}
 		});
 	})
-	.put(verifyToken, verifyPrivileges, function (req, res) {
-		if (!req.body.gameId || !validator.isValidId(req.body.gameId)) return res.status(422).send();
+	.put(verifyToken, verifyAdminPrivileges, function (req, res) {
+		if (!req.body.games) return res.status(422).send();
+		for (var i = 0; i < req.body.games.length; i++) {
+			if (!validator.isValidId(req.body.games[i])) return res.status(422).send();
+		};
 		GameList.findOne({title: 'featuredGames'}, function (err, list) {
 			if (err) {
 				logger.log('error', 'PUT /games/featured', err);
@@ -67,16 +70,14 @@ module.exports = function (app) {
 			}
 			else if (!list) {
 				var gameList = new GameList({title: 'featuredGames'});
-				gameList.games.push(req.body.gameId);
+				gameList.games = req.body.games;
 				gameList.save(function (err) {
 					if (err) return res.status(500).send();
 					else return res.status(200).json(gameList);
 				});
 			}
 			else {
-				if (list.games.indexOf(req.body.gameId) < 0) {
-					list.games.push(req.body.gameId);
-				}
+				list.games = req.body.games;
 				list.save(function (err) {
 					if (err) return res.status(500).send();
 					else return res.status(200).json(list);
@@ -207,6 +208,11 @@ module.exports = function (app) {
 	});
 
 	return router;
+};
+
+var verifyAdminPrivileges = function (req, res, next) {
+	if (req.verified.privileges === User.privileges.ADMINISRATOR) next();
+	else return res.status(401).send();
 };
 
 var verifyPrivileges = function (req, res, next) {
