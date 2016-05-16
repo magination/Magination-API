@@ -33,7 +33,7 @@ after(function (done) {
 	clearDB(done);
 });
 
-it('GET /api/public/pieces - should return 200 and a list of pieces', function (done) {
+it('GET /api/public/editor - should return 200 and a list of pieces', function (done) {
 	request(url)
 	.get('/api/public/pieces')
 	.set('Accept', 'application/json')
