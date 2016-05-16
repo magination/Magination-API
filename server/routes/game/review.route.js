@@ -56,7 +56,7 @@ module.exports = function (app) {
 
 	var verifyReviewRequest = function (req, res, next) {
 		if (!req.body.reviewText || req.body.reviewText === '' || !req.body.rating || !validator.isValidId(req.params.gameId)) {
-			return res.status(422).json.send();
+			return res.status(422).send();
 		}
 		else next();
 	};
@@ -70,7 +70,9 @@ module.exports = function (app) {
 			if (review) return res.status(409).json({message: constants.httpResponseMessages.conflict});
 			var newReview = new Review({game: req.params.gameId, owner: req.verified.id, reviewText: req.body.reviewText, rating: req.body.rating});
 			newReview.save(function (err) {
-				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				if (err) {
+					return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
+				}
 				Review.pushToGameAndAddRating(req.params.gameId, newReview);
 				Review.populate(newReview, {path: 'owner', select: 'username'}, function (err, review) {
 					if (err) {
