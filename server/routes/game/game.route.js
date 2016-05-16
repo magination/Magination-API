@@ -14,6 +14,7 @@ var _ = require('lodash');
 var winston = require('winston');
 var logger = require('../../logger/logger');
 var bruteforce = require('../../bruteforce/bruteForce');
+var emailFunctions = require('../../email/emailFunctions');
 
 router.use(function (req, res, next) {
 	next();
@@ -170,7 +171,18 @@ module.exports = function (app) {
 				return res.status(500).send();
 			}
 			if (!game) return res.status(404).send();
-			if (!game.owner.equals(req.verified.id)) return res.status(401).send();
+			if (req.verified.privileges >= User.privileges.MODERATOR) {
+				// The user doing the request is moderator or admin. If the game is not owned by the
+				// user doing the request, a  mail is sent to the owner stating that the game has been unpblished.
+				if (!game.owner.equals(req.verified.id)) {
+					emailFunctions.sendEmailToUser(game.owner,
+						'Your game has been unpublished.',
+						'One of your games has been unpublished by a moderator. This is done if the game is flagged as spam, or contains foul language.');
+				};
+			}
+			else {
+				if (!game.owner.equals(req.verified.id)) return res.status(401).send();
+			}
 			var unpubGame = new UnpublishedGame(_.omit(game.toObject(), ['_id', '__v']));
 			var oldGame = game;
 			unpubGame.save(function (err) {
@@ -185,6 +197,7 @@ module.exports = function (app) {
 					}
 					if (!game) return res.status(404).send();
 					else {
+						GameList.removePossibleGame('featuredGames', oldGame._id);
 						moveReportsFromPublishedToUnpublishedGame(oldGame, unpubGame);
 						return res.status(200).json(unpubGame);
 					}

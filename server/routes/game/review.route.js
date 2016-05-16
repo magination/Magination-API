@@ -6,7 +6,9 @@ var verifyToken = require('../login/verifyToken');
 var validator = require('../../validator/validator');
 var constants = require('../../config/constants.config');
 var logger = require('../../logger/logger');
+var User = require('../../models/user/user.model');
 var winston = require('winston');
+var emailFunctions = require('../../email/emailFunctions');
 
 module.exports = function (app) {
 	router.get('/games/:gameId/reviews', function (req, res) {
@@ -132,12 +134,24 @@ module.exports = function (app) {
 		if (!validator.isValidId(req.params.gameId || !validator.isValidId(req.params.reviewId))) {
 			return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 		}
-		Review.findOne({_id: req.params.reviewId, owner: req.verified.id, game: req.params.gameId}, function (err, review) {
+		Review.findOne({_id: req.params.reviewId, game: req.params.gameId}, function (err, review) {
 			if (err) {
 				logger.log('error', 'DELETE /games/:gameId/reviews/:reviewId', err);
 				return res.status(500).send();
 			}
 			if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			if (req.verified.privileges >= User.privileges.MODERATOR) {
+				// The user doing the request is moderator or admin. If the review is not owned by the
+				// user doing the request, a  mail is sent to the owner stating that the review has been removed.
+				if (!review.owner.equals(req.verified.id)) {
+					emailFunctions.sendEmailToUser(review.owner,
+						'Your review has been removed.',
+						'One of your reviews has been removed by a moderator. This is done if the review is flagged as spam, or contains foul language.');
+				};
+			}
+			else {
+				if (!review.owner.equals(req.verified.id)) return res.status(401).send();
+			}
 			Review.pullFromGameAndRemoveRating(req.params.gameId, review);
 			Review.remove({_id: review._id}, function (err) {
 				if (err) {

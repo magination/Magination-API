@@ -77,7 +77,10 @@ module.exports = function (app) {
 					return res.status(500).send();
 				}
 				else if (!game) return res.status(404).send();
-				else res.status(200).json();
+				else {
+					Report.removePossibleReports(req.params.id, Report.types.UNPUBLISHED_GAME); // if the game has any reports, these are removed
+					return res.status(200).json();
+				}
 			});
 		});
 	});

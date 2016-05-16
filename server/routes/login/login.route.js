@@ -33,7 +33,9 @@ module.exports = function (app) {
 		});
 
 	router.get('/login/refresh', globalBruteForce.prevent, verifyRefreshToken, refreshToken, function (req, res) {
-		if (req.data) return res.status(200).json(req.data);
+		if (req.data) {
+			return res.status(200).json(req.data);
+		}
 		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 	});
 
