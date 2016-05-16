@@ -6,7 +6,7 @@ var winston = require('winston');
 var _ = require('lodash');
 
 var unpublishedGameSchema = new mongoose.Schema({
-	title: {type: String},
+	title: {type: String, trim: true},
 	shortDescription: {type: String, maxlength: 255},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
