@@ -24,6 +24,8 @@ var gameSchema = new mongoose.Schema({
 	gameCreators: [{type: mongoose.Schema.Types.ObjectId, ref: 'gameCreator'}],
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'},
 	unpublishedGame: {type: mongoose.Schema.Types.ObjectId, ref: 'unpublishedGame'}
+}, {
+	timestamps: true
 });
 
 gameSchema.index({title: 'text', shortDescription: 'text'});

@@ -85,7 +85,7 @@ module.exports = function (app) {
 	});
 
 	router.route('/games/new').get(function (req, res) {
-		Game.find({}, '-__v', {sort: '-date', limit: 8}, function (err, games) {
+		Game.find({}, '-__v', {sort: '-createdAt', limit: 8}, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();

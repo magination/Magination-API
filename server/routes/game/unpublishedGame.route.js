@@ -18,6 +18,9 @@ module.exports = function (app) {
 
 	router.post('/unpublishedGames', verifyToken, verifyPostRequest, function (req, res) {
 		var unpublishedGame = new UnpublishedGame(_.extend(req.body, {owner: req.verified.id}));
+		if (unpublishedGame.rules) {
+			unpublishedGame.rules = unpublishedGame.rules.filter(function (v) { return v !== ''; });
+		}
 		if (!req.body.parentGame) unpublishedGame.parentGame = undefined;
 		unpublishedGame.save(function (err) {
 			if (err) {
