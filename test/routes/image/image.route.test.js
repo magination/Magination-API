@@ -35,7 +35,7 @@ after(function (done) {
 
 it('GET /api/public/editor - should return 200 and a list of pieces', function (done) {
 	request(url)
-	.get('/api/public/pieces')
+	.get('/api/public/editor')
 	.set('Accept', 'application/json')
 	.expect(200)
 	.end(function (err, res) {
