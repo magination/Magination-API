@@ -52,6 +52,14 @@ module.exports = function (app) {
 	router.put('/unpublishedGames/:id', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(422).send();
 		if (req.body.parentGame === '') req.body.parentGame = undefined;
+		if (req.body.rules) {
+			req.body.rules = req.body.rules.filter(function (v) { return v !== ''; });
+		}
+		if (req.body.pieces) {
+			if (req.body.pieces.singles === '') req.body.pieces.singles = 0;
+			if (req.body.pieces.doubles === '') req.body.pieces.doubles = 0;
+			if (req.body.pieces.triples === '') req.body.pieces.triples = 0;
+		}
 		UnpublishedGame.findOneAndUpdate({_id: req.params.id, owner: req.verified.id}, req.body, {new: true}, function (err, game) {
 			if (err) {
 				logger.log('error', 'PUT /unpublishedGames/:id', err);

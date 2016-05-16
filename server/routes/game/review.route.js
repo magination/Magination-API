@@ -8,6 +8,7 @@ var constants = require('../../config/constants.config');
 var logger = require('../../logger/logger');
 var User = require('../../models/user/user.model');
 var winston = require('winston');
+var Report = require('../../models/report/report.model');
 var emailFunctions = require('../../email/emailFunctions');
 
 module.exports = function (app) {
@@ -54,7 +55,7 @@ module.exports = function (app) {
 	});
 
 	var verifyReviewRequest = function (req, res, next) {
-		if (!req.body.reviewText || !req.body.rating || !validator.isValidId(req.params.gameId)) {
+		if (!req.body.reviewText || req.body.reviewText === '' || !req.body.rating || !validator.isValidId(req.params.gameId)) {
 			return res.status(422).json.send();
 		}
 		else next();
@@ -158,9 +159,11 @@ module.exports = function (app) {
 					logger.log('error', 'DELETE /games/:gameId/reviews/:reviewId', err);
 					return res.status(500).send();
 				}
+				Report.removePossibleReports(review._id, Report.types.REVIEW); // if the review has been reported, the reports are deleted.
 				return res.status(204).send();
 			});
 		});
 	});
 	return router;
 };
+
