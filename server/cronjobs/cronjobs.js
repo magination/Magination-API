@@ -1,82 +1,53 @@
 var Game = require('../models/game/game.model');
 var GameList = require('../models/gameList/gameList.model');
 var User = require('../models/user/user.model');
-var Report = require('../models/report/report.model');
-var Review = require('../models/review/review.model');
 var mongoose = require('mongoose');
 var winston = require('winston');
-var init = require('../init/init');
 
 var cronjobs = {
 	removeExpiredResetPasswordTokens: function () {
+		/*
+		If the resetPassword-token is not used within the set expiration time, the token is removed.
+		 */
 		User.update({resetPasswordExpires: { $lt: Date.now() }},
 			{
 				resetPasswordExpires: undefined,
 				resetPasswordToken: undefined
-			}, function (err) {
+			}, function (err, obj) {
 				if (err) {
 					winston.log('error', err);
 					return;
 				}
-				winston.log('info', 'removeExpiredResetPasswordTokens job ran.');
+				if (obj.nModified > 0) winston.log('info', 'removeExpiredResetPasswordTokens() removed ' + obj.nModified + ' expired reset password tokens.');
 			});
 	},
 	removeExpiredUpdateEmailTokens: function () {
+		/*
+		If the update-email token is not used within the set expiration time, the token and temp email is removed.
+		 */
 		User.update({updateEmailExpires: { $lt: Date.now() }},
 			{
 				updateEmailExpires: undefined,
 				updateEmailToken: undefined,
 				updateEmailTmp: undefined
-			}, function (err) {
+			}, function (err, obj) {
 				if (err) {
 					winston.log('error', err);
 					return;
 				}
-				winston.log('info', 'removeExpiredUpdateEmailTokens job ran.');
+				if (obj.nModified > 0) winston.log('info', 'removeExpiredUpdateEmailTokens() removed ' + obj.nModified + ' expired update email tokens.');
 			});
 	},
-	removeInvalidReports: function () {
-		winston.log('info', 'removeInvalidReports job ran.');
-		Report.find({}, function (err, reports) {
-			if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
-			for (var i = 0; i < reports.length; i++) {
-				if (reports[i].type === Report.types.GAME) {
-					Game.findById({_id: reports[i].id}, function (err, game) {
-						if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
-						if (!game) {
-							reports[i].remove(function (err) {
-								if (err) {
-									winston.log('error', err);
-								}
-							});
-						}
-					});
-				}
-				else if (reports[i].type === Report.types.USER) {
-					User.findById({_id: reports[i].id}, function (err, user) {
-						if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
-						if (!user) {
-							reports[i].remove(function (err) {
-								if (err) {
-									winston.log('error', err);
-								}
-							});
-						}
-					});
-				}
-				else if (reports[i].type === Report.types.REVIEW) {
-					Review.findById({_id: reports[i].id}, function (err, review) {
-						if (err) winston.log('error', 'Err in removeExpiredReports: ' + err);
-						if (!review) {
-							reports[i].remove(function (err) {
-								if (err) {
-									winston.log('error', err);
-								}
-							});
-						}
-					});
-				}
+	removeExpiredConfirmEmailUsers: function () {
+		/*
+		Users that has not confirmed their email after the set time expires are removed from the DB.
+		 */
+		User.remove({confirmEmailExpires: { $lt: Date.now() }}, function (err, obj) {
+			if (err) {
+				winston.log('error', err);
+				return;
 			}
+			if (obj.result.n > 0) winston.log('info', 'removeExpiredConfirmEmailTokens() removed ' + obj.result.n + ' expired users due to expired confirmEmailToken.');
 		});
 	}
 };

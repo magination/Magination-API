@@ -99,7 +99,10 @@ module.exports = function (app) {
 			function (err, user) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				else return res.status(200).json({message: constants.httpResponseMessages.success});
+				else {
+					req.brute.reset();
+					return res.status(200).json({message: constants.httpResponseMessages.success});
+				}
 			});
 		});
 	});
@@ -109,6 +112,7 @@ module.exports = function (app) {
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			req.brute.reset();
 			user.password = req.body.password;
 			user.resetPasswordToken = undefined;
 			user.resetPasswordExpires = undefined;

@@ -13,7 +13,6 @@ var contentLength 	= require('express-content-length-validator');
 var crontab 		= require('node-crontab');
 var crontabjobs 	= require('./cronjobs/cronjobs');
 var winston 		= require('winston');
-var init 			= require('./init/init');
 var path 			= require('path');
 
 if (mongoose.connection.readyState === 0) {
@@ -50,24 +49,21 @@ app.use('/api', router(app));
 // Default error-handler. Errors should be handled before they get here.
 app.use(function (err, req, res, next) {
 	winston.log('error', 'Error caught in the default error-handler. This should probably not happen. Error: ' + err);
-	return res.status(err.status || 500).json({error: err.message});
+	if (res.headersSent) return;
+	return res.status(err.status || 500).send();
 });
 
 // WINSTON LOGGER INIT
 winston.add(winston.transports.File, { filename: 'logs.log' });
 winston.remove(winston.transports.Console);
 
-if (process.env.NODE_ENV === 'production') {
-	init.initFeaturedGames;
-}
+// CRONTAB JOBS                  M  H  D
+var cron1 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredConfirmEmailUsers);
+var cron2 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredResetPasswordTokens);
+var cron3 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 
-// CRONTAB JOBS
-var cron2 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeExpiredResetPasswordTokens);
-var cron3 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeExpiredUpdateEmailTokens);
-// var cron4 = crontab.scheduleJob('*/60 * * * *', crontabjobs.removeInvalidReports);
-
-https.createServer(options, app).listen(serverConfig.PORT, function (err) {
+https.createServer(options, app).listen(serverConfig.PORT, serverConfig.IP, function (err) {
 	if (err) console.log(err);
-	else console.log('Server listening at: ' + serverConfig.PORT);
+	else console.log('Server listening at: ' + serverConfig.IP + ':' + serverConfig.PORT);
 });
 

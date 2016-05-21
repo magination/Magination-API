@@ -8,6 +8,7 @@ var constants = require('../../config/constants.config');
 var _ = require('lodash');
 var logger = require('../../logger/logger');
 var Report = require('../../models/report/report.model');
+var Review = require('../../models/review/review.model');
 var winston = require('winston');
 
 module.exports = function (app) {
@@ -17,9 +18,13 @@ module.exports = function (app) {
 	};
 
 	router.post('/unpublishedGames', verifyToken, verifyPostRequest, function (req, res) {
-		var unpublishedGame = new UnpublishedGame(_.extend(req.body, {owner: req.verified.id}));
+		var tmpGame = _.omit(req.body, ['rating', 'numberOfVotes', 'sumOfVotes', 'reviews', 'owner']);
+		var unpublishedGame = new UnpublishedGame(_.extend(tmpGame, {owner: req.verified.id}));
 		if (unpublishedGame.rules) {
 			unpublishedGame.rules = unpublishedGame.rules.filter(function (v) { return v !== ''; });
+		}
+		if (unpublishedGame.alternativeRules) {
+			unpublishedGame.alternativeRules = unpublishedGame.alternativeRules.filter(function (v) { return v !== ''; });
 		}
 		if (!req.body.parentGame) unpublishedGame.parentGame = undefined;
 		unpublishedGame.save(function (err) {
@@ -51,16 +56,20 @@ module.exports = function (app) {
 
 	router.put('/unpublishedGames/:id', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.id)) return res.status(422).send();
-		if (req.body.parentGame === '') req.body.parentGame = undefined;
-		if (req.body.rules) {
-			req.body.rules = req.body.rules.filter(function (v) { return v !== ''; });
+		var tmpGame = _.omit(req.body, ['rating', 'numberOfVotes', 'sumOfVotes', 'reviews', 'owner']);
+		if (tmpGame.parentGame === '') req.body.parentGame = undefined;
+		if (tmpGame.rules) {
+			tmpGame.rules = tmpGame.rules.filter(function (v) { return v !== ''; });
 		}
-		if (req.body.pieces) {
-			if (req.body.pieces.singles === '') req.body.pieces.singles = 0;
-			if (req.body.pieces.doubles === '') req.body.pieces.doubles = 0;
-			if (req.body.pieces.triples === '') req.body.pieces.triples = 0;
+		if (tmpGame.alternativeRules) {
+			tmpGame.alternativeRules = tmpGame.alternativeRules.filter(function (v) { return v !== ''; });
 		}
-		UnpublishedGame.findOneAndUpdate({_id: req.params.id, owner: req.verified.id}, req.body, {new: true}, function (err, game) {
+		if (tmpGame.pieces) {
+			if (tmpGame.pieces.singles === '') tmpGame.pieces.singles = 0;
+			if (tmpGame.pieces.doubles === '') tmpGame.pieces.doubles = 0;
+			if (tmpGame.pieces.triples === '') tmpGame.pieces.triples = 0;
+		}
+		UnpublishedGame.findOneAndUpdate({_id: req.params.id, owner: req.verified.id}, tmpGame, {new: true}, function (err, game) {
 			if (err) {
 				logger.log('error', 'PUT /unpublishedGames/:id', err);
 				return res.status(500).send();
@@ -87,6 +96,7 @@ module.exports = function (app) {
 				else if (!game) return res.status(404).send();
 				else {
 					Report.removePossibleReports(req.params.id, Report.types.UNPUBLISHED_GAME); // if the game has any reports, these are removed
+					Review.removePossibleReviews(req.params.id); // if the gme has ane reviews, these are removed
 					return res.status(200).json();
 				}
 			});

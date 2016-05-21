@@ -16,7 +16,6 @@ var userSchema = new mongoose.Schema({
 	updateEmailTmp: {type: String},
 	confirmEmailToken: {type: String},
 	confirmEmailExpires: {type: Date},
-	userVersion: {type: Number},
 	privileges: {type: Number, default: 0, min: 0, max: 2},
 	numberOfAllowedPictures: {type: Number, default: 20},
 	isConfirmed: {type: Boolean, default: false},
@@ -34,8 +33,6 @@ userSchema.pre('save', function (next) {
 		if (err) throw new Error(err);
 		else {
 			this.password = hash;
-			if (!this.userVersion) this.userVersion = 1;
-			else this.userVersion ++;
 			next();
 		};
 	}.bind(this));

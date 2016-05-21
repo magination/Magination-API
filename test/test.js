@@ -6,7 +6,6 @@ var Review = require('../server/models/review/review.model');
 var dbConfig = require('../server/config/db.config');
 var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Done to accept self signed HTTPS certfificate
-var init = require('../server/init/init');
 
 function importTest (name, path) {
 	describe(name, function () {
@@ -102,8 +101,6 @@ describe('Starting tests', function () {
 							if (err) return done(err);
 							game2.save(function (err, user) {
 								if (err) return done(err);
-								init.initFeaturedGames();
-
 								return done();
 							});
 						});

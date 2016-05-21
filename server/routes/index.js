@@ -8,6 +8,7 @@ var unpublishedGameRouter = require('./game/unpublishedGame.route');
 var reportRouter = require('./report/report.route');
 var gameCreatorRoute = require('./gameCreator/gameCreator.route');
 var imageRoute = require('./image/image.route');
+var moderatorRoute = require('./user/moderator.route');
 
 module.exports = function (app) {
 	router.get('/', function (req, res) {
@@ -20,6 +21,7 @@ module.exports = function (app) {
 	});
 	router.use('/', gameRouter());
 	router.use('/', loginRouter());
+	router.use('/', moderatorRoute());
 	router.use('/', userRouter());
 	router.use('/', reviewRouter());
 	router.use('/', unpublishedGameRouter());

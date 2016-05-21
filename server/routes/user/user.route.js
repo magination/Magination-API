@@ -43,7 +43,7 @@ var sendConfirmationEmail = function (email, token) {
 
 module.exports = function (app) {
 	router.post('/users', requestValidator, uniqueValidator, generateConfirmEmailToken, function (req, res) {
-		var confirmEmailExpires = Date.now() + 3600000;
+		var confirmEmailExpires = Date.now() + userConfig.USER_TOKENS.CONFIRM_EMAIL_TOKEN_EXPIRATIONTIME;
 		var newUser = new User({username: req.body.username, username_lower: req.body.username.toLowerCase(), email: req.body.email.toLowerCase(), password: req.body.password, confirmEmailToken: req.body.confirmEmailToken, confirmEmailExpires: confirmEmailExpires});
 		newUser.save(function (err) {
 			if (err) return res.status(500).send();
@@ -52,7 +52,11 @@ module.exports = function (app) {
 		});
 	});
 
-	router.post('/confirmation/:confirmEmailToken', function (req, res) {
+	router.post('/confirmation/:confirmEmailToken', globalBruteForce.prevent, userBruteForce.getMiddleware({
+		key: function (req, res, next) {
+			next(req.body.email);
+		}
+	}), function (req, res) {
 		User.findOneAndUpdate({confirmEmailToken: req.params.confirmEmailToken, confirmEmailExpires: {$gt: Date.now()}},
 			{confirmEmailToken: undefined, confirmEmailExpires: undefined, isConfirmed: true},
 			function (err, user) {
@@ -61,7 +65,10 @@ module.exports = function (app) {
 					return res.status(500).send();
 				}
 				if (!user) return res.status(404).send();
-				else return res.status(200).send();
+				else {
+					req.brute.reset();
+					return res.status(200).send();
+				}
 			});
 	});
 
@@ -77,6 +84,7 @@ module.exports = function (app) {
 			User.findOne({email: req.body.email.toLowerCase(), confirmEmailExpires: {$gt: Date.now()}}, function (err, user) {
 				if (err) return res.status(500).send();
 				if (!user) return res.status(404).send();
+				req.brute.reset();
 				sendConfirmationEmail(user.email, user.confirmEmailToken);
 				return res.status(200).send();
 			});
@@ -97,7 +105,7 @@ module.exports = function (app) {
 
 	router.get('/users/:id/', verifyToken, function (req, res) {
 		if (req.verified.id !== req.params.id) return res.status(401).send();
-		User.findOne({_id: req.params.id}, '-password -__v', function (err, user) {
+		User.findOne({_id: req.params.id}, function (err, user) {
 			if (err) {
 				logger.log('error', 'GET /users/:id', err);
 				return res.status(500).send();
@@ -106,7 +114,7 @@ module.exports = function (app) {
 				return res.status(404).send();
 			}
 			else return res.status(200).json(user);
-		});
+		}).select('username pieces images');
 	});
 
 	router.put('/users/:id/pieces', verifyToken, function (req, res) {
@@ -161,6 +169,7 @@ module.exports = function (app) {
 										logger.log('error', 'PUT /users/:id', err);
 										return res.status(500).send();
 									}
+									else return res.status(200).send();
 								});
 							});
 						}
@@ -222,7 +231,7 @@ module.exports = function (app) {
 						'If you did not request this, please ignore this email.\n'
 					};
 					smtpTransport.sendMail(mailOptions);
-					next();
+					next(null, user);
 				});
 			});
 		});
