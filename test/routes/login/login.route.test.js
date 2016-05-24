@@ -7,6 +7,9 @@ var url = serverconfig.ADDRESS + serverconfig.PORT;
 var dbConfig = require('../../../server/config/db.config');
 var clearDB = require('mocha-mongoose')(dbConfig.DATABASE.test, {noClear: true});
 
+var refreshToken = null;
+var token = null;
+
 before(function (done) {
 	var newUser = new User(testconfig.USER_TESTUSER);
 	newUser.save(done);
@@ -40,14 +43,24 @@ it('POST /api/login - should return 401 when json-object contains invalid creden
 });
 
 it('POST /api/login - should return 200 when json-object contains valid credentials', function (done) {
-	/*
-		This part is a bit tricky due to the fact that we have email-verification. Solved by simululating
-		a user has been successfully registered with the User.save() function. This is done in the before-method.
-	 */
 	request(url)
 	.post('/api/login')
 	.set('Accept', 'application/json')
 	.send(testconfig.USER_TESTUSER)
+	.expect(200)
+	.end(function (err, res) {
+		if (err) return done(err);
+		token = res.body.token;
+		refreshToken = res.body.refreshToken;
+		done();
+	});
+});
+
+it('GET /api/login/refresh - should return 200 and a refreshed token if the supplied refresh token is valid', function (done) {
+	request(url)
+	.get('/api/login/refresh')
+	.set('Accept', 'application/json')
+	.set('Authorization', refreshToken)
 	.expect(200)
 	.end(function (err, res) {
 		if (err) return done(err);
@@ -55,24 +68,15 @@ it('POST /api/login - should return 200 when json-object contains valid credenti
 	});
 });
 
-it('GET /api/login/refresh - should return 200 and a refreshed token if the supplied token is valid', function (done) {
+it('GET /api/login/refresh - should return 401 if the supplied token is an access token', function (done) {
 	request(url)
-	.post('/api/login')
+	.get('/api/login/refresh')
 	.set('Accept', 'application/json')
-	.send(testconfig.USER_TESTUSER)
-	.expect(200)
+	.set('Authorization', token)
+	.expect(401)
 	.end(function (err, res) {
 		if (err) return done(err);
-		var token = res.body.token;
-		request(url)
-		.get('/api/login/refresh')
-		.set('Accept', 'application/json')
-		.set('Authorization', token)
-		.expect(200)
-		.end(function (err, res) {
-			if (err) return done(err);
-			done();
-		});
+		done();
 	});
 });
 

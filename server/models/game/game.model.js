@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
 var validators = require('mongoose-validators');
+
 var gameSchema = new mongoose.Schema({
-	title: {type: String, required: true, autoIndex: true, unique: true},
+	title: {type: String, required: true, autoIndex: true, unique: true, trim: true},
 	shortDescription: {type: String, maxlength: 255, required: true, autoIndex: true},
 	pieces: {
 		singles: {type: Number, default: 0, min: 0},
@@ -20,8 +21,11 @@ var gameSchema = new mongoose.Schema({
 	sumOfVotes: {type: Number, default: 0},
 	rating: {type: Number, default: 0},
 	images: [{type: String, validate: validators.isURL()}],
+	gameCreators: [{type: mongoose.Schema.Types.ObjectId, ref: 'gameCreator'}],
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'},
 	unpublishedGame: {type: mongoose.Schema.Types.ObjectId, ref: 'unpublishedGame'}
+}, {
+	timestamps: true
 });
 
 gameSchema.index({title: 'text', shortDescription: 'text'});

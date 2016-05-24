@@ -7,9 +7,11 @@ var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 
 passport.use('username', new LocalStrategy(
 	function (username, password, done) {
-		User.findOne({ username: username }, function (err, user) {
+		User.findOne({ username_lower: username.toLowerCase() }, function (err, user) {
 			if (err) { return done(err); }
 			if (!user) return done('Incorrect username');
+			if (user.isBanned) return done('User is banned');
+			if (!user.isConfirmed) return done('User email is not confirmed');
 			user.validPassword(password)
 			.then(function (result) {
 				if (result) return done(null, user);
@@ -26,6 +28,8 @@ passport.use('email', new LocalStrategy(
 		User.findOne({ email: username }, function (err, user) {
 			if (err) return done(err);
 			if (!user) return done('Incorrect email');
+			if (user.isBanned) return done('User is banned');
+			if (!user.isConfirmed) return done('User email is not confirmed');
 			user.validPassword(password)
 			.then(function (result) {
 				if (result) return done(null, user);
@@ -46,7 +50,6 @@ module.exports = function (req, res, next) {
 	if (!req.body.password || !req.body.username) {
 		return res.status(400).json({message: constants.httpResponseMessages.badRequest});
 	}
-
 	if (validator.isEmail(req.body.username)) {
 		passport.authenticate('email', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});

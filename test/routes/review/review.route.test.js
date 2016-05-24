@@ -72,6 +72,28 @@ it('GET /games/:gameId/reviews - should return 200 and list of reviews in game',
 	});
 });
 
+it('GET /games/:gameId/reviews/:reviewId - should return 200 and a review', function (done) {
+	request(url)
+	.get('/api/games/' + currentGame._id + '/reviews/' + currentReview._id)
+	.set('Accept', 'application/json')
+	.expect(200)
+	.end(function (err, res) {
+		if (err) return done(err);
+		done();
+	});
+});
+
+it('GET /games/:gameId/reviews/:reviewId - should return 404 if the supplied id does not exist', function (done) {
+	request(url)
+	.get('/api/games/' + currentGame._id + '/reviews/' + currentGame._id)
+	.set('Accept', 'application/json')
+	.expect(404)
+	.end(function (err, res) {
+		if (err) return done(err);
+		done();
+	});
+});
+
 it('GET /games/:gameId/reviews?userId=someid- should return 200 and a review if the user has a review on the specified game', function (done) {
 	request(url)
 	.get('/api/games/' + currentGame._id + '/reviews?userId=' + currentUser._id)
@@ -130,7 +152,7 @@ it('PUT /games/:gameId/reviews/:reviewId - should return 200, and update the rat
 	});
 });
 
-it('DELETE /games/:gameId/reviews/:reviewId - should return 204', function (done) {
+it('DELETE /games/:gameId/reviews/:reviewId - should return 204. This should also update the rating in game.', function (done) {
 	request(url)
 	.delete('/api/games/' + currentGame._id + '/reviews/' + currentReview._id)
 	.set('Accept', 'application/json')
@@ -138,6 +160,16 @@ it('DELETE /games/:gameId/reviews/:reviewId - should return 204', function (done
 	.expect(204)
 	.end(function (err, res) {
 		if (err) return done(err);
-		done();
+		request(url)
+		.get('/api/games/' + currentGame._id)
+		.set('Accept', 'application/json')
+		.expect(200)
+		.end(function (err, res) {
+			if (err) return done(err);
+			assert.equal(res.body.numberOfVotes, 0);
+			assert.equal(res.body.sumOfVotes, 0);
+			assert.equal(res.body.rating, 0);
+			done();
+		});
 	});
 });

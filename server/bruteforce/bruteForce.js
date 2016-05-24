@@ -1,10 +1,11 @@
 var winston = require('winston');
 var ExpressBrute = require('express-brute');
 var MongoStore = require('express-brute-mongo');
+var dbConfig = require('../config/db.config');
 var MongoClient = require('mongodb').MongoClient;
 
 var store = new MongoStore(function (ready) {
-	MongoClient.connect('mongodb://127.0.0.1:27017/test', function (err, db) {
+	MongoClient.connect(dbConfig.DATABASE.test, function (err, db) {
 		if (err) throw err;
 		ready(db.collection('bruteforce-store'));
 	});

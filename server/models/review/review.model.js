@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Game = require('../game/game.model');
+var logger = require('../../logger/logger');
 var winston = require('winston');
 
 var reviewSchema = new mongoose.Schema({
@@ -28,7 +29,7 @@ reviewSchema.statics.pushToGameAndAddRating = function (gameId, review) {
 	{$addToSet: {'reviews': review._id}},
 	function (err, game) {
 		if (err) {
-			winston.log('error', err);
+			logger.log('error', 'pushToGameAndAddRating() in review.model', err);
 			return;
 		}
 		game.sumOfVotes += review.rating;
@@ -36,7 +37,7 @@ reviewSchema.statics.pushToGameAndAddRating = function (gameId, review) {
 		game.rating = (game.sumOfVotes / game.numberOfVotes);
 		game.save(function (err) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'pushToGameAndAddRating() in review.model', err);
 				return;
 			}
 		});
@@ -47,7 +48,7 @@ reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating
 	Game.findById({_id: gameId},
 	function (err, game) {
 		if (err) {
-			winston.log('error', err);
+			logger.log('error', 'updateRatingInGame() in review.model', err);
 			return;
 		}
 		game.sumOfVotes -= oldRating;
@@ -55,7 +56,7 @@ reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating
 		game.rating = (game.sumOfVotes / game.numberOfVotes);
 		game.save(function (err) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'updateRatingInGame() in review.model', err);
 				return;
 			}
 		});
@@ -68,7 +69,7 @@ reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
 	{$pull: {'reviews': review._id}},
 	function (err, game) {
 		if (err) {
-			winston.log('error', err);
+			logger.log('error', 'pullFromGameAndRemoveRating() in review.model', err);
 			return;
 		}
 		game.numberOfVotes --;
@@ -81,12 +82,21 @@ reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
 		}
 		game.save(function (err) {
 			if (err) {
-				winston.log('error', err);
+				logger.log('error', 'pullFromGameAndRemoveRating() in review.model', err);
 				return;
 			}
 		});
 	}
 	);
+};
+
+reviewSchema.statics.removePossibleReviews = function (gameId) {
+	// If a game is deleted, possible reviews of that game is removed.
+	this.remove({game: gameId}, function (err, reports) {
+		if (err) {
+			logger.log('error', 'removePossibleReviews() in review.model', err);
+		}
+	});
 };
 
 module.exports = mongoose.model('review', reviewSchema);

@@ -100,7 +100,7 @@ it('POST /api/unpublishedGames/:id/publish - should return 200 and publish the u
 	});
 });
 
-it('DELETE /api/unpublishedGame/:id - should return 204 and delete the unpublishedGame', function (done) {
+it('DELETE /api/unpublishedGame/:id - should return 200 and delete the unpublishedGame', function (done) {
 	// Creates a  new game. The publish method above publishes game and deletes the unpublished game.
 	request(url)
 	.post('/api/unpublishedGames/')
@@ -118,7 +118,7 @@ it('DELETE /api/unpublishedGame/:id - should return 204 and delete the unpublish
 		.delete('/api/unpublishedGames/' + currentUnpublishedGame._id)
 		.set('Accept', 'application/json')
 		.set('Authorization', token)
-		.expect(204)
+		.expect(200)
 		.end(function (err, res) {
 			if (err) return done(err);
 			done();

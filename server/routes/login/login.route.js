@@ -3,16 +3,21 @@ var router = express.Router();
 var authenticate = require('./authenticate');
 var signToken = require('./signToken');
 var verifyToken = require('./verifyToken');
+var verifyRefreshToken = require('./verifyRefreshToken');
 var refreshToken = require('./refreshToken');
 var async = require('async');
 var constants = require('../../config/constants.config');
 var crypto = require('crypto');
 var User = require('../../models/user/user.model');
+var userConfig = require('../../config/user.config');
 var validator = require('validator');
 var nodemailer = require('nodemailer');
+var logger = require('../../logger/logger');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var emailconfig = require('../../config/email.config');
+var serverConfig = require('../../config/server.config');
+var emailTransport = require('../../email/smtpTransport');
 
 module.exports = function (app) {
 	router.post('/login', globalBruteForce.prevent,
@@ -27,8 +32,10 @@ module.exports = function (app) {
 			else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 		});
 
-	router.get('/login/refresh', globalBruteForce.prevent, verifyToken, refreshToken, function (req, res) {
-		if (req.data) return res.status(200).json(req.data);
+	router.get('/login/refresh', globalBruteForce.prevent, verifyRefreshToken, refreshToken, function (req, res) {
+		if (req.data) {
+			return res.status(200).json(req.data);
+		}
 		else return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 	});
 
@@ -47,31 +54,27 @@ module.exports = function (app) {
 				});
 			},
 			function (token, done) {
-				User.findOne({email: req.body.email}, function (err, user) {
-					if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
-					if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-					user.resetPasswordToken = token;
-					user.resetPasswordExpires = Date.now() + 3600000; // Reset token valid for one hour
-					user.save(function (err) {
-						done(err, token, user);
-					});
+				User.findOneAndUpdate({email: req.body.email},
+				{resetPasswordToken: token, resetPasswordExpires: (Date.now() + userConfig.USER_TOKENS.RESET_PASSWORD_TOKEN_EXPIRATIONTIME)},
+				{new: true},
+				function (err, user) {
+					if (err) {
+						logger.log('error', 'POST /confirmation/:confirmEmailToken', err);
+						return res.status(500).send();
+					}
+					else if (!user) return res.status(404).send();
+					else done(err, token, user);
 				});
 			},
 			function (token, user, done) {
-				var smtpTransport = nodemailer.createTransport('SMTP', {
-					service: 'Gmail',
-					auth: {
-						user: emailconfig.EMAIL_ADRESS,
-						pass: emailconfig.EMAIL_PASSWORD
-					}
-				});
+				var smtpTransport = emailTransport;
 				var mailOptions = {
 					to: user.email,
 					from: 'maginationtest@gmail.com',
 					subject: 'Magination Game Site Reset Password',
 					text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
 					'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-					'http://localhost:8080' + '/confirmforgotpassword/' + token + '\n\n' +
+					serverConfig.REMOTE_GAME_SITE + '/confirmforgotpassword/' + token + '\n\n' +
 					'If you did not request this, please ignore this email and your password will remain unchanged.\n'
 				};
 				smtpTransport.sendMail(mailOptions);
@@ -96,7 +99,10 @@ module.exports = function (app) {
 			function (err, user) {
 				if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-				else return res.status(200).json({message: constants.httpResponseMessages.success});
+				else {
+					req.brute.reset();
+					return res.status(200).json({message: constants.httpResponseMessages.success});
+				}
 			});
 		});
 	});
@@ -106,6 +112,7 @@ module.exports = function (app) {
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
+			req.brute.reset();
 			user.password = req.body.password;
 			user.resetPasswordToken = undefined;
 			user.resetPasswordExpires = undefined;
