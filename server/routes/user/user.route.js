@@ -17,6 +17,7 @@ var crypto = require('crypto');
 var winston = require('winston');
 var logger = require('../../logger/logger');
 var _ = require('lodash');
+var signToken = require('../login/signToken');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var emailTransport = require('../../email/smtpTransport');
@@ -173,7 +174,9 @@ module.exports = function (app) {
 										logger.log('error', 'PUT /users/:id', err);
 										return res.status(500).send();
 									}
-									else return res.status(200).send();
+									signToken(req, res, function () {
+										return res.status(200).json(req.data);
+									});
 								});
 							});
 						}
@@ -193,7 +196,10 @@ module.exports = function (app) {
 									if (err.name === 'ValidationError') return res.status(409).json({message: 'Email already in use'});
 									return res.status(500).send();
 								}
-								return res.status(200).json(_.pick(user.toObject(), ['username', 'email', 'pieces']));
+								req.user = user;
+								signToken(req, res, function () {
+									return res.status(200).json(req.data);
+								});
 							});
 						}
 					}
