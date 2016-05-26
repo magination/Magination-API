@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var validators = require('mongoose-validators');
 var Game = require('../game/game.model');
 var Review = require('../review/review.model');
-var winston = require('winston');
+var logger = require('../../logger/logger');
 var _ = require('lodash');
 
 var unpublishedGameSchema = new mongoose.Schema({
@@ -44,7 +44,7 @@ unpublishedGameSchema.methods.publishGame = function (callback) {
 		if (publishedGame.reviews) {
 			publishedGame.reviews.forEach(function (review) {
 				Review.findByIdAndUpdate({_id: review}, {game: publishedGame._id}, function (err, model) {
-					if (err) winston.log('error', err);
+					if (err) logger.log('error', 'publishGame() in unpublishedGame.model', err);
 				});
 			});
 		}
