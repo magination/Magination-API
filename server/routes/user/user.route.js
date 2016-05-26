@@ -16,6 +16,7 @@ var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 var winston = require('winston');
 var logger = require('../../logger/logger');
+var _ = require('lodash');
 var globalBruteForce = require('../../bruteforce/bruteForce').globalBruteForce;
 var userBruteForce = require('../../bruteforce/bruteForce').userBruteForce;
 var emailTransport = require('../../email/smtpTransport');
@@ -38,7 +39,10 @@ var sendConfirmationEmail = function (email, token) {
 		html: 'Click the following link to confirm your account:<p>' + url + '</p>',
 		text: 'Please confirm your account by clicking the following link: ' + url
 	};
-	smtpTransport.sendMail(mailOptions);
+	smtpTransport.sendMail(mailOptions, function (err, info) {
+		if (err) logger.log('error', 'sendConfirmationEmail() in user.route', err);
+		else logger.log('info', 'sendConfirmationEmail() in user.route', info);
+	});
 };
 
 module.exports = function (app) {
@@ -164,7 +168,7 @@ module.exports = function (app) {
 									return res.status(500).send();
 								}
 								if (user2) return res.status(409).send();
-								generateEmailUpdateTokenAndSendMail(req.body.email, user, req, res, function (err) {
+								generateEmailUpdateTokenAndSendMail(req.body.email, user, req, res, function (err, user) {
 									if (err) {
 										logger.log('error', 'PUT /users/:id', err);
 										return res.status(500).send();
@@ -189,9 +193,7 @@ module.exports = function (app) {
 									if (err.name === 'ValidationError') return res.status(409).json({message: 'Email already in use'});
 									return res.status(500).send();
 								}
-								user.password = undefined;
-								user.__v = undefined;
-								return res.status(200).json(user);
+								return res.status(200).json(_.pick(user.toObject(), ['username', 'email', 'pieces']));
 							});
 						}
 					}
@@ -230,7 +232,10 @@ module.exports = function (app) {
 						serverConfig.REMOTE_GAME_SITE + '/verifyEmailChange/' + token + '\n\n' +
 						'If you did not request this, please ignore this email.\n'
 					};
-					smtpTransport.sendMail(mailOptions);
+					smtpTransport.sendMail(mailOptions, function (err, info) {
+						if (err) logger.log('error', 'sendConfirmationEmail() in user.route', err);
+						else logger.log('info', 'sendConfirmationEmail() in user.route', info);
+					});
 					next(null, user);
 				});
 			});
