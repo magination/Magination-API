@@ -8,17 +8,14 @@ var unpublishedGameRouter = require('./game/unpublishedGame.route');
 var reportRouter = require('./report/report.route');
 var gameCreatorRoute = require('./gameCreator/gameCreator.route');
 var imageRoute = require('./image/image.route');
+var fs = require('fs');
 var moderatorRoute = require('./user/moderator.route');
 
 module.exports = function (app) {
 	router.get('/', function (req, res) {
-		res.send('Welcome to the Magination API!');
+		res.redirect('/public/magination-api-reference.pdf');
 	});
 
-	router.post('*', function (req, res, next) {
-		// TODO: ADD POST-spam prevention here
-		next();
-	});
 	router.use('/', gameRouter());
 	router.use('/', loginRouter());
 	router.use('/', moderatorRoute());
