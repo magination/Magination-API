@@ -54,7 +54,7 @@ module.exports = function (app) {
 				});
 			},
 			function (token, done) {
-				User.findOneAndUpdate({email: req.body.email},
+				User.findOneAndUpdate({email: req.body.email.toLowerCase()},
 				{resetPasswordToken: token, resetPasswordExpires: (Date.now() + userConfig.USER_TOKENS.RESET_PASSWORD_TOKEN_EXPIRATIONTIME)},
 				{new: true},
 				function (err, user) {
