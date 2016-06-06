@@ -174,6 +174,7 @@ module.exports = function (app) {
 										logger.log('error', 'PUT /users/:id', err);
 										return res.status(500).send();
 									}
+									req.user = user;
 									signToken(req, res, function () {
 										return res.status(200).json(req.data);
 									});
