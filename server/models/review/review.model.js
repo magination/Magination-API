@@ -51,17 +51,18 @@ reviewSchema.statics.updateRatingInGame = function (gameId, oldRating, newRating
 			logger.log('error', 'updateRatingInGame() in review.model', err);
 			return;
 		}
-		game.sumOfVotes -= oldRating;
-		game.sumOfVotes += newRating;
-		game.rating = (game.sumOfVotes / game.numberOfVotes);
-		game.save(function (err) {
+		var newSumOfVotes = (game.sumOfVotes - oldRating + newRating);
+		var newAvgRating = (newSumOfVotes / game.numberOfVotes);
+
+		Game.findByIdAndUpdate(gameId,
+		{sumOfVotes: newSumOfVotes, rating: newAvgRating},
+		function (err, game) {
 			if (err) {
 				logger.log('error', 'updateRatingInGame() in review.model', err);
 				return;
 			}
 		});
-	}
-	);
+	});
 };
 
 reviewSchema.statics.pullFromGameAndRemoveRating = function (gameId, review) {
