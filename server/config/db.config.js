@@ -1,8 +1,8 @@
 var db = {
 	DATABASE:
 	{
-		test: 'mongodb://localhost/test',
-		production: 'mongodb://localhost/production'
+		test: 'mongodb://localhost/game',
+		production: 'mongodb://localhost/game'
 	}
 };
 module.exports = db;

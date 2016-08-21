@@ -4,8 +4,8 @@ var emailConfig = {
 		port: 465,
 		secure: true, // use SSL
 		auth: {
-			user: 'maginationtest@gmail.com',
-			pass: 'magination'
+			user: 'maginationgame@gmail.com',
+			pass: 'Attraction777'
 		}
 	}
 };
