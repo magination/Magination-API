@@ -1,0 +1,7 @@
+{"level":"info","message":"removeExpiredConfirmEmailTokens() removed 2 expired users due to expired confirmEmailToken.","timestamp":"2016-05-26T13:00:00.142Z"}
+{"level":"info","message":"removeExpiredConfirmEmailTokens() removed 1 expired users due to expired confirmEmailToken.","timestamp":"2016-05-26T16:00:00.236Z"}
+{"level":"info","message":"removeExpiredConfirmEmailTokens() removed 1 expired users due to expired confirmEmailToken.","timestamp":"2016-05-26T19:00:00.046Z"}
+{"level":"error","message":"An error occured in POST /unpublishedGames/:id/publish. The error: ValidationError: Validator failed for path `images` with value `null`","timestamp":"2016-05-28T13:58:13.016Z"}
+{"level":"error","message":"An error occured in POST /unpublishedGames/:id/publish. The error: ValidationError: Validator failed for path `images` with value `null`","timestamp":"2016-05-28T13:58:13.522Z"}
+{"level":"error","message":"An error occured in POST /unpublishedGames/:id/publish. The error: ValidationError: Validator failed for path `images` with value `null`","timestamp":"2016-05-28T13:58:15.226Z"}
+{"level":"error","message":"An error occured in POST /unpublishedGames/:id/publish. The error: ValidationError: Validator failed for path `images` with value `null`","timestamp":"2016-05-28T13:58:49.874Z"}

@@ -24,6 +24,8 @@ if (mongoose.connection.readyState === 0) {
 
 app.use(helmet());
 
+var options = {};
+
 app.use(contentLength.validateMax({max: serverConfig.MAX_CONTENT_LENGTH_ACCEPTED, status: 400, message: 'Content Length is not accepted.'}));
 
 app.use(function (req, res, next) {
@@ -58,6 +60,6 @@ var cron2 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredResetPas
 var cron3 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 
 app.listen(serverConfig.PORT, function () {
-        console.log('Listening top port', serverConfig.PORT);
+	console.log('Listening top port', serverConfig.PORT);
 });
 
