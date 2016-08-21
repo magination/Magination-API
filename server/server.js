@@ -35,11 +35,6 @@ app.use(function (req, res, next) {
 // Make public dir accessible
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
-// HTTPS OPTIONS
-var options = {
-	key: fs.readFileSync('./server/https/key.pem'),
-	cert: fs.readFileSync('./server/https/cert.pem')
-};
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true, colorize: true}));
 
@@ -62,8 +57,7 @@ var cron1 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredConfirmE
 var cron2 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredResetPasswordTokens);
 var cron3 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 
-https.createServer(options, app).listen(serverConfig.PORT, serverConfig.IP, function (err) {
-	if (err) console.log(err);
-	else console.log('Server listening at: ' + serverConfig.IP + ':' + serverConfig.PORT);
+app.listen(serverConfig.PORT, function () {
+	console.log('Listening top port', serverConfig.PORT);
 });
 
