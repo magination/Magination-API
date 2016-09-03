@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var express 		= require('express');
 var passport 		= require('passport');
 var app 			= express();
@@ -15,12 +17,11 @@ var crontabjobs 	= require('./cronjobs/cronjobs');
 var winston 		= require('winston');
 var path 			= require('path');
 
-if (mongoose.connection.readyState === 0) {
-	mongoose.connect(dbConfig.DATABASE.test, function (err) {
-		if (err) console.log(err);
-		else console.log('Successfully connected to: ' + dbConfig.DATABASE.test);
-	});
-};
+if (process.env.production) {
+	mongoose.connect(dbConfig.DATABASE.production);
+} else {
+	mongoose.connect(dbConfig.DATABASE.test);
+}
 
 app.use(helmet());
 
@@ -53,9 +54,9 @@ winston.add(winston.transports.File, { filename: 'logs.log' });
 winston.remove(winston.transports.Console);
 
 // CRONTAB JOBS                  M  H  D
-var cron1 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredConfirmEmailUsers);
-var cron2 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredResetPasswordTokens);
-var cron3 = crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredUpdateEmailTokens);
+crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredConfirmEmailUsers);
+crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredResetPasswordTokens);
+crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 
 app.listen(serverConfig.PORT, function () {
 	console.log('Listening top port', serverConfig.PORT);

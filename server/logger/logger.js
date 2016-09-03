@@ -9,11 +9,9 @@ module.exports = {
 	log: function (level, where, toLog) {
 		if (level === 'error') {
 			winston.log(level, 'An error occured in ' + where + '. The error: ' + toLog);
-		}
-		else if (!where) {
+		} else if (!where) {
 			winston.log(level, toLog);
-		}
-		else {
+		} else {
 			winston.log(level, 'Logging from: ' + where + '. ' + toLog);
 		}
 	}

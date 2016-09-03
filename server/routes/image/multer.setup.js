@@ -22,8 +22,7 @@ module.exports = function (req, res, next) {
 				var fileName = null;
 				if (req.params.setPictureName) {
 					fileName = req.params.setPictureName;
-				}
-				else {
+				} else {
 					fileName = file.originalname.replace(/ /g, '_');
 					fileName = fileName.replace('/', '');
 				}
@@ -69,8 +68,7 @@ module.exports = function (req, res, next) {
 			}
 			next();
 		});
-	}
-	catch (err) {
+	} catch (err) {
 		logger.log('error', 'multer.setup.js', err);
 		return res.status(500).json({message: 'Internal server error'});
 	}

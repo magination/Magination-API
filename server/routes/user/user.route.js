@@ -84,8 +84,7 @@ module.exports = function (app) {
 	}), function (req, res) {
 		if (!req.body.email || !validator.isEmail(req.body.email)) {
 			return res.status(400).json({message: 'bad request'});
-		}
-		else {
+		} else {
 			User.findOne({email: req.body.email.toLowerCase(), confirmEmailExpires: {$gt: Date.now()}}, function (err, user) {
 				if (err) return res.status(500).send();
 				if (!user) return res.status(404).send();
@@ -103,8 +102,7 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'GET /users', err);
 				return res.satus(500).send();
-			}
-			else return res.status(200).json({users: users});
+			} else return res.status(200).json({users: users});
 		}).select('username -_id');
 	});
 
@@ -114,11 +112,9 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'GET /users/:id', err);
 				return res.status(500).send();
-			}
-			else if (user == null) {
+			} else if (user == null) {
 				return res.status(404).send();
-			}
-			else return res.status(200).json(user);
+			} else return res.status(200).json(user);
 		}).select('username pieces images');
 	});
 
@@ -180,15 +176,13 @@ module.exports = function (app) {
 									});
 								});
 							});
-						}
-						else {
+						} else {
 							if (req.body.password) {
 								if (req.body.password.length < userConfig.MIN_PASSWORD_LENGTH) {
 									return res.status(422).send();
 								}
 								user.password = req.body.password;
-							}
-							else {
+							} else {
 								user.password = req.body.oldPassword;
 							}
 							user.save(function (err) {

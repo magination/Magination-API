@@ -14,8 +14,7 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('err', 'GET /users/moderators', err);
 				return res.status(500).send();
-			}
-			else return res.status(200).json(users);
+			} else return res.status(200).json(users);
 		}).select('username');
 	});
 

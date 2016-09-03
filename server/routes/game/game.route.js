@@ -36,8 +36,7 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
-			}
-			else return res.status(200).json(games);
+			} else return res.status(200).json(games);
 		}).populate('owner', 'username');
 	});
 
@@ -67,16 +66,14 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'PUT /games/featured', err);
 				return res.status(500).send();
-			}
-			else if (!list) {
+			} else if (!list) {
 				var gameList = new GameList({title: 'featuredGames'});
 				gameList.games = req.body.games;
 				gameList.save(function (err) {
 					if (err) return res.status(500).send();
 					else return res.status(200).json(gameList);
 				});
-			}
-			else {
+			} else {
 				list.games = req.body.games;
 				list.save(function (err) {
 					if (err) return res.status(500).send();
@@ -91,8 +88,7 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
-			}
-			else return res.status(200).json(games);
+			} else return res.status(200).json(games);
 		}).populate('owner', 'username');
 	});
 
@@ -150,8 +146,7 @@ module.exports = function (app) {
 						return res.status(200).json(unpubGame);
 					});
 				});
-			}
-			else {
+			} else {
 				var unpubGame = new UnpublishedGame(forkedGame);
 				unpubGame.save(function (err) {
 					if (err) {
@@ -180,8 +175,7 @@ module.exports = function (app) {
 						'Your game has been unpublished.',
 						'One of your games has been unpublished by a moderator. This is done if the game is flagged as spam, or contains foul language.');
 				};
-			}
-			else {
+			} else {
 				if (!game.owner.equals(req.verified.id)) return res.status(401).send();
 			}
 			var unpubGame = new UnpublishedGame(_.omit(game.toObject(), ['_id', '__v']));
@@ -258,8 +252,7 @@ var populateOwnerField = function (req, res, next) {
 			else req.query.owner = user._id;
 			next();
 		});
-	}
-	else next();
+	} else next();
 };
 
 var moveReportsFromPublishedToUnpublishedGame = function (oldGame, newGame) {

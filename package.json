@@ -16,6 +16,7 @@
     "body-parser": "^1.15.0",
     "check-types": "^6.0.0",
     "directory-tree": "^1.0.0",
+    "dotenv": "^2.0.0",
     "email-verification": "^0.3.1",
     "express": "^4.13.4",
     "express-brute": "^0.5.3",

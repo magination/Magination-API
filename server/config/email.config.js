@@ -5,7 +5,7 @@ var emailConfig = {
 		secure: true, // use SSL
 		auth: {
 			user: 'maginationgame@gmail.com',
-			pass: 'Attraction777'
+			pass: process.env.EMAILPASS
 		}
 	}
 };

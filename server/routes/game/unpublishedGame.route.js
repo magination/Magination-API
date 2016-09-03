@@ -36,8 +36,7 @@ module.exports = function (app) {
 				if (err) {
 					logger.log('error', 'POST /unpublishedGames', err);
 					return res.status(500).send();
-				}
-				else return res.status(201).json(unpublishedGame);
+				} else return res.status(201).json(unpublishedGame);
 			});
 		});
 	});
@@ -49,8 +48,7 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'GET /users/:userId/unpublishedGames', err);
 				return res.status(500).send();
-			}
-			else return res.status(200).json(games);
+			} else return res.status(200).json(games);
 		});
 	});
 
@@ -73,8 +71,7 @@ module.exports = function (app) {
 			if (err) {
 				logger.log('error', 'PUT /unpublishedGames/:id', err);
 				return res.status(500).send();
-			}
-			else if (!game) return res.status(404).send();
+			} else if (!game) return res.status(404).send();
 			else return res.status(200).json(game);
 		});
 	});
@@ -92,8 +89,7 @@ module.exports = function (app) {
 				if (err) {
 					logger.log('error', 'DELETE /unpublishedGames/:id', err);
 					return res.status(500).send();
-				}
-				else if (!game) return res.status(404).send();
+				} else if (!game) return res.status(404).send();
 				else {
 					Report.removePossibleReports(req.params.id, Report.types.UNPUBLISHED_GAME); // if the game has any reports, these are removed
 					Review.removePossibleReviews(req.params.id); // if the gme has ane reviews, these are removed
@@ -123,8 +119,7 @@ module.exports = function (app) {
 					if (err) {
 						logger.log('error', 'POST /unpublishedGames/:id/publish', err);
 						return res.status(500).send();
-					}
-					else {
+					} else {
 						moveReportsFromUnpublishedToPublishedGame(game, publishedGame);
 						return res.status(200).json(publishedGame);
 					}

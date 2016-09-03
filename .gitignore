@@ -6,3 +6,6 @@ public
 server/config/
 #webstorm
 .idea/
+data
+npm-debug.log
+.env
