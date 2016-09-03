@@ -1,7 +1,7 @@
 var db = {
 	DATABASE:
 	{
-		test: 'mongodb://localhost/game',
+		test: 'mongodb://localhost/test',
 		production: 'mongodb://localhost/game'
 	}
 };

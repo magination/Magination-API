@@ -34,8 +34,7 @@ module.exports = function (app) {
 		var pathToImg = config.LOCAL_ROOT_IMAGE_PATH + '/upload/' + req.verified.id + '/' + imageName;
 		if (!fs.existsSync(pathToImg)) {
 			return res.status(404).send();
-		}
-		else {
+		} else {
 			fs.unlink(pathToImg, function (err) {
 				if (err) {
 					logger.log('error', 'DELETE /users/:user_id/images', err);

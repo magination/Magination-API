@@ -26,8 +26,7 @@ module.exports = function (app) {
 				if (!game) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				next();
 			});
-		}
-		else if (req.body.type === Report.types.REVIEW) {
+		} else if (req.body.type === Report.types.REVIEW) {
 			Review.findById({_id: req.body.id}, function (err, review) {
 				if (err) {
 					logger.log('error', 'checkIfIdExists() in report.route', err);
@@ -36,8 +35,7 @@ module.exports = function (app) {
 				if (!review) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				next();
 			});
-		}
-		else if (req.body.type === Report.types.USER) {
+		} else if (req.body.type === Report.types.USER) {
 			User.findById({_id: req.body.id}, function (err, user) {
 				if (err) {
 					logger.log('error', 'checkIfIdExists() in report.route', err);
@@ -46,8 +44,7 @@ module.exports = function (app) {
 				if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
 				next();
 			});
-		}
-		else return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
+		} else return res.status(422).json({message: constants.httpResponseMessages.unprocessableEntity});
 	};
 
 	var verifyPrivileges = function (req, res, next) {
@@ -70,8 +67,7 @@ module.exports = function (app) {
 					if (err) {
 						logger.log('error', 'POST /reports/games', err);
 						return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-					}
-					else return res.status(201).json(newReport);
+					} else return res.status(201).json(newReport);
 				});
 			});
 		});
@@ -91,8 +87,7 @@ module.exports = function (app) {
 					if (err) {
 						logger.log('error', 'POST /reports/users', err);
 						return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-					}
-					else return res.status(201).json(newReport);
+					} else return res.status(201).json(newReport);
 				});
 			});
 		});
@@ -112,8 +107,7 @@ module.exports = function (app) {
 					if (err) {
 						logger.log('error', 'POST /reports/reviews', err);
 						return res.status(500).json({mesage: constants.httpResponseMessages.internalServerError});
-					}
-					else return res.status(201).json(newReport);
+					} else return res.status(201).json(newReport);
 				});
 			});
 		});

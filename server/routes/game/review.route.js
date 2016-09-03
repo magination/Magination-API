@@ -23,8 +23,7 @@ module.exports = function (app) {
 				if (!review) return res.status(404).send();
 				return res.status(200).json(review);
 			}).populate('owner', 'username');
-		}
-		else {
+		} else {
 			Game.findById({_id: req.params.gameId}, function (err, game) {
 				if (err) {
 					logger.log('error', 'GET /games/:gameId/reviews', err);
@@ -57,8 +56,7 @@ module.exports = function (app) {
 	var verifyReviewRequest = function (req, res, next) {
 		if (!req.body.reviewText || req.body.reviewText === '' || !req.body.rating || !validator.isValidId(req.params.gameId)) {
 			return res.status(422).send();
-		}
-		else next();
+		} else next();
 	};
 
 	router.post('/games/:gameId/reviews', verifyToken, verifyReviewRequest, function (req, res) {
@@ -151,8 +149,7 @@ module.exports = function (app) {
 						'Your review has been removed.',
 						'One of your reviews has been removed by a moderator. This is done if the review is flagged as spam, or contains foul language.');
 				};
-			}
-			else {
+			} else {
 				if (!review.owner.equals(req.verified.id)) return res.status(401).send();
 			}
 			Review.pullFromGameAndRemoveRating(req.params.gameId, review);

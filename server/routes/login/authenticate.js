@@ -58,8 +58,7 @@ module.exports = function (req, res, next) {
 				req.logIn(user, {session: false}, next);
 			}
 		})(req, res, next);
-	}
-	else {
+	} else {
 		passport.authenticate('username', function (err, user) {
 			if (err) return res.status(401).json({message: constants.httpResponseMessages.unauthorized});
 			else {

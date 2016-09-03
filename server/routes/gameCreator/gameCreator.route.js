@@ -28,8 +28,7 @@ module.exports = function (app) {
 				if (err) {
 					logger.log('error', 'POST /unpublishedGames/:gameId/gameCreators', err);
 					return res.status(500).send();
-				}
-				else if (!game) return res.status(404).send();
+				} else if (!game) return res.status(404).send();
 				else return res.status(201).json(gameCreator);
 			});
 		});
@@ -62,8 +61,7 @@ module.exports = function (app) {
 				if (err) {
 					logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 					return res.status(500).send();
-				}
-				else return res.status(200).json(model);
+				} else return res.status(200).json(model);
 			});
 		});
 	});
@@ -80,8 +78,7 @@ module.exports = function (app) {
 				if (err) {
 					logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', err);
 					return res.status(500).send();
-				}
-				else return res.status(200).json(model);
+				} else return res.status(200).json(model);
 			});
 		});
 	});
