@@ -17,7 +17,7 @@ var crontabjobs 	= require('./cronjobs/cronjobs');
 var winston 		= require('winston');
 var path 			= require('path');
 
-if (process.env.production) {
+if (process.env.NODE_ENV === 'production') {
 	mongoose.connect(dbConfig.DATABASE.production);
 } else {
 	mongoose.connect(dbConfig.DATABASE.test);
@@ -61,4 +61,3 @@ crontab.scheduleJob('0 */3 * * *', crontabjobs.removeExpiredUpdateEmailTokens);
 app.listen(serverConfig.PORT, function () {
 	console.log('Listening top port', serverConfig.PORT);
 });
-

@@ -2,7 +2,7 @@
   "name": "maginationapi",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./server/server.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
