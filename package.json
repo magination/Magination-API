@@ -15,7 +15,7 @@
     "bluebird": "^3.3.4",
     "body-parser": "^1.15.0",
     "check-types": "^7.0.0",
-    "directory-tree": "^1.0.0",
+    "directory-tree": "^1.1.1",
     "dotenv": "^2.0.0",
     "email-verification": "^0.4.5",
     "express": "^4.13.4",
