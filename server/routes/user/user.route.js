@@ -37,8 +37,8 @@ var sendConfirmationEmail = function (email, token) {
 		to: email,
 		from: 'maginationtest@gmail.com',
 		subject: 'Please confirm account',
-		html: 'Click the following link to confirm your account:<p>' + url + '</p>',
-		text: 'Please confirm your account by clicking the following link: ' + url
+		html: 'Hi, we are so glad you are joining the Magination community!<br /><br />Click the following link to confirm your account:<p>' + url + '</p><br /><br />Best regards,<br />The Magination Team',
+		text: 'Hi, we are so glad you are joining the Magination community!\n\nClick the following link to confirm your account:' + url + '\n\nBest regards,\nThe Magination Team',
 	};
 	smtpTransport.sendMail(mailOptions, function (err, info) {
 		if (err) logger.log('error', 'sendConfirmationEmail() in user.route', err);
