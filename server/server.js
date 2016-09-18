@@ -17,11 +17,7 @@ var crontabjobs 	= require('./cronjobs/cronjobs');
 var winston 		= require('winston');
 var path 			= require('path');
 
-if (process.env.NODE_ENV === 'production') {
-	mongoose.connect(dbConfig.DATABASE.production);
-} else {
-	mongoose.connect(dbConfig.DATABASE.test);
-}
+mongoose.connect(dbConfig.DATABASE.production);
 
 app.use(helmet());
 
