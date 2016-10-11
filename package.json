@@ -50,7 +50,7 @@
     "gulp-eslint": "^3.0.1",
     "gulp-mocha": "^3.0.1",
     "gulp-nodemon": "^2.0.6",
-    "mocha": "^3.0.2",
+    "mocha": "^3.1.2",
     "mocha-mongoose": "^1.2.0",
     "mockgoose": "^6.0.0",
     "request": "^2.69.0",
