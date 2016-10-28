@@ -22,7 +22,7 @@
     "express-brute": "^1.0.0",
     "express-brute-mongo": "^0.1.0",
     "express-content-length-validator": "^1.0.0",
-    "helmet": "^2.1.2",
+    "helmet": "^3.0.0",
     "json-web-token": "^2.0.3",
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.11.1",
