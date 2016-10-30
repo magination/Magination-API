@@ -135,7 +135,7 @@ module.exports = function (app) {
 
 	router.get('/users/:id/games', verifyToken, function (req, res) {
 		if (req.verified.id !== req.params.id) return res.status(401).send();
-		Game.find({owner: req.verified.id}, function (err, games) {
+		Game.find({owner: req.verified.id, published: true}, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /users/:id/games', err);
 				return res.status(500).send();
