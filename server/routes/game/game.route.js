@@ -23,7 +23,6 @@ router.use(function (req, res, next) {
 module.exports = function (app) {
 	router.route('/games').get(populateOwnerField, parseSearchQuery, function (req, res) {
 		req.query.published = true
-		console.log(req.query);
 		Game.find(req.query, '-__v', req.options, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /games', err);
@@ -168,8 +167,6 @@ module.exports = function (app) {
 				logger.log('error', 'POST /games/:game_id/unpublish', err);
 				return res.status(500).send();
 			}
-			console.log(game);
-			console.log(!game || !game.published);
 			if (!game || !game.published) return res.status(404).send();
 			if (req.verified.privileges >= User.privileges.MODERATOR) {
 				// The user doing the request is moderator or admin. If the game is not owned by the
