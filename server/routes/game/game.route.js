@@ -33,7 +33,7 @@ module.exports = function (app) {
 	});
 
 	router.route('/games/top').get(function (req, res) {
-		Game.find({published: true}, '-__v', {sort: '-rating', limit: 16}, function (err, games) {
+		Game.find({published: true}, '-__v', {sort: '-rating', limit: 8}, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
