@@ -107,7 +107,7 @@ module.exports = function (app) {
 			if (!game.owner.equals(req.verified.id)) return res.status(401).send();
 			if (!game.title || !game.shortDescription) return res.status(422).send();
 			Game.findByIdAndUpdate(game._id, {$set: {published: true}}, function (err, publishedGame) {
-				if (err || !publishedGame) {
+				if (err) {
 					logger.log('error', 'POST /unpublishedGames/:id/publish', err);
 					return res.status(500).send();
 				} else {
