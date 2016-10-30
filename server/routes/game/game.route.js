@@ -22,6 +22,7 @@ router.use(function (req, res, next) {
 
 module.exports = function (app) {
 	router.route('/games').get(populateOwnerField, parseSearchQuery, function (req, res) {
+		req.query.published = true
 		Game.find(req.query, '-__v', req.options, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /games', err);
@@ -32,7 +33,7 @@ module.exports = function (app) {
 	});
 
 	router.route('/games/top').get(function (req, res) {
-		Game.find({}, '-__v', {sort: '-rating', limit: 16}, function (err, games) {
+		Game.find({published: true}, '-__v', {sort: '-rating', limit: 16}, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
@@ -42,7 +43,7 @@ module.exports = function (app) {
 
 	router.route('/games/featured')
 	.get(function (req, res) {
-		GameList.find({title: 'featuredGames'}, function (err, list) {
+		GameList.find({title: 'featuredGames', published: true}, function (err, list) {
 			if (err) {
 				logger.log('error', 'GET /games/featured', err);
 				return res.status(500).send(err);
@@ -84,7 +85,7 @@ module.exports = function (app) {
 	});
 
 	router.route('/games/new').get(function (req, res) {
-		Game.find({}, '-__v', {sort: '-createdAt', limit: 8}, function (err, games) {
+		Game.find({published: true}, '-__v', {sort: '-createdAt', limit: 8}, function (err, games) {
 			if (err) {
 				logger.log('error', 'GET /games/new', err);
 				return res.status(500).send();
@@ -100,7 +101,7 @@ module.exports = function (app) {
 					logger.log('error', 'GET /games/:game_id', err);
 					return res.status(500).send();
 				}
-				if (!game) return res.status(404).send();
+				if (!game || !game.published) return res.status(404).send();
 				else return res.status(200).json(game);
 			}).populate('owner', 'username');
 		});
@@ -112,7 +113,7 @@ module.exports = function (app) {
 				logger.log('error', 'POST /games/:game_id/fork', err);
 				return res.status(500).send();
 			}
-			if (!game) return res.status(404).send();
+			if (!game || !game.published) return res.status(404).send();
 			var forkedGame = game.toObject();
 			delete forkedGame._id;
 			delete forkedGame.__v;
@@ -166,7 +167,7 @@ module.exports = function (app) {
 				logger.log('error', 'POST /games/:game_id/unpublish', err);
 				return res.status(500).send();
 			}
-			if (!game) return res.status(404).send();
+			if (!game || !game.published) return res.status(404).send();
 			if (req.verified.privileges >= User.privileges.MODERATOR) {
 				// The user doing the request is moderator or admin. If the game is not owned by the
 				// user doing the request, a  mail is sent to the owner stating that the game has been unpblished.
@@ -178,25 +179,14 @@ module.exports = function (app) {
 			} else {
 				if (!game.owner.equals(req.verified.id)) return res.status(401).send();
 			}
-			var unpubGame = new UnpublishedGame(_.omit(game.toObject(), ['_id', '__v']));
-			var oldGame = game;
-			unpubGame.save(function (err) {
+			Game.findByIdAndUpdate(game._id, {$set: {published: false}}, function (err, unpubGame) {
 				if (err) {
 					logger.log('error', 'POST /games/:game_id/unpublish', err);
 					return res.status(500).send();
+				} else if(!unpubGame) {
+					return res.status(404).send();
 				}
-				Game.remove({_id: game._id}, function (err, game) {
-					if (err) {
-						logger.log('error', 'POST /games/:game_id/unpublish', err);
-						return res.status(500).send();
-					}
-					if (!game) return res.status(404).send();
-					else {
-						GameList.removePossibleGame('featuredGames', oldGame._id);
-						moveReportsFromPublishedToUnpublishedGame(oldGame, unpubGame);
-						return res.status(200).json(unpubGame);
-					}
-				});
+				return res.status(200).json(unpubGame);
 			});
 		});
 	});

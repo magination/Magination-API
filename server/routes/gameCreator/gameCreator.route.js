@@ -24,7 +24,7 @@ module.exports = function (app) {
 		var gameCreator = new GameCreator({json: JSON.stringify(req.body.json), owner: req.verified.id, title: req.body.title});
 		gameCreator.save(function (err) {
 			if (err) return res.status(500).send();
-			UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$push: {gameCreators: gameCreator._id}}, {safe: true, upsert: false}, function (err, game) {
+			Game.findByIdAndUpdate(req.params.gameId, {$push: {gameCreators: gameCreator._id}}, {safe: true, upsert: false}, function (err, game) {
 				if (err) {
 					logger.log('error', 'POST /unpublishedGames/:gameId/gameCreators', err);
 					return res.status(500).send();
@@ -35,7 +35,7 @@ module.exports = function (app) {
 	});
 
 	router.get('/unpublishedGames/:gameId/gameCreators', function (req, res) {
-		UnpublishedGame.findById(req.params.gameId, function (err, game) {
+		Game.findById(req.params.gameId, function (err, game) {
 			if (err) {
 				logger.log('error', 'GET /unpublishedGames/:gameId/gameCreators', err);
 				return res.status(500).send();
@@ -48,7 +48,7 @@ module.exports = function (app) {
 	router.put('/unpublishedGames/:gameId/gameCreators/:gameCreatorId', verifyToken, function (req, res) {
 		if (!validator.isValidId(req.params.gameCreatorId)) return res.status(404).send();
 		if (!req.body.json && !req.body.title) return res.status(422).send();
-		GameCreator.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
+		Game.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
 			if (err) {
 				logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 				return res.status(500).send();
@@ -67,7 +67,7 @@ module.exports = function (app) {
 	});
 
 	router.put('/unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', verifyToken, verfiyOwnerOfGameCreatorAndSetPictureName, setupMulter, function (req, res) {
-		GameCreator.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
+		Game.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
 			if (err) {
 				logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', err);
 				return res.status(500).send();
@@ -96,7 +96,7 @@ module.exports = function (app) {
 					logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 					return res.status(500).send();
 				}
-				UnpublishedGame.findByIdAndUpdate(req.params.gameId, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
+				Game.findByIdAndUpdate(req.params.gameId, {$pull: {gameCreators: req.params.gameCreatorId}}, {safe: true, upsert: false}, function (err, game) {
 					if (err) {
 						logger.log('error', 'DELETE /unpublishedGames/:gameId/gameCreators/:gameCreatorId', err);
 						return res.status(500).send();
@@ -116,7 +116,7 @@ var verifyOwnerOfGame = function (req, res, next) {
 	Method that checks if user owns the unpublishedGame
 	 */
 	if (!validator.isValidId(req.params.gameId)) return res.status(404).send();
-	UnpublishedGame.findById(req.params.gameId, function (err, game) {
+	Game.findById(req.params.gameId, function (err, game) {
 		if (err) {
 			logger.log('error', 'verifyOwnerOfGame() in gameCreator.route', err);
 			return res.status(500).send();

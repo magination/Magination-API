@@ -29,27 +29,4 @@ var unpublishedGameSchema = new mongoose.Schema({
 	parentGame: {type: mongoose.Schema.Types.ObjectId, ref: 'game'}
 });
 
-unpublishedGameSchema.methods.publishGame = function (callback) {
-	/*
-	Method that created game from the unpublished game.
-	Returns with callback(err, publishedGame).
-	 */
-	var publishedGame = new Game(_.omit(this.toObject(), ['_id', '__v']));
-
-	publishedGame.save(function (err) {
-		if (err) {
-			return callback(err, null);
-		}
-		// If the game has reviews, these needs to point to the new game._id.
-		if (publishedGame.reviews) {
-			publishedGame.reviews.forEach(function (review) {
-				Review.findByIdAndUpdate({_id: review}, {game: publishedGame._id}, function (err, model) {
-					if (err) logger.log('error', 'publishGame() in unpublishedGame.model', err);
-				});
-			});
-		}
-		return callback(null, publishedGame);
-	});
-};
-
 module.exports = mongoose.model('unpublishedGame', unpublishedGameSchema);
