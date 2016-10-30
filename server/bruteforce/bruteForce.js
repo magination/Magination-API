@@ -5,7 +5,7 @@ var dbConfig = require('../config/db.config');
 var MongoClient = require('mongodb').MongoClient;
 
 var store = new MongoStore(function (ready) {
-	MongoClient.connect(dbConfig.DATABASE.test, function (err, db) {
+	MongoClient.connect(dbConfig.DATABASE.production, function (err, db) {
 		if (err) throw err;
 		ready(db.collection('bruteforce-store'));
 	});
