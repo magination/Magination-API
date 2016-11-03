@@ -53,7 +53,7 @@
     "mocha": "^3.0.2",
     "mocha-mongoose": "^1.2.0",
     "mockgoose": "^6.0.0",
-    "request": "^2.69.0",
+    "request": "^2.78.0",
     "run-sequence": "^1.1.5",
     "supertest": "^2.0.0"
   }
