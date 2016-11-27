@@ -67,13 +67,13 @@ module.exports = function (app) {
 	});
 
 	router.put('/unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', verifyToken, verfiyOwnerOfGameCreatorAndSetPictureName, setupMulter, function (req, res) {
-		Game.findById({_id: req.params.gameCreatorId, owner: req.verified.id}, function (err, model) {
+		Game.findById({_id: req.params.gameId, owner: req.verified.id}, function (err, model) {
 			if (err) {
 				logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', err);
 				return res.status(500).send();
 			}
 			if (!model) return res.status(404).send();
-			model.image = req.body.absolutePath;
+			model.images.push(req.body.absolutePath);
 			model.save(function (err) {
 				if (err) {
 					logger.log('error', 'PUT /unpublishedGames/:gameId/gameCreators/:gameCreatorId/image', err);
