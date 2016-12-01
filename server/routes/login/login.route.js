@@ -105,12 +105,11 @@ module.exports = function (app) {
 		});
 	});
 
-	router.post('/login/forgot/:resetToken', globalBruteForce.prevent, function (req, res) {
+	router.post('/login/forgot/:resetToken', function (req, res) {
 		if (!req.body.password || !req.params.resetToken) return res.status(422);
 		User.findOne({resetPasswordToken: req.params.resetToken, resetPasswordExpires: { $gt: Date.now() }}, function (err, user) {
 			if (err) return res.status(500).json({message: constants.httpResponseMessages.internalServerError});
 			if (!user) return res.status(404).json({message: constants.httpResponseMessages.notFound});
-			req.brute.reset();
 			user.password = req.body.password;
 			user.resetPasswordToken = undefined;
 			user.resetPasswordExpires = undefined;
