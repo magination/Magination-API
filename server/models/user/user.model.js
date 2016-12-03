@@ -17,7 +17,7 @@ var userSchema = new mongoose.Schema({
 	confirmEmailToken: {type: String},
 	confirmEmailExpires: {type: Date},
 	privileges: {type: Number, default: 0, min: 0, max: 2},
-	numberOfAllowedPictures: {type: Number, default: 20},
+	numberOfAllowedPictures: {type: Number, default: 50},
 	isConfirmed: {type: Boolean, default: false},
 	isBanned: {type: Boolean, default: false},
 	pieces: {
