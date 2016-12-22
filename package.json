@@ -30,7 +30,7 @@
     "mongoose-api-query": "^0.1.1-pre",
     "mongoose-unique-validator": "^1.0.2",
     "mongoose-validators": "^0.1.0",
-    "multer": "^1.1.0",
+    "multer": "^1.2.1",
     "node-crontab": "0.0.8",
     "nodemailer": "^2.4.1",
     "passport": "^0.3.2",
