@@ -55,6 +55,6 @@
     "mockgoose": "^6.0.0",
     "request": "^2.69.0",
     "run-sequence": "^1.1.5",
-    "supertest": "^2.0.0"
+    "supertest": "^3.0.0"
   }
 }
