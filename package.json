@@ -24,7 +24,7 @@
     "express-content-length-validator": "^1.0.0",
     "helmet": "^2.1.2",
     "json-web-token": "^2.0.3",
-    "jsonwebtoken": "^7.1.9",
+    "jsonwebtoken": "^7.3.0",
     "lodash": "^4.11.1",
     "mongoose": "^4.4.7",
     "mongoose-api-query": "^0.1.1-pre",
