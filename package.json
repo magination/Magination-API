@@ -18,7 +18,7 @@
     "directory-tree": "^1.0.0",
     "dotenv": "^2.0.0",
     "email-verification": "^0.4.5",
-    "express": "^4.13.4",
+    "express": "^4.15.0",
     "express-brute": "^1.0.0",
     "express-brute-mongo": "^0.1.0",
     "express-content-length-validator": "^1.0.0",
